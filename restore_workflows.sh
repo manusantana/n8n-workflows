@@ -35,14 +35,14 @@ IMAGE_NAME=$(docker inspect --format='{{.Config.Image}}' $CONTAINER_ID)
 # Iterate and import
 for file in $BACKUP_DIR/*.json; do
   echo "Importing $file..."
-  # We use docker run with same volume mounts. 
-  # Note: 1000:1000 is the default 'node' user in n8n images
+  # We use docker run with same volume mounts but override entrypoint to be safe
   docker run --rm \
   --user 1000:1000 \
+  --entrypoint /bin/sh \
   -v $(pwd)/n8n_data:/home/node/.n8n \
   -v $(pwd)/$file:/tmp/workflow.json \
   $IMAGE_NAME \
-  n8n import:workflow --input=/tmp/workflow.json
+  -c "n8n import:workflow --input=/tmp/workflow.json"
 done
 
 echo "✅ Import complete."
