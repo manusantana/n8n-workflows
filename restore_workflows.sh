@@ -8,37 +8,46 @@ git pull
 
 echo "🔄 Importing workflows into n8n Docker container..."
 
-# Find the running n8n container ID (more reliable than name)
-CONTAINER_ID=$(docker ps -q --filter "ancestor=n8nio/n8n" | head -n 1)
+# Find the running n8n container ID
+CONTAINER_ID=$(docker ps -a -q --filter "ancestor=n8nio/n8n" | head -n 1)
 
 if [ -z "$CONTAINER_ID" ]; then
-  # Fallback: try finding by name if ancestor filter fails (user might use different image tag)
-  CONTAINER_ID=$(docker ps -q --filter "name=n8n" | head -n 1)
+  CONTAINER_ID=$(docker ps -a -q --filter "name=n8n" | head -n 1)
 fi
 
 if [ -z "$CONTAINER_ID" ]; then
-  echo "❌ Error: No running n8n container found. Please start n8n first."
+  echo "❌ Error: No n8n container found."
   exit 1
 fi
 
 echo "🐳 Found n8n container: $CONTAINER_ID"
 
-# Copy workflows to temp dir in container
-echo "📂 Copying workflows to container..."
-docker exec -u 0 $CONTAINER_ID mkdir -p /tmp/import_workflows
-docker cp $BACKUP_DIR/. $CONTAINER_ID:/tmp/import_workflows/
+echo "🛑 Stopping n8n to release database lock..."
+docker stop $CONTAINER_ID
 
-# Fix permissions inside container to ensure 'node' user can read them
-docker exec -u 0 $CONTAINER_ID chown -R node:node /tmp/import_workflows
+echo "🔧 Fixing permissions on n8n_data..."
+chown -R 1000:1000 n8n_data
 
-# Run import command loop as 'node' user
-echo "🔄 Executing n8n import for each file..."
-docker exec -u node $CONTAINER_ID /bin/sh -c 'for file in /tmp/import_workflows/*.json; do echo "Importing $file..."; n8n import:workflow --input="$file"; done'
+echo "🔄 Importing workflows (using ephemeral container)..."
+# Using the same image as the stopped container to ensure compatibility
+IMAGE_NAME=$(docker inspect --format='{{.Config.Image}}' $CONTAINER_ID)
 
-# Clean up
-docker exec -u 0 $CONTAINER_ID rm -rf /tmp/import_workflows
+# Iterate and import
+for file in $BACKUP_DIR/*.json; do
+  echo "Importing $file..."
+  # We use docker run with same volume mounts. 
+  # Note: 1000:1000 is the default 'node' user in n8n images
+  docker run --rm \
+  --user 1000:1000 \
+  -v $(pwd)/n8n_data:/home/node/.n8n \
+  -v $(pwd)/$file:/tmp/workflow.json \
+  $IMAGE_NAME \
+  n8n import:workflow --input=/tmp/workflow.json
+done
 
-echo "♻️  Restarting n8n to load new workflows..."
-docker restart $CONTAINER_ID
+echo "✅ Import complete."
+
+echo "🟢 Starting n8n..."
+docker start $CONTAINER_ID
 
 echo "✅ Import complete! Your VPS n8n is now up to date."
