@@ -1,6 +1,6 @@
 #!/usr/bin/expect
 
-set timeout 20
+set timeout 300
 set ip "46.202.159.18"
 set user "root"
 set password "My)x,,2(HUr'4(.oeo'9"
