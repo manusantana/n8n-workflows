@@ -1,0 +1,6 @@
+# n8n Data (Database, binaries, logs)
+n8n_data/
+# Environment variables (Secrets)
+.env
+# System
+.DS_Store

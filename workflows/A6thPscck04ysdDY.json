@@ -1,0 +1,538 @@
+{
+  "updatedAt": "2026-01-08T21:45:38.669Z",
+  "createdAt": "2026-01-05T14:55:10.746Z",
+  "id": "A6thPscck04ysdDY",
+  "name": "Ubicuo-Scraper",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        -48
+      ],
+      "id": "b8d4ad0a-c797-462f-ad35-f109fa8da1b6",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1oQsqp9W4Tlvo6IJTvPSKQxGkUiqRt6TFOUaw60gwPtg/edit?gid=1932695228#gid=1932695228",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Hoja1",
+          "mode": "name"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -640,
+        -48
+      ],
+      "id": "cb996c28-2c8a-4e94-9f10-1d661148cbcf",
+      "name": "Google Sheets",
+      "executeOnce": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "l2xD3QINvvmbY8nJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Actúa como un experto Senior en B2B Sales y Copywriting multilingüe.\n\n--- CONTEXTO DEL PRODUCTO ---\n1. PRODUCTO: \"Ubicuo Marketing Tool\".\n2. QUÉ HACE: Unifica métricas de Shopify, Meta Ads, Google Ads y Google Analytics en un solo dashboard.\n3. PROMESA: \"Turn Your Marketing Data Into Growth\".\n4. PRECIO: 9.99€/mes (No-brainer).\n\n--- DATOS DE ENTRADA (LEER CUIDADOSAMENTE) ---\n- Dominio: {{ $('Loop Over Items').item.json.domain }}\n- Idioma Objetivo: {{ $('Loop Over Items').item.json.site_language }}\n- Nombre del Prospecto: {{ $json[\"response\"][\"leads\"][0][\"first_name\"] }}\n- Cargo del Prospecto: {{ $json[\"response\"][\"leads\"][0][\"position\"] }}\n- Email Encontrado: {{ $json[\"response\"][\"leads\"][0][\"email\"] }}\n\n--- INSTRUCCIONES DE ESTRATEGIA (LÓGICA PRIORITARIA) ---\n\nPASO 1: ANÁLISIS DEL CARGO (\"{{ $json[\"response\"][\"leads\"][0][\"position\"] }}\")\n- SI EL CARGO ES C-LEVEL (CEO, Founder, Owner, Director):\n    * Tu ángulo es: RENTABILIDAD y VERDAD.\n    * Pain Point: \"Dejar de perder dinero por datos incorrectos en Meta/Google\".\n    * Beneficio: Tomar decisiones financieras reales.\n- SI EL CARGO ES OPERATIVO (Manager, Head of, Buyer, Growth):\n    * Tu ángulo es: EFICIENCIA y REPORTING.\n    * Pain Point: \"El infierno de cruzar Excels los lunes por la mañana\".\n    * Beneficio: Ahorrar 5 horas a la semana y quedar bien con sus jefes con reportes automáticos.\n\nPASO 2: REDACCIÓN DEL EMAIL\n- Idioma: Escribe ESTRICTAMENTE en {{ $('Loop Over Items').item.json.site_language }} (Si es desconocido, usa Inglés).\n- Tono: Directo, profesional pero conversacional. Cero \"corporate fluff\".\n- Longitud: Máximo 75 palabras.\n- Estructura:\n    1. Asunto: Corto, intrigante y relacionado con su rol (ej: \"Profit data\" para CEO, \"Monday reports\" para Manager).\n    2. Saludo: \"Hola {{ $json[\"response\"][\"leads\"][0][\"first_name\"] }},\" (Si no hay nombre, usa algo genérico apropiado a la marca).\n    3. The Hook: Menciona su tienda/dominio y el problema específico de su rol.\n    4. La Solución: Ubicuo unifica todo por 9.99€.\n    5. CTA: \"¿Te enseño cómo se ve?\" o enlace a la demo.\n\n--- FORMATO DE RESPUESTA (JSON PURO) ---\nResponde ÚNICAMENTE con este objeto JSON. Nada más.\n\n{\n  \"email_subject\": \"Asunto redactado aquí\",\n  \"email_body\": \"Cuerpo del email aquí con saltos de línea \\n\",\n  \"detected_role_type\": \"CEO o Manager (según tu análisis)\",\n  \"prospect_name\": \"{{ $json[\"response\"][\"leads\"][0][\"first_name\"] }}\"\n}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        800,
+        -192
+      ],
+      "id": "5417219f-97de-4281-aa91-475a22fb0d41",
+      "name": "Basic LLM Chain",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        800,
+        16
+      ],
+      "id": "7151db5c-a473-431a-96e2-2804e1c8537e",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ScgXEyFYKFmtP8M4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1oQsqp9W4Tlvo6IJTvPSKQxGkUiqRt6TFOUaw60gwPtg/edit?gid=1932695228#gid=1932695228",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Hoja1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "domain": "={{ $('Google Sheets').item.json.domain }}",
+            "ceo_name": "={{ $json.final_ceo_name }}",
+            "row_number": 0,
+            "final_email_subject": "={{ $json.final_email_subject }}",
+            "final_email_body": "={{ $json.final_email_body }}",
+            "linkedin_url": "={{ $json.final_linkedin_url }}",
+            "email": "={{ $('Hunter').item.json.email }}",
+            "status": "={{ $('Hunter').item.json.score }}"
+          },
+          "matchingColumns": [
+            "domain"
+          ],
+          "schema": [
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ceo_name",
+              "displayName": "ceo_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "site_language",
+              "displayName": "site_language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "final_email_subject",
+              "displayName": "final_email_subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "final_email_body",
+              "displayName": "final_email_body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1376,
+        -16
+      ],
+      "id": "a46027b9-5874-4f8f-98db-7a1ae2b05f5f",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "l2xD3QINvvmbY8nJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Iteramos sobre cada fila que llega desde el nodo anterior\nfor (const item of $input.all()) {\n  \n  // 1. Obtenemos el texto que envió la IA (o vacío si falla)\n  const rawText = item.json.text || \"\";\n  \n  // 2. Limpieza agresiva: quitamos ```json, ``` y espacios extra\n  const cleanText = rawText.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n\n  try {\n    // 3. Convertimos el texto limpio en un Objeto JSON real\n    const parsedData = JSON.parse(cleanText);\n    \n    // 4. Inyectamos los datos limpios en el flujo\n    item.json.final_ceo_name = parsedData.ceo_name;\n    item.json.final_email_subject = parsedData.email_subject;\n    item.json.final_email_body = parsedData.email_body;\n    \n    // --- ESTA ES LA LÍNEA NUEVA ---\n    // Capturamos la URL. Si la IA no la encontró, intentamos ponerla como null o vacía.\n    item.json.final_linkedin_url = parsedData.linkedin_url || \"\"; \n\n  } catch (error) {\n    // Si la IA devolvió algo roto, lo marcamos\n    item.json.error_parsing = \"Error leyendo JSON\";\n    item.json.raw_output_debug = cleanText;\n  }\n}\n\n// Devolvemos todos los items modificados\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        -192
+      ],
+      "id": "4fc795e1-1cdd-4e91-b3cf-c2d9dcff85bd",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=site:linkedin.com/in/ AND (\"CEO\" OR \"Founder\") AND {{ $('Google Sheets').item.json.domain }}"
+            },
+            {
+              "name": "key",
+              "value": "YOUR_GOOGLE_API_KEY"
+            },
+            {
+              "name": "cx",
+              "value": "80b2f0b6c5a744a0b"
+            },
+            {
+              "name": "num",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        160,
+        -48
+      ],
+      "id": "2143e82b-5b96-4177-aa4f-3d456cc3b8b8",
+      "name": "HTTP Request",
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 0
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        -192
+      ],
+      "id": "53b9aa4a-1fd8-4a12-b92c-205d5d3a0518",
+      "name": "Wait",
+      "webhookId": "fe260ac7-338c-4788-9b42-4b03178e2f0a",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -160,
+        -48
+      ],
+      "id": "05dee396-1273-4b63-bdb8-25104b45f12a",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fc5bb49d-03a7-4c48-b438-b2eba9cba7aa",
+              "leftValue": "={{ $json.final_email_body }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -432,
+        -48
+      ],
+      "id": "e95717a1-648b-436f-842d-f2a6cc7e2dbe",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.prospeo.io/domain-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-KEY",
+              "value": "YOUR_PROSPEO_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"domain\": \"example.com\",\n  \"limit\": 1,\n  \"required_roles\": [\n    \"CEO\",\n    \"Founder\",\n    \"Owner\"\n  ],\n  \"email_type\": \"personal\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        368,
+        -48
+      ],
+      "id": "6864ca4d-32d0-420c-91af-b5207f872afa",
+      "name": "Prospeo"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Prospeo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prospeo": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "b021b24d-05b7-438c-99f0-f5fbca1cecbe",
+  "activeVersionId": null,
+  "versionCounter": 28,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-01-05T14:55:10.754Z",
+      "createdAt": "2026-01-05T14:55:10.754Z",
+      "role": "workflow:owner",
+      "workflowId": "A6thPscck04ysdDY",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

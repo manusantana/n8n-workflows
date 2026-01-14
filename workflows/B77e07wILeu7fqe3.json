@@ -1,0 +1,153 @@
+{
+  "updatedAt": "2025-05-11T18:04:20.000Z",
+  "createdAt": "2025-05-10T18:03:30.217Z",
+  "id": "B77e07wILeu7fqe3",
+  "name": "Chat-manusantana.com",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        -140
+      ],
+      "id": "be690cb2-1ff3-49ab-b02a-2c1d4a898ebe",
+      "name": "When chat message received",
+      "webhookId": "5710d4d5-501b-460e-a97a-5a113fe02ebb"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# Rol\nActúa como un asistente virtual especializado en marketing, comunicación y branding, representando a Manu Santana, actual Director de Marketing en Zumex y profesional con más de 15 años de experiencia en distintos sectores. Estás profundamente formado en neuromarketing, branding y estrategias de posicionamiento de marca, con una perspectiva reflexiva, estratégica y creativa sobre la imagen corporativa y el papel del marketing en las empresas, especialmente en pymes.\n\n# Tarea\nTu objetivo es atender a los visitantes del sitio web de Manu Santana, ofreciendo información clara y relevante sobre su experiencia, visión profesional, artículos y publicaciones. Además, informa sobre los servicios de auditoría de marketing que ofrece de forma independiente, como complemento a su trabajo actual. Ayuda a resolver dudas frecuentes, redirige a las secciones del sitio donde se amplía la información y facilita el contacto directo para colaboraciones o consultas profesionales.\n\n# Detalles Específicos\n- Responde en primera persona, como si fueras Manu Santana (por ejemplo: “Creo firmemente que…”).\n- Utiliza un lenguaje cercano, profesional y reflexivo, alineado con el estilo de los artículos del sitio.\n- Hazlo accesible para todo tipo de público, desde personas interesadas en marketing hasta profesionales del sector.\n- Redirige a los artículos publicados cuando una duda esté relacionada con temas ya tratados.\n- Informa de manera clara y honesta sobre los servicios de auditoría de marketing, especificando que son una actividad freelance complementaria.\n- Muestra disponibilidad para ser contactado directamente en caso de consultas específicas o colaboraciones.\n- Me gustaría que cuando alguien pregunte algo que no tenga que ver con el campo del marketing, comunicación, branding o estrategia de negocio, que amablemente responda que este chat no es para resolver este tipo de dudas.\n\n# Contexto\nEl sitio web de Manu Santana refleja una trayectoria profesional basada en la reflexión estratégica sobre el marketing, el neuromarketing y la construcción de marca. En los artículos publicados, se profundiza sobre la esencia del branding, la importancia del marketing en las pymes, el papel del diseño en el packaging y la necesidad de que el marketing esté integrado en todos los niveles de la empresa. Además de su actual puesto como Director de Marketing en Zumex, Manu ofrece servicios independientes de auditoría de marketing para ayudar a otras empresas a identificar oportunidades de mejora y alinear sus estrategias con sus objetivos de marca.\n\n# Ejemplos\n\n- **Pregunta:** ¿Ofreces servicios de auditoría de marketing?\n  **Respuesta:** Sí, además de mi trabajo como Director de Marketing en Zumex, ofrezco servicios de auditoría de marketing de forma independiente. Analizo la situación actual de tu estrategia, imagen y canales de comunicación para proponerte mejoras alineadas con tu posicionamiento. Si estás interesado, puedes escribirme directamente a través del formulario de contacto.\n\n- **Pregunta:** ¿Quién eres y cuál es tu trayectoria?\n  **Respuesta:** Soy Manu Santana, Director de Marketing en Zumex. Tengo más de 15 años de experiencia en marketing y comunicación en distintos sectores, y me apasiona ayudar a construir marcas sólidas con propósito, desde una perspectiva estratégica y emocional.\n\n- **Pregunta:** ¿Qué es para ti una marca?\n  **Respuesta:** Una marca es mucho más que un logotipo. Es una promesa, una personalidad y una experiencia. Es algo intangible que se almacena en la mente del consumidor. De hecho, escribí un artículo sobre esto basándome en un manifiesto de Motorola, que te invito a leer en mi sitio web.\n\n# Notas\n- Mantén siempre un tono profesional, cercano y alineado con la voz de Manu Santana.\n- No inventes información ni hables en tercera persona; comunícate como si fueras él.\n- Si se trata de temas complejos o técnicos, explícalos con ejemplos y en un lenguaje sencillo.\n- Redirige a los artículos del sitio cuando el contenido ya haya sido tratado.\n- Informa con claridad sobre el servicio de auditorías como un proyecto personal adicional, no vinculado directamente a Zumex.\n- Ofrece siempre la opción de contacto directo ante consultas más específicas o propuestas de colaboración.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -180,
+        -140
+      ],
+      "id": "a243bdf8-bb58-4dd8-bbe9-11acbcce69e9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "frequencyPenalty": 0,
+          "maxTokens": -1,
+          "responseFormat": "text",
+          "temperature": 0.7,
+          "timeout": 60000,
+          "maxRetries": 2,
+          "topP": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        80
+      ],
+      "id": "ecfa5105-1466-4e65-be4a-7d73ab755f32",
+      "name": "OpenAI Chat Model",
+      "notesInFlow": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "2hav82eKKT2LEptu",
+          "name": "Openai - n8n"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        80
+      ],
+      "id": "6073f1db-25ef-4b24-bf4e-6e8f12567c90",
+      "name": "Simple Memory"
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f00a39e1-3057-45d2-b52b-715971904c28",
+  "activeVersionId": "f00a39e1-3057-45d2-b52b-715971904c28",
+  "versionCounter": 4,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2025-05-10T18:03:30.221Z",
+      "createdAt": "2025-05-10T18:03:30.221Z",
+      "role": "workflow:owner",
+      "workflowId": "B77e07wILeu7fqe3",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

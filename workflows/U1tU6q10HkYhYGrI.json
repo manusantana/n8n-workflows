@@ -1,0 +1,411 @@
+{
+  "updatedAt": "2025-10-02T07:06:17.000Z",
+  "createdAt": "2025-10-02T07:05:22.174Z",
+  "id": "U1tU6q10HkYhYGrI",
+  "name": "UGC Image Ad Factory Ubicuo",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Influencer Ad Creative Generator",
+        "formDescription": "Select and upload an image of your product. ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Image",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Prompt",
+              "fieldType": "textarea",
+              "placeholder": "Enter a clear and detailed prompt to guide the AI (e.g., 'Generate a lifestyle photo with the product held by a model in natural light').",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -640,
+        -140
+      ],
+      "id": "c2fac118-570c-49b7-9ccf-07227a1a4d04",
+      "name": "Form Trigger",
+      "webhookId": "e5578250-9a06-48ec-a02b-9c2beb03e301"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "Image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        -140
+      ],
+      "id": "e29af010-9d2c-4153-af8e-cd2b472ce89c",
+      "name": "Image To Base64"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Original prompt: {{ $('Form Trigger').item.json.Prompt }}"
+            },
+            {
+              "content": "=You are a prompt optimizer for an image compositing API that places a product into a model’s hands. Transform vague inputs into a clear, detailed, single-paragraph instruction. The optimized prompt must describe:\n\nScene and environment (where the model is, e.g., café, living room, park)\n\nCamera angle and framing (front view, side angle, close-up, medium shot, etc.)\n\nModel’s pose and hand position (how the product is held, natural gestures, orientation)\n\nFacial expression and mood (smiling, neutral, casual, etc.)\n\nLighting and background (soft daylight, warm café tones, neutral background, etc.)\n\nStyle and realism (photorealistic, candid, lifestyle, not studio)\n\nRestrictions (avoid brand names, watermarks, or logos)\n\nOnly output the optimized prompt as plain text (no markdown, no explanations). Make it read like a photographer’s direction for generating the final image.",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -240,
+        -140
+      ],
+      "id": "7a192279-8ab4-4f14-ad06-2fa97d31b6fb",
+      "name": "Prompt Optimizer"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        320,
+        -140
+      ],
+      "id": "8e595aa9-ab1e-4e36-876d-f99fa14b70a1",
+      "name": "Loop Iterations"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1A_3WbsGERexAIQLfazFp5x-jfmOzqk83",
+            "mode": "id"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        120,
+        -140
+      ],
+      "id": "c017efb0-b41e-4648-b85e-cfff77582d42",
+      "name": "Search UGC Images"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        560,
+        -120
+      ],
+      "id": "0b8911c2-59b0-41d1-9442-3dca0d0a93af",
+      "name": "Download UGC Images"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        760,
+        -120
+      ],
+      "id": "8ce6e527-0946-4de6-bf0c-4bef91b2a290",
+      "name": "Image To Base64 2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      { \"text\": \"{{ $('Prompt Optimizer').item.json.message.content }}\" },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/png\",\n          \"data\": \"{{ $node['Image To Base64'].json.data }}\"\n        }\n      },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"image/jpeg\",\n          \"data\": \"{{ $node['Image To Base64 2'].json.data }}\"\n        }\n      }\n    ]\n  }]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        -120
+      ],
+      "id": "0dd0e750-604a-4bf0-b78f-ee3cb0b0cb33",
+      "name": "Image Generation"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "524da01b-f8b9-4c2c-9e28-319455903e4d",
+              "name": "=image_result",
+              "value": "={{ $json.candidates[0].content.parts.filter(item => item.inlineData).first().inlineData.data }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        -120
+      ],
+      "id": "838ec6cb-a3c0-41a1-a8d9-d06cb1ba0849",
+      "name": "Set Result"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "image_result",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        -120
+      ],
+      "id": "718432a6-e800-44d5-b2d4-f4e007087d42",
+      "name": "Get Image"
+    },
+    {
+      "parameters": {
+        "name": "=Influencer Image #{{ $runIndex + 1 }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1817xXH8Z32a-eaP_WUoyZF2x8wik2to7",
+          "mode": "list",
+          "cachedResultName": "n8n - Completed Image Edits",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1817xXH8Z32a-eaP_WUoyZF2x8wik2to7"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1480,
+        -120
+      ],
+      "id": "194cf348-6b40-4b98-953c-144f1cdf79b5",
+      "name": "Upload UGC With Product"
+    }
+  ],
+  "connections": {
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Image To Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image To Base64": {
+      "main": [
+        [
+          {
+            "node": "Prompt Optimizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt Optimizer": {
+      "main": [
+        [
+          {
+            "node": "Search UGC Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Iterations": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Download UGC Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search UGC Images": {
+      "main": [
+        [
+          {
+            "node": "Loop Iterations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download UGC Images": {
+      "main": [
+        [
+          {
+            "node": "Image To Base64 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image To Base64 2": {
+      "main": [
+        [
+          {
+            "node": "Image Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Generation": {
+      "main": [
+        [
+          {
+            "node": "Set Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Result": {
+      "main": [
+        [
+          {
+            "node": "Get Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image": {
+      "main": [
+        [
+          {
+            "node": "Upload UGC With Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload UGC With Product": {
+      "main": [
+        [
+          {
+            "node": "Loop Iterations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Form Trigger": [
+      {
+        "json": {
+          "Image": {
+            "filename": "Screenshot 2025-09-22 at 13.00.38.png",
+            "mimetype": "image/png",
+            "size": 104288
+          },
+          "Prompt": "lifestyle shot of model holding the can outdoors on a patio",
+          "submittedAt": "2025-09-22T13:03:18.412+02:00",
+          "formMode": "test"
+        }
+      }
+    ]
+  },
+  "versionId": "cc11536f-3d44-44b8-8e7f-6e442d3057ba",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2025-10-02T07:05:22.184Z",
+      "createdAt": "2025-10-02T07:05:22.184Z",
+      "role": "workflow:owner",
+      "workflowId": "U1tU6q10HkYhYGrI",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

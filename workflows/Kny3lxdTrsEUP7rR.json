@@ -1,0 +1,385 @@
+{
+  "updatedAt": "2025-09-10T20:43:18.876Z",
+  "createdAt": "2025-09-10T20:43:18.876Z",
+  "id": "Kny3lxdTrsEUP7rR",
+  "name": "TikTok_Instagram Shorts Generator",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        40,
+        180
+      ],
+      "id": "1216fe7e-34ea-43bf-8532-bee9b2262ad9",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "videos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        500,
+        780
+      ],
+      "id": "5abba182-a97d-4480-8429-90f155d7bfd6",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "url": "=https://elb-api.vizard.ai/hvizard-server-front/open-api/v1/project/query/{{$json.projectId}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "VIZARDAI_API_KEY",
+              "value": "db94acded4df4566be07c93d324f444b"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        780
+      ],
+      "id": "18ad1f9d-55de-4287-8a5b-f0bdc7df02bb",
+      "name": "Retrieve Vizard Project"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://elb-api.vizard.ai/hvizard-server-front/open-api/v1/project/create",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "VIZARDAI_API_KEY",
+              "value": "db94acded4df4566be07c93d324f444b"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lang\": \"en\",\n  \"preferLength\": [\n    0\n  ],\n  \"videoUrl\": \"{{ $json.link }}\",\n  \"videoType\": 2\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        180
+      ],
+      "id": "bab112ca-82d0-4ac8-8962-fa51a08b3d5d",
+      "name": "Send Longform to Vizard"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        720,
+        780
+      ],
+      "id": "78492d20-0398-444f-a354-32eb3a142820",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You're a helpful, intelligent social media assistant. You make captions for Instagram and TikTok.",
+              "role": "system"
+            },
+            {
+              "content": "Your task is to generate high-quality, engaging captions for Instagram and TikTok.\n\nYou'll be fed a transcript.\n\nReturn your captions in JSON using this format:\n\n{\"caption\":\"\"}\n\nRules:\n- Keep captions to ~100 words.\n- Use a spartan tone of voice, favoring the classic Western style (though still a fit for Instagram and TikTok).\n- Write conversationally, i.e as if I were doing the writing myself (in first person.\n- Use emojis, but sparingly.\n- Ensure each sentence is over 5 words long. Write for a University reading level."
+            },
+            {
+              "content": "={{ $json.transcript }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        940,
+        780
+      ],
+      "id": "31ed1ff7-07e9-4600-9f3a-2e53090ab269",
+      "name": "OpenAI"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1300,
+        780
+      ],
+      "id": "ee13ce77-cf3d-4605-bd59-0ff7f6ba457d",
+      "name": "Google Sheets",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        780
+      ],
+      "id": "ffae8284-f093-441e-8dc6-2ec93030bdd1",
+      "name": "Wait",
+      "webhookId": "1d588357-cb88-42b5-b34f-ed3c767dbf04"
+    },
+    {
+      "parameters": {
+        "content": "# 2. Retrieve & generate\n\n### This flow retrieves the Vizard project through webhook, and then splits the videos before adding them to a Google Sheet.\n### Things to adjust: Vizard Credentials (HTTP Request), File ID (Google Sheet), Email Copy (Gmail).\n### Get my Google Sheets template [here](https://docs.google.com/spreadsheets/d/1uo3Cq4AoSNhZW8sZup8V5AM55BRua7skVf9gOjxg-Wg/edit?usp=sharing).",
+        "height": 440,
+        "width": 1720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        560
+      ],
+      "id": "2c9f8514-dbdd-44f2-8eb7-5716fbfc9dc1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# 1. Scrape & send\n\n### This flow scrapes a channel of your choosing, and then sends new videos to Vizard for later clipping. \n### Things to adjust: YouTube Channel ID (RSS Feed), Vizard Credentials (HTTP Request). Deactivate the Limit node when you want to go live.",
+        "height": 380,
+        "width": 1720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c2e43604-63c9-40cf-9550-603e038f776e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCbo-KbSjJDG6JWQ_MTZ_rNA",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        180
+      ],
+      "id": "38db231f-a930-4386-a62f-45feb5ab0c03",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "maxItems": 2
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        460,
+        180
+      ],
+      "id": "e4287070-a1a5-4874-8f18-a1c0b251fc98",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d40c9293-818e-49c9-bcff-a864bd524427",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        40,
+        780
+      ],
+      "id": "f5bd3723-d41b-4439-a46c-610ef4274ed4",
+      "name": "Webhook",
+      "webhookId": "d40c9293-818e-49c9-bcff-a864bd524427"
+    },
+    {
+      "parameters": {
+        "sendTo": "nickolassaraev@gmail.com",
+        "subject": "Hey—your clips are ready to go!",
+        "emailType": "text",
+        "message": "=Hi Nick,\n\nYour clips are ready to go. Just check the spreadsheet below: https://docs.google.com/spreadsheets/d/1uo3Cq4AoSNhZW8sZup8V5AM55BRua7skVf9gOjxg-Wg/edit?usp=sharing\n\nHappy clipping!\n\nThanks,\nNick",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1100,
+        600
+      ],
+      "id": "69304332-9baa-492e-9e74-cea65fc27355",
+      "name": "Gmail",
+      "webhookId": "1090375c-2e63-47d6-9b18-f82ee339351b"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Vizard Project": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Send Longform to Vizard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Vizard Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {
+          "projectId": "21292525"
+        }
+      }
+    ]
+  },
+  "versionId": "57c2ca3e-d2bf-4f55-b191-fe45f04b3c47",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2025-09-10T20:43:18.883Z",
+      "createdAt": "2025-09-10T20:43:18.883Z",
+      "role": "workflow:owner",
+      "workflowId": "Kny3lxdTrsEUP7rR",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

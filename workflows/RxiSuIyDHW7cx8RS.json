@@ -1,0 +1,41 @@
+{
+  "updatedAt": "2026-01-08T21:46:40.000Z",
+  "createdAt": "2025-10-09T14:03:40.134Z",
+  "id": "RxiSuIyDHW7cx8RS",
+  "name": "Agente Informe Semanal Marketing",
+  "description": null,
+  "active": false,
+  "isArchived": true,
+  "nodes": [],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "f4e2e75b-3b1e-4f63-ad91-634437e44a02",
+  "activeVersionId": null,
+  "versionCounter": 2,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2025-10-09T14:03:40.142Z",
+      "createdAt": "2025-10-09T14:03:40.142Z",
+      "role": "workflow:owner",
+      "workflowId": "RxiSuIyDHW7cx8RS",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "updatedAt": "2025-09-15T12:08:53.666Z",
+  "createdAt": "2025-09-15T12:08:53.666Z",
+  "id": "ihBwuesT1t4PiW6b",
+  "name": "Nano Banana Unlimited",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "4e6b8637-7fa0-4847-b420-b0204b096546",
+  "activeVersionId": null,
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2025-09-15T12:08:53.672Z",
+      "createdAt": "2025-09-15T12:08:53.672Z",
+      "role": "workflow:owner",
+      "workflowId": "ihBwuesT1t4PiW6b",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

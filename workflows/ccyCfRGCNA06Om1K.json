@@ -1,0 +1,104 @@
+{
+  "updatedAt": "2026-01-08T21:46:06.000Z",
+  "createdAt": "2025-05-31T07:19:40.423Z",
+  "id": "ccyCfRGCNA06Om1K",
+  "name": "Leads Search",
+  "description": null,
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ad82da0f-c443-45d4-b8d3-c4a4a79be3e4",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.phantombuster.com/api/v2/agents/launch",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "phantombusterApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"id\": \"3811766510076877\",\n  \"argument\": {}\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "b44f8767-464f-47a4-ba50-801a6029696e",
+      "name": "Launch Phantom",
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "phantombusterApi": {
+          "id": "X7U5CYmZrIqpCcWc",
+          "name": "Phantombuster account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Launch Phantom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Launch Phantom": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "aa4032d5-33a5-4bdd-b1a2-a89d4b8412d6",
+  "activeVersionId": null,
+  "versionCounter": 2,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2025-05-31T07:19:40.427Z",
+      "createdAt": "2025-05-31T07:19:40.427Z",
+      "role": "workflow:owner",
+      "workflowId": "ccyCfRGCNA06Om1K",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

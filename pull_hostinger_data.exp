@@ -1,0 +1,26 @@
+#!/usr/bin/expect
+
+set timeout -1
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+set remote_path "/var/lib/docker/volumes/n8n_data/_data"
+set local_path "./n8n_data_incoming"
+
+# Create local directory
+spawn mkdir -p $local_path
+expect eof
+
+# Sync from Remote (Hostinger) -> Local
+spawn scp -r -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip:$remote_path/. $local_path
+
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+expect eof
