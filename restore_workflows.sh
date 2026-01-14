@@ -31,9 +31,9 @@ docker cp $BACKUP_DIR/. $CONTAINER_ID:/tmp/import_workflows/
 # Fix permissions inside container to ensure 'node' user can read them
 docker exec -u 0 $CONTAINER_ID chown -R node:node /tmp/import_workflows
 
-# Run import command as 'node' user
-echo "🔄 Executing n8n import..."
-docker exec -u node $CONTAINER_ID n8n import:workflow --input=/tmp/import_workflows/
+# Run import command loop as 'node' user
+echo "🔄 Executing n8n import for each file..."
+docker exec -u node $CONTAINER_ID /bin/sh -c 'for file in /tmp/import_workflows/*.json; do echo "Importing $file..."; n8n import:workflow --input="$file"; done'
 
 # Clean up
 docker exec -u 0 $CONTAINER_ID rm -rf /tmp/import_workflows

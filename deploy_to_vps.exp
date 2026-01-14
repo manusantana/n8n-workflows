@@ -1,0 +1,37 @@
+#!/usr/bin/expect
+
+set timeout 20
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+set remote_path "~/n8n"
+
+# SSH Login and Execute
+spawn ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+
+# Wait for prompt. Using wildcards strictly to match standard root prompt ending in #
+expect "*#"
+
+# Find dir, then check if git exists. If not, init and pull forcefully.
+send "DIR=\$(find ~ -name 'docker-compose.yml' -exec dirname {} \\; | head -n 1) && echo \"Found project at \$DIR\" && cd \$DIR\r"
+expect "*#"
+# Find dir, init/update git, pull, chmod, run restore, AND THEN RESTART CONTAINER
+send "DIR=\$(find ~ -name 'docker-compose.yml' -exec dirname {} \\; | head -n 1) && echo \"Found project at \$DIR\" && cd \$DIR\r"
+expect "*#"
+send "if \[ ! -d .git \]; then git init && git remote add origin https://github.com/manusantana/n8n-workflows && git fetch --all && git reset --hard origin/master; else git branch --set-upstream-to=origin/master master && git pull; fi && chmod +x restore_workflows.sh && ./restore_workflows.sh\r"
+
+# Wait for completion
+expect "*#"
+
+# Exit
+send "exit\r"
+expect eof
