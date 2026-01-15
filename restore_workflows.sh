@@ -9,7 +9,12 @@ git pull
 echo "🔄 Importing workflows into n8n Docker container..."
 
 # Find the running n8n container ID
+# Updated to match both official hub and n8n registry images
 CONTAINER_ID=$(docker ps -a -q --filter "ancestor=n8nio/n8n" | head -n 1)
+
+if [ -z "$CONTAINER_ID" ]; then
+  CONTAINER_ID=$(docker ps -a -q --filter "ancestor=docker.n8n.io/n8nio/n8n" | head -n 1)
+fi
 
 if [ -z "$CONTAINER_ID" ]; then
   CONTAINER_ID=$(docker ps -a -q --filter "name=n8n" | head -n 1)
