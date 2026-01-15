@@ -27,7 +27,7 @@ expect "*#"
 # Find dir, init/update git, pull, chmod, run restore, AND THEN RESTART CONTAINER
 send "DIR=\$(find ~ -name 'docker-compose.yml' -exec dirname {} \\; | head -n 1) && echo \"Found project at \$DIR\" && cd \$DIR\r"
 expect "*#"
-send "if \[ ! -d .git \]; then git init && git remote add origin https://github.com/manusantana/n8n-workflows && git fetch --all && git reset --hard origin/master; else git branch --set-upstream-to=origin/master master && git pull; fi && chmod +x restore_workflows.sh && ./restore_workflows.sh\r"
+send "if \[ ! -d .git \]; then git init && git remote add origin https://github.com/manusantana/n8n-workflows && git fetch --all && git reset --hard origin/master; else git branch --set-upstream-to=origin/master master && git pull; fi && echo '🔍 Verifying file content on disk:' && grep -c \"Falta\" workflows/LTtD6izOWBatig-7qv8IA.json && chmod +x restore_workflows.sh && ./restore_workflows.sh\r"
 
 # Wait for completion
 expect "*#"

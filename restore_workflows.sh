@@ -42,7 +42,7 @@ for file in $BACKUP_DIR/*.json; do
   -v $(pwd)/n8n_data:/home/node/.n8n \
   -v $(pwd)/$file:/tmp/workflow.json \
   $IMAGE_NAME \
-  -c "n8n import:workflow --input=/tmp/workflow.json"
+  -c "n8n import:workflow --input=/tmp/workflow.json || echo '⚠️ Import failed for $file but continuing...'"
 done
 
 echo "✅ Import complete."
