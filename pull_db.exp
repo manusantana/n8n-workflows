@@ -1,0 +1,13 @@
+#!/usr/bin/expect
+
+set timeout 60
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+
+spawn scp -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip:/root/wordpress/n8n_data/database.sqlite ./n8n_vps.sqlite
+expect {
+    "password:" { send "$password\r" }
+    "yes/no" { send "yes\r"; exp_continue }
+}
+expect eof

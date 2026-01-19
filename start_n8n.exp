@@ -1,0 +1,21 @@
+#!/usr/bin/expect
+
+set timeout 30
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+
+spawn ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip
+expect {
+    "password:" { send "$password\r" }
+    "yes/no" { send "yes\r"; exp_continue }
+}
+expect "*#"
+
+send "CID=\$(docker ps -a -q --filter ancestor=n8nio/n8n | head -n 1)\r"
+expect "*#"
+send "docker start \$CID\r"
+expect "*#"
+
+send "exit\r"
+expect eof

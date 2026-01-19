@@ -1,0 +1,362 @@
+{
+  "name": "Google Ads Audit Professional",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ],
+      "id": "e41bb35c-a8c4-4f09-808c-b17b1a4df998",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "customerId",
+              "value": "574-385-0460"
+            },
+            {
+              "name": "developerToken",
+              "value": "INSERT_TOKEN_HERE"
+            }
+          ]
+        }
+      },
+      "name": "User Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        300,
+        300
+      ],
+      "id": "38d654d3-d12b-4f1a-89ca-5541f01b680c",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "resource": "customer",
+        "operation": "get",
+        "limit": 50
+      },
+      "name": "Get Account Info",
+      "type": "n8n-nodes-base.googleAds",
+      "typeVersion": 1,
+      "position": [
+        600,
+        100
+      ],
+      "id": "2a1f056a-bc86-4b94-87f4-eda71d7638f7",
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "Google Ads Account",
+          "name": "Google Ads account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "campaign",
+        "operation": "getAll",
+        "limit": 100
+      },
+      "name": "Get Campaigns",
+      "type": "n8n-nodes-base.googleAds",
+      "typeVersion": 1,
+      "position": [
+        600,
+        200
+      ],
+      "id": "7ae4d5bd-d77f-4a17-bf15-81249b2043b2",
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "Google Ads Account",
+          "name": "Google Ads account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "adGroup",
+        "operation": "getAll",
+        "limit": 100
+      },
+      "name": "Get AdGroups",
+      "type": "n8n-nodes-base.googleAds",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ],
+      "id": "a352f1cb-e56c-4d8d-af96-388d47091937",
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "Google Ads Account",
+          "name": "Google Ads account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "keyword",
+        "operation": "getAll",
+        "limit": 100
+      },
+      "name": "Get Keywords",
+      "type": "n8n-nodes-base.googleAds",
+      "typeVersion": 1,
+      "position": [
+        600,
+        400
+      ],
+      "id": "1b8394f5-2976-4135-89af-49c08d100022",
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "Google Ads Account",
+          "name": "Google Ads account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "ad",
+        "operation": "getAll",
+        "limit": 100
+      },
+      "name": "Get Ads",
+      "type": "n8n-nodes-base.googleAds",
+      "typeVersion": 1,
+      "position": [
+        600,
+        500
+      ],
+      "id": "852d72bc-fd83-49a9-93e0-13e01fad30ee",
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "Google Ads Account",
+          "name": "Google Ads account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "conversionAction",
+        "operation": "getAll",
+        "limit": 50
+      },
+      "name": "Get Conversion Actions",
+      "type": "n8n-nodes-base.googleAds",
+      "typeVersion": 1,
+      "position": [
+        600,
+        600
+      ],
+      "id": "bf72ad09-ec3f-4d6c-9368-d232ee9a6b6c",
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "Google Ads Account",
+          "name": "Google Ads account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "geoTarget",
+        "operation": "getAll",
+        "limit": 50
+      },
+      "name": "Get Geo Targets",
+      "type": "n8n-nodes-base.googleAds",
+      "typeVersion": 1,
+      "position": [
+        600,
+        700
+      ],
+      "id": "761ae8f8-7c5b-45f0-9731-a868efdffa1a",
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "Google Ads Account",
+          "name": "Google Ads account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "mergeByPosition"
+      },
+      "name": "Merge Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        900,
+        400
+      ],
+      "id": "5afffb7c-af97-4155-81c0-92cd041a3d7a",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Mock Scoring Logic based on Inputs\nconst results = {\n    \"summary\": { \"score\": 85, \"grade\": \"B\", \"total_checks\": 200 },\n    \"categories\": {\n        \"Account Settings\": 90,\n        \"Campaigns\": 80,\n        \"Ads\": 75,\n        \"Keywords\": 95\n    },\n    \"details\": [\n        { \"check\": \"Conversion Tracking\", \"status\": \"\u2705\", \"desc\": \"Global site tag found.\" },\n        { \"check\": \"Bidding Strategy\", \"status\": \"\u26a0\ufe0f\", \"desc\": \"2 Campaigns on Manual CPC.\" }\n    ]\n};\nreturn results;\n"
+      },
+      "name": "Audit Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        400
+      ],
+      "id": "65f1e1b9-8194-4216-baaf-dd7d25fc39d4",
+      "credentials": {}
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "User Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Config": {
+      "main": [
+        [
+          {
+            "node": "Get Account Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Campaigns",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get AdGroups",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Keywords",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Ads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Conversion Actions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Geo Targets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account Info": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get AdGroups": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Keywords": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Ads": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Conversion Actions": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Geo Targets": {
+      "main": [
+        [
+          {
+            "node": "Merge Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Data": {
+      "main": [
+        [
+          {
+            "node": "Audit Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "pinData": {}
+}

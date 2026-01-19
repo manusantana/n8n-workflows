@@ -1,0 +1,49 @@
+#!/usr/bin/expect
+
+set timeout 60
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+
+spawn ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip
+expect {
+    "password:" { send "$password\r" }
+    "yes/no" { send "yes\r"; exp_continue }
+}
+expect "*#"
+
+# 1. Find Container (All states)
+send "CID=\$(docker ps -a -q --filter ancestor=n8nio/n8n | head -n 1)\r"
+expect "*#"
+send "if \[ -z \"\$CID\" \]; then CID=\$(docker ps -a -q --filter name=n8n | head -n 1); fi\r"
+expect "*#"
+send "echo \"Container ID: \$CID\"\r"
+expect "*#"
+
+# Start if not running
+send "docker start \$CID\r"
+expect "*#"
+# Wait for boot
+sleep 5
+
+# 2. Fix permissions INSIDE container
+send "docker exec -u 0 \$CID chown -R node:node /home/node/.n8n\r"
+expect "*#"
+
+# 3. Create temp dir and copy file (again, just to be sure)
+send "docker exec -u 0 \$CID mkdir -p /tmp/fix_import\r"
+expect "*#"
+
+# We need to copy the file from HOST (where we pulled git) to CONTAINER
+# First find existing file on host
+send "DIR=\$(find ~ -name 'docker-compose.yml' -exec dirname {} \\; | head -n 1) && cd \$DIR\r"
+expect "*#"
+send "docker cp workflows/LTtD6izOWBatig-7qv8IA.json \$CID:/tmp/fix_import/workflow.json\r"
+expect "*#"
+
+# 4. Run Import (as node user)
+send "docker exec -u node \$CID n8n import:workflow --input=/tmp/fix_import/workflow.json\r"
+expect "*#"
+
+send "exit\r"
+expect eof
