@@ -50,10 +50,14 @@ if (typeof rawContent === 'object' && rawContent !== null) {
   }
 }
 
-// 3. Sanitizar HTML para Telegram
-// Telegram NO soporta <br>, necesita \\n
+// 3. Sanitizar HTML para Telegram (Dumb & Safe Replace)
+// Telegram NO soporta <br> ni <p>
 let finalMsg = parsed.briefing_html || "Error de formato (No briefing_html)";
-finalMsg = finalMsg.replace(/<br\\\\s*\\/?>/gi, "\\n");
+finalMsg = finalMsg.split('<br>').join('\\n')
+                 .split('<br/>').join('\\n')
+                 .split('<br />').join('\\n')
+                 .split('<p>').join('\\n')
+                 .split('</p>').join('\\n');
 
 // 4. Robustez de Claves
 const topics = parsed.topics || parsed.temas || parsed.items || parsed.noticias || [];
