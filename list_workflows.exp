@@ -1,0 +1,32 @@
+#!/usr/bin/expect
+
+set timeout 60
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+
+spawn ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+
+expect "#"
+# Export all workflows to a temp file
+send "docker exec -i root-n8n-1 n8n export:workflow --all --output=/tmp/all_workflows.json\r"
+expect "#"
+
+# Grep for names to see what exists (avoid dumping massive JSON if possible, just names and IDs)
+# We use grep inside the container or cat and pipe to grep on host? 
+# n8n export format is a simplified JSON array of workflow files or a single file?
+# Standard is a single JSON array.
+send "docker exec -i root-n8n-1 cat /tmp/all_workflows.json | grep -E '\"name\":| \"id\":' | tail -n 30\r"
+expect "#"
+
+send "exit\r"
+expect eof

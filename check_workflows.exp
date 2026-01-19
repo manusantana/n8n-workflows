@@ -1,0 +1,25 @@
+#!/usr/bin/expect
+
+set timeout 30
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+
+spawn ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+
+expect "#"
+# Execute sqlite query inside docker container
+send "docker exec -i root-n8n-1 sqlite3 /home/node/.n8n/database.sqlite 'SELECT name, id, active, updatedAt FROM workflow_entity ORDER BY updatedAt DESC;'\r"
+expect "#"
+
+send "exit\r"
+expect eof
