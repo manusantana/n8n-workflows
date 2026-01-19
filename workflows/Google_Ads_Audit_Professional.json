@@ -365,5 +365,6 @@
   },
   "settings": {},
   "staticData": null,
-  "pinData": {}
+  "pinData": {},
+  "active": false
 }
