@@ -1,0 +1,18 @@
+#!/usr/bin/expect
+
+set timeout 20
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+
+spawn ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip "cat ~/wordpress/workflows/3SujNhDcvxSyDmdAiUb7d.json | grep 'parsed.temas'"
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+expect eof

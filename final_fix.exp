@@ -31,12 +31,12 @@ expect "*#"
 
 # Run specific import for just THIS file with overwrite
 # Run specific import for just THIS file with overwrite
-# CRITICAL FIX: Use named volume 'n8n_data' instead of local path bind mount
-send "docker run --rm --user 1000:1000 --entrypoint /bin/sh -v n8n_data:/home/node/.n8n -v \$(pwd)/workflows/LTtD6izOWBatig-7qv8IA.json:/tmp/workflow.json n8nio/n8n -c \"n8n import:workflow --input=/tmp/workflow.json\"\r"
+# CRITICAL FIX: Use named volume 'n8n_data' and point to Content Factory workflow
+send "docker run --rm --user 1000:1000 --entrypoint /bin/sh -v n8n_data:/home/node/.n8n -v \$(pwd)/workflows/3SujNhDcvxSyDmdAiUb7d.json:/tmp/workflow.json n8nio/n8n -c \"n8n import:workflow --input=/tmp/workflow.json\"\r"
 expect "*#"
 
 # Start n8n
-send "docker start \$(docker ps -a -q --filter ancestor=n8nio/n8n | head -n 1)\r"
+send "docker restart root-n8n-1\r"
 expect "*#"
 
 send "exit\r"
