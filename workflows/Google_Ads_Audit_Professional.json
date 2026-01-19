@@ -23,7 +23,7 @@
             },
             {
               "name": "developerToken",
-              "value": "INSERT_TOKEN_HERE"
+              "value": "KRf0ngVsjSngdG5dmVFh5w"
             }
           ]
         }
@@ -42,7 +42,8 @@
       "parameters": {
         "resource": "customer",
         "operation": "get",
-        "limit": 50
+        "limit": 50,
+        "customerId": "={{ $('User Config').item.json.customerId }}"
       },
       "name": "Get Account Info",
       "type": "n8n-nodes-base.googleAds",
@@ -63,7 +64,8 @@
       "parameters": {
         "resource": "campaign",
         "operation": "getAll",
-        "limit": 100
+        "limit": 100,
+        "customerId": "={{ $('User Config').item.json.customerId }}"
       },
       "name": "Get Campaigns",
       "type": "n8n-nodes-base.googleAds",
@@ -84,7 +86,8 @@
       "parameters": {
         "resource": "adGroup",
         "operation": "getAll",
-        "limit": 100
+        "limit": 100,
+        "customerId": "={{ $('User Config').item.json.customerId }}"
       },
       "name": "Get AdGroups",
       "type": "n8n-nodes-base.googleAds",
@@ -105,7 +108,8 @@
       "parameters": {
         "resource": "keyword",
         "operation": "getAll",
-        "limit": 100
+        "limit": 100,
+        "customerId": "={{ $('User Config').item.json.customerId }}"
       },
       "name": "Get Keywords",
       "type": "n8n-nodes-base.googleAds",
@@ -126,7 +130,8 @@
       "parameters": {
         "resource": "ad",
         "operation": "getAll",
-        "limit": 100
+        "limit": 100,
+        "customerId": "={{ $('User Config').item.json.customerId }}"
       },
       "name": "Get Ads",
       "type": "n8n-nodes-base.googleAds",
@@ -147,7 +152,8 @@
       "parameters": {
         "resource": "conversionAction",
         "operation": "getAll",
-        "limit": 50
+        "limit": 50,
+        "customerId": "={{ $('User Config').item.json.customerId }}"
       },
       "name": "Get Conversion Actions",
       "type": "n8n-nodes-base.googleAds",
@@ -168,7 +174,8 @@
       "parameters": {
         "resource": "geoTarget",
         "operation": "getAll",
-        "limit": 50
+        "limit": 50,
+        "customerId": "={{ $('User Config').item.json.customerId }}"
       },
       "name": "Get Geo Targets",
       "type": "n8n-nodes-base.googleAds",

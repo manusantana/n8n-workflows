@@ -1,0 +1,44 @@
+#!/usr/bin/expect
+
+set timeout 300
+set ip "46.202.159.18"
+set user "root"
+set password "My)x,,2(HUr'4(.oeo'9"
+set workflow_file "workflows/Google_Ads_Audit_Professional.json"
+
+spawn ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no $user@$ip
+expect {
+    "yes/no" {
+        send "yes\r"
+        exp_continue
+    }
+    "password:" {
+        send "$password\r"
+    }
+}
+
+expect "#"
+send "cd /root/wordpress\r"
+expect "#"
+send "git pull\r"
+expect "#"
+
+# Get container ID for n8n
+send "docker ps -q --filter ancestor=n8nio/n8n\r"
+expect -re "(\[0-9a-f]{12})"
+set container_id $expect_out(1,string)
+
+# Read the NEW workflow file content from the repo (which we just pulled)
+# We assume the file is at /root/wordpress/$workflow_file
+# We import it using n8n import command inside the container
+send "docker exec -i root-n8n-1 n8n import:workflow --input=/home/node/.n8n_repo/$workflow_file\r"
+
+# Wait for import completion (it might take a moment)
+expect "#"
+
+# Restart container to ensure changes picked up (names, etc)
+send "docker restart root-n8n-1\r"
+expect "#"
+
+send "exit\r"
+expect eof
