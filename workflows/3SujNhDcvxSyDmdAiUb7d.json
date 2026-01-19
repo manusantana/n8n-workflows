@@ -153,7 +153,7 @@
     {
       "parameters": {
         "chatId": "7284267714",
-        "text": "={{ $json.mensaje_final.parts[0].text }}\n\n\ud83d\udc1e DEBUG JSON:\n<pre>{{ $json.raw_debug }}</pre>",
+        "text": "={{ $json.mensaje_final }}\n\n\ud83d\udc1e DEBUG JSON:\n<pre>{{ $json.raw_debug }}</pre>",
         "additionalFields": {
           "parse_mode": "HTML"
         }
@@ -189,7 +189,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// 1. Obtener la respuesta cruda\nconst rawContent = items[0].json.content;\nlet cleanContent = \"\";\nlet parsed;\n\n// 2. Determinar tipo y limpiar\nif (typeof rawContent === 'object' && rawContent !== null) {\n  // Ya es un objeto (Gemini output mode json?)\n  parsed = rawContent;\n  cleanContent = JSON.stringify(rawContent, null, 2);\n} else {\n  // Es string, limpiar markdown logs\n  const rawString = String(rawContent || \"\");\n  cleanContent = rawString.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n  try {\n    parsed = JSON.parse(cleanContent);\n  } catch (e) {\n    parsed = {\n      briefing_html: \"\u26a0\ufe0f Error JSON: \" + rawString,\n      topics: []\n    };\n  }\n}\n\n// 4. Robustez de Claves\nconst topics = parsed.topics || parsed.temas || parsed.items || parsed.noticias || [];\n\n// 5. Preparar Outputs\nreturn [{\n  json: {\n    // Para Telegram (Texto)\n    mensaje_final: parsed.briefing_html || \"Error de formato\",\n    \n    // DEBUG: Raw Content\n    raw_debug: cleanContent,\n\n    // Para Google Sheets\n    data_json: JSON.stringify({ topics: topics })\n  }\n}];"
+        "jsCode": "// 1. Obtener la respuesta cruda\nconst rawContent = items[0].json.content;\nlet cleanContent = \"\";\nlet parsed;\n\n// 2. Determinar tipo y limpiar (Handling Gemini Envelope)\nif (typeof rawContent === 'object' && rawContent !== null) {\n  // Check if it's the Gemini Envelope { parts: [{ text: \"...\" }] }\n  if (rawContent.parts && rawContent.parts[0] && rawContent.parts[0].text) {\n      const innerText = rawContent.parts[0].text;\n      const rawString = String(innerText || \"\");\n      cleanContent = rawString.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n      try {\n        parsed = JSON.parse(cleanContent);\n      } catch (e) {\n        parsed = {\n            briefing_html: \"\u26a0\ufe0f Error Parseando Inner JSON: \" + rawString,\n            topics: []\n        };\n      }\n  } else {\n     // Maybe it's already the flat object? unlikely given symptoms\n     parsed = rawContent; \n     cleanContent = JSON.stringify(rawContent, null, 2);\n  }\n} else {\n  // Es string directo?\n  const rawString = String(rawContent || \"\");\n  cleanContent = rawString.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n  try {\n    parsed = JSON.parse(cleanContent);\n  } catch (e) {\n    parsed = {\n      briefing_html: \"\u26a0\ufe0f Error Parseando String JSON: \" + rawString,\n      topics: []\n    };\n  }\n}\n\n// 4. Robustez de Claves\nconst topics = parsed.topics || parsed.temas || parsed.items || parsed.noticias || [];\n\n// 5. Preparar Outputs\nreturn [{\n  json: {\n    // Para Telegram (Texto) - Unwrapped String\n    mensaje_final: parsed.briefing_html || \"Error de formato (No briefing_html)\",\n    \n    // DEBUG: Raw Content\n    raw_debug: cleanContent,\n\n    // Para Google Sheets\n    data_json: JSON.stringify({ topics: topics })\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,

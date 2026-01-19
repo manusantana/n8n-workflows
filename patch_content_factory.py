@@ -16,20 +16,35 @@ const rawContent = items[0].json.content;
 let cleanContent = "";
 let parsed;
 
-// 2. Determinar tipo y limpiar
+// 2. Determinar tipo y limpiar (Handling Gemini Envelope)
 if (typeof rawContent === 'object' && rawContent !== null) {
-  // Ya es un objeto (Gemini output mode json?)
-  parsed = rawContent;
-  cleanContent = JSON.stringify(rawContent, null, 2);
+  // Check if it's the Gemini Envelope { parts: [{ text: "..." }] }
+  if (rawContent.parts && rawContent.parts[0] && rawContent.parts[0].text) {
+      const innerText = rawContent.parts[0].text;
+      const rawString = String(innerText || "");
+      cleanContent = rawString.replace(/```json/g, "").replace(/```/g, "").trim();
+      try {
+        parsed = JSON.parse(cleanContent);
+      } catch (e) {
+        parsed = {
+            briefing_html: "⚠️ Error Parseando Inner JSON: " + rawString,
+            topics: []
+        };
+      }
+  } else {
+     // Maybe it's already the flat object? unlikely given symptoms
+     parsed = rawContent; 
+     cleanContent = JSON.stringify(rawContent, null, 2);
+  }
 } else {
-  // Es string, limpiar markdown logs
+  // Es string directo?
   const rawString = String(rawContent || "");
   cleanContent = rawString.replace(/```json/g, "").replace(/```/g, "").trim();
   try {
     parsed = JSON.parse(cleanContent);
   } catch (e) {
     parsed = {
-      briefing_html: "⚠️ Error JSON: " + rawString,
+      briefing_html: "⚠️ Error Parseando String JSON: " + rawString,
       topics: []
     };
   }
@@ -41,8 +56,8 @@ const topics = parsed.topics || parsed.temas || parsed.items || parsed.noticias 
 // 5. Preparar Outputs
 return [{
   json: {
-    // Para Telegram (Texto)
-    mensaje_final: parsed.briefing_html || "Error de formato",
+    // Para Telegram (Texto) - Unwrapped String
+    mensaje_final: parsed.briefing_html || "Error de formato (No briefing_html)",
     
     // DEBUG: Raw Content
     raw_debug: cleanContent,
@@ -53,10 +68,20 @@ return [{
 }];"""
 
     code_node["parameters"]["jsCode"] = new_code
-    print("Successfully patched jsCode with robust status")
+    print("Successfully patched jsCode with envelope unwrapping")
 
 else:
     print("Code node not found")
+
+# Patch Telegram Node Expression
+telegram_node = next((n for n in nodes if n["name"] == "Notificar a Manu"), None)
+if telegram_node:
+    # Remove .parts[0].text from expression, just use mensaje_final directly
+    # Also keep the debug output
+    telegram_node["parameters"]["text"] = "={{ $json.mensaje_final }}\n\n🐞 DEBUG JSON:\n<pre>{{ $json.raw_debug }}</pre>"
+    print("Successfully patched Telegram node expression")
+else:
+    print("Telegram node not found")
 
 with open(file_path, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2)
