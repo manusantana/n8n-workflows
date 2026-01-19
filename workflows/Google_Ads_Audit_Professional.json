@@ -368,5 +368,11 @@
   "pinData": {},
   "active": false,
   "versionId": "cbbdf317-e187-4991-9883-7dfe4a627cdf",
-  "id": "D28PxgjqN7Ak3rpM0EYUf"
+  "id": "D28PxgjqN7Ak3rpM0EYUf",
+  "shared": [
+    {
+      "role": "workflow:owner",
+      "projectId": "zZvuPL6pwZZ6dEqo"
+    }
+  ]
 }
