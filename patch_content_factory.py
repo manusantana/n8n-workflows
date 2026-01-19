@@ -50,17 +50,37 @@ if (typeof rawContent === 'object' && rawContent !== null) {
   }
 }
 
+// 3. Sanitizar HTML para Telegram
+// Telegram NO soporta <br>, necesita \\n
+let finalMsg = parsed.briefing_html || "Error de formato (No briefing_html)";
+finalMsg = finalMsg.replace(/<br\\\\s*\\/?>/gi, "\\n");
+
 // 4. Robustez de Claves
 const topics = parsed.topics || parsed.temas || parsed.items || parsed.noticias || [];
 
-// 5. Preparar Outputs
+// 5. Escapar DEBUG para que no rompa el HTML de Telegram (<pre>)
+const escapeHtml = (unsafe) => {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+};
+// Truncate debug to avoid 4096 char limit failure
+let debugSafe = escapeHtml(cleanContent);
+if (debugSafe.length > 1500) {
+    debugSafe = debugSafe.substring(0, 1500) + "... (TRUNCATED)";
+}
+
+// 6. Preparar Outputs
 return [{
   json: {
     // Para Telegram (Texto) - Unwrapped String
-    mensaje_final: parsed.briefing_html || "Error de formato (No briefing_html)",
+    mensaje_final: finalMsg,
     
-    // DEBUG: Raw Content
-    raw_debug: cleanContent,
+    // DEBUG: Raw Content (Escaped & Truncated)
+    raw_debug: debugSafe,
 
     // Para Google Sheets
     data_json: JSON.stringify({ topics: topics })
@@ -68,7 +88,7 @@ return [{
 }];"""
 
     code_node["parameters"]["jsCode"] = new_code
-    print("Successfully patched jsCode with envelope unwrapping")
+    print("Successfully patched jsCode with HTML sanitization")
 
 else:
     print("Code node not found")
