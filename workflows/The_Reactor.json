@@ -149,29 +149,44 @@
     {
       "parameters": {
         "resource": "image",
-        "modelId": {
-          "__rl": true,
-          "value": "models/gemini-2.5-flash-image",
-          "mode": "list",
-          "cachedResultName": "models/gemini-2.5-flash-image (Nano Banana)"
-        },
-        "prompt": "3. \"image_prompt\":\n   - TU MISI\u00d3N: Escribir un prompt descriptivo en ingl\u00e9s para generar la imagen de portada.\n   - CONTENIDO OBLIGATORIO: La imagen DEBE representar visualmente los conceptos clave del art\u00edculo (T\u00edtulo: {{ $json.topic_title }}).\n   - EJEMPLOS VISUALES: Si el texto habla de \"Google UCP y carritos abandonados\", el prompt debe describir, por ejemplo, un logo de Google estilizado conectado por l\u00edneas a un carrito de compra abstracto con un cerebro de IA dentro. S\u00e9 creativo con las met\u00e1foras visuales del tema.\n   - ESTILO ART\u00cdSTICO: Ilustraci\u00f3n digital conceptual imitando un boceto suelto hecho en iPad (estilo app Paper53).\n   - DETALLES DE ESTILO: Debe parecer hecho a mano, con texturas visibles de papel granulado, aguadas de acuarela (watercolor washes), y l\u00edneas de tinta imperfectas y sueltas.\n   - Keywords finales a incluir siempre: \"Conceptual editorial illustration, digital sketch, Paper53 style, watercolor and ink on textured paper, hand-drawn, loose brushstrokes, minimalist.\"",
+        "operation": "generate",
+        "prompt": "={{ $json.image_prompt }}",
+        "n": 1,
+        "size": "1024x1024",
+        "responseFormat": "url",
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
       "position": [
         800,
         0
       ],
       "id": "5011b4c8-f55e-42ec-b2ab-5309120e3f09",
-      "name": "Generate an image",
+      "name": "Generate Image (DALL-E)",
       "credentials": {
-        "googlePalmApi": {
-          "id": "ScgXEyFYKFmtP8M4",
-          "name": "Google Gemini(PaLM) Api account"
+        "openAiApi": {
+          "id": "2hav82eKKT2LEptu",
+          "name": "Openai - n8n"
         }
       }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url }}",
+        "authentication": "none",
+        "responseFormat": "file",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        920,
+        0
+      ],
+      "id": "download-image-node",
+      "name": "Download Image"
     },
     {
       "parameters": {
@@ -364,14 +379,25 @@
       "main": [
         [
           {
-            "node": "Generate an image",
+            "node": "Generate Image (DALL-E)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Generate an image": {
+    "Generate Image (DALL-E)": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
       "main": [
         [
           {

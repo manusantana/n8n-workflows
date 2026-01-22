@@ -1,6 +1,13 @@
 # n8n Data (Database, binaries, logs)
 n8n_data/
+n8n_data_incoming/
+vps_snapshot/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
 # Environment variables (Secrets)
 .env
+
 # System
 .DS_Store
