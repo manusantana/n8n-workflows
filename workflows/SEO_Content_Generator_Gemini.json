@@ -36,42 +36,17 @@
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=ACT AS: The Revenue Architect (Content Strategist).\nCONTEXT: You are analyzing the 'Personal Brand' wheel which has 3 pillars:\n1. BUSINESS (Negocio): Focus on Sales, 'Pain Points', Growth Dictionary.\n2. EFFICIENCY (Eficiencia): Low-Code, Automation, n8n vs Make, Blueprints.\n3. SINCERITY (Sinceridad): Radical transparency, Audits, Dashboards.\n\nTASK: Write an SEO-optimized blog post for LLMs about the topic: '{{$json.topic}}'.\nSTYLE: Direct, Technical, 'Canalla' (Cheeky), No Fluff.\nSTRUCTURE: H1, H2 (Pain Point), H2 (Solution), Bullet Points, JSON-LD FAQ."
-      },
-      "id": "basic-llm-chain",
-      "name": "Generate SEO Content",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.4,
-      "position": [
-        900,
-        340
-      ],
-      "inputs": [
-        {
-          "index": 0,
-          "displayName": "Model",
-          "name": "model",
-          "type": "model",
-          "maxConnections": 1,
-          "required": true
-        }
-      ]
-    },
-    {
-      "parameters": {
         "modelName": "models/gemini-1.5-flash",
-        "options": {
-          "temperature": 0.7
-        }
+        "prompt": "=ACT AS: The Revenue Architect (Content Strategist).\nCONTEXT: You are analyzing the 'Personal Brand' wheel which has 3 pillars:\n1. BUSINESS (Negocio): Focus on Sales, 'Pain Points', Growth Dictionary.\n2. EFFICIENCY (Eficiencia): Low-Code, Automation, n8n vs Make, Blueprints.\n3. SINCERITY (Sinceridad): Radical transparency, Audits, Dashboards.\n\nTASK: Write an SEO-optimized blog post for LLMs about the topic: '{{$json.topic}}'.\nSTYLE: Direct, Technical, 'Canalla' (Cheeky), No Fluff.\nSTRUCTURE: H1, H2 (Pain Point), H2 (Solution), Bullet Points, JSON-LD FAQ.",
+        "options": {}
       },
-      "id": "google-gemini-model",
-      "name": "Google Gemini Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "id": "google-gemini-standalone",
+      "name": "Generate SEO Content",
+      "type": "n8n-nodes-base.googleGemini",
       "typeVersion": 1,
       "position": [
         900,
-        560
+        340
       ],
       "credentials": {
         "googleGeminiApi": {
@@ -99,17 +74,6 @@
           {
             "node": "Generate SEO Content",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Gemini Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Generate SEO Content",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
