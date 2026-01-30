@@ -1,6 +1,7 @@
 [
     {
         "name": "LinkedIn Publisher (Reply Handler)",
+        "active": false,
         "nodes": [
             {
                 "parameters": {
