@@ -1,0 +1,224 @@
+[
+    {
+        "name": "LinkedIn Publisher (Reply Handler)",
+        "nodes": [
+            {
+                "parameters": {
+                    "updates": [
+                        "message"
+                    ],
+                    "additionalFields": {}
+                },
+                "id": "telegram-trigger",
+                "name": "Telegram Trigger",
+                "type": "n8n-nodes-base.telegramTrigger",
+                "typeVersion": 1.1,
+                "position": [
+                    -220,
+                    0
+                ],
+                "webhookId": "linkedin-reply-webhook",
+                "credentials": {
+                    "telegramApi": {
+                        "id": "yDpQzNCgbZRDEeGA",
+                        "name": "Telegram account"
+                    }
+                }
+            },
+            {
+                "parameters": {
+                    "conditions": {
+                        "boolean": [
+                            {
+                                "value1": "={{ !!$json.message.reply_to_message && $json.message.reply_to_message.text.includes('Post Subido a Borradores') }}",
+                                "value2": true
+                            }
+                        ]
+                    }
+                },
+                "id": "check-is-reply",
+                "name": "Check if Reply to Draft",
+                "type": "n8n-nodes-base.if",
+                "typeVersion": 1,
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            {
+                "parameters": {
+                    "rules": {
+                        "values": [
+                            {
+                                "value": "={{ $json.message.text.trim().toLowerCase() === 'ok' }}"
+                            }
+                        ]
+                    }
+                },
+                "id": "check-ok",
+                "name": "Check Content",
+                "type": "n8n-nodes-base.if",
+                "typeVersion": 1,
+                "position": [
+                    220,
+                    0
+                ]
+            },
+            {
+                "parameters": {
+                    "jsCode": "const original = $('Telegram Trigger').item.json.message.reply_to_message.text;\nconst marker = \"LinkedIn Copy:\";\nlet content = \"\";\nif (original.includes(marker)) {\n  content = original.split(marker)[1].trim();\n} else {\n  content = original;\n}\nreturn { json: { content } };"
+                },
+                "id": "extract-copy",
+                "name": "Extract Copy",
+                "type": "n8n-nodes-base.code",
+                "typeVersion": 2,
+                "position": [
+                    460,
+                    -100
+                ]
+            },
+            {
+                "parameters": {
+                    "content": {
+                        "text": "={{ $json.content }}"
+                    },
+                    "options": {}
+                },
+                "id": "linkedin-publish-draft",
+                "name": "LinkedIn Publish (Draft)",
+                "type": "n8n-nodes-base.linkedin",
+                "typeVersion": 2,
+                "position": [
+                    680,
+                    -100
+                ],
+                "credentials": {
+                    "linkedinOAuth2Api": {
+                        "id": "INSERT_LINKEDIN_CREDENTIAL_ID",
+                        "name": "LinkedIn Account"
+                    }
+                }
+            },
+            {
+                "parameters": {
+                    "content": {
+                        "text": "={{ $('Telegram Trigger').item.json.message.text }}"
+                    },
+                    "options": {}
+                },
+                "id": "linkedin-publish-new",
+                "name": "LinkedIn Publish (New)",
+                "type": "n8n-nodes-base.linkedin",
+                "typeVersion": 2,
+                "position": [
+                    680,
+                    100
+                ],
+                "credentials": {
+                    "linkedinOAuth2Api": {
+                        "id": "INSERT_LINKEDIN_CREDENTIAL_ID",
+                        "name": "LinkedIn Account"
+                    }
+                }
+            },
+            {
+                "parameters": {
+                    "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+                    "text": "✅ *Publicado en LinkedIn*\n\nTu post ya está en vivo.",
+                    "additionalFields": {
+                        "parse_mode": "Markdown"
+                    }
+                },
+                "id": "notify-success",
+                "name": "Notify Success",
+                "type": "n8n-nodes-base.telegram",
+                "typeVersion": 1.1,
+                "position": [
+                    920,
+                    0
+                ],
+                "credentials": {
+                    "telegramApi": {
+                        "id": "yDpQzNCgbZRDEeGA",
+                        "name": "Telegram account"
+                    }
+                }
+            }
+        ],
+        "connections": {
+            "Telegram Trigger": {
+                "main": [
+                    [
+                        {
+                            "node": "Check if Reply to Draft",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Check if Reply to Draft": {
+                "main": [
+                    [
+                        {
+                            "node": "Check Content",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Check Content": {
+                "main": [
+                    [
+                        {
+                            "node": "Extract Copy",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ],
+                    [
+                        {
+                            "node": "LinkedIn Publish (New)",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "Extract Copy": {
+                "main": [
+                    [
+                        {
+                            "node": "LinkedIn Publish (Draft)",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "LinkedIn Publish (Draft)": {
+                "main": [
+                    [
+                        {
+                            "node": "Notify Success",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
+            "LinkedIn Publish (New)": {
+                "main": [
+                    [
+                        {
+                            "node": "Notify Success",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            }
+        }
+    }
+]
