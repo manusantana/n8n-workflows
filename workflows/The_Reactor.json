@@ -1,463 +1,566 @@
-{
-  "id": "LTtD6izOWBatig-7qv8IA",
-  "name": "The Reactor",
-  "versionId": "a9f9725c-df90-4a9d-8971-ca5d3d57ded7",
-  "nodes": [
-    {
-      "parameters": {
-        "updates": [
-          "message"
+[
+  {
+    "updatedAt": "2026-02-01T15:38:46.237Z",
+    "createdAt": "2026-01-11T08:53:45.709Z",
+    "id": "LTtD6izOWBatig-7qv8IA",
+    "name": "The Reactor",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "updates": [
+            "message"
+          ],
+          "additionalFields": {
+            "userIds": "7284267714"
+          }
+        },
+        "type": "n8n-nodes-base.telegramTrigger",
+        "typeVersion": 1.2,
+        "position": [
+          -448,
+          0
         ],
-        "additionalFields": {
-          "userIds": "7284267714"
+        "id": "97d8f78e-d316-4afa-bd99-935847178a30",
+        "name": "Telegram Trigger",
+        "webhookId": "b522a8fe-76eb-4c56-8ded-52ee891bbf26",
+        "credentials": {
+          "telegramApi": {
+            "id": "yDpQzNCgbZRDEeGA",
+            "name": "Telegram account"
+          }
         }
       },
-      "type": "n8n-nodes-base.telegramTrigger",
-      "typeVersion": 1.2,
-      "position": [
-        -448,
-        0
-      ],
-      "id": "97d8f78e-d316-4afa-bd99-935847178a30",
-      "name": "Telegram Trigger",
-      "webhookId": "b522a8fe-76eb-4c56-8ded-52ee891bbf26",
-      "credentials": {
-        "telegramApi": {
-          "id": "yDpQzNCgbZRDEeGA",
-          "name": "Telegram account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit?gid=0#gid=0",
-          "mode": "url"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Hoja 1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit#gid=0"
-        },
-        "options": {
-          "dataLocationOnSheet": {
-            "values": {
-              "rangeDefinition": "detectAutomatically"
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit?gid=0#gid=0",
+            "mode": "url"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit#gid=0"
+          },
+          "options": {
+            "dataLocationOnSheet": {
+              "values": {
+                "rangeDefinition": "detectAutomatically"
+              }
             }
           }
-        }
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        -192,
-        0
-      ],
-      "id": "54be314c-f2bb-4210-bf5c-0d34383e87d5",
-      "name": "Get row(s) in sheet",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "l2xD3QINvvmbY8nJ",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// --- 1. OBTENER INPUTS ---\nconst triggerData = $('Telegram Trigger').first();\nconst text = triggerData ? triggerData.json.message.text : \"\";\n\n// --- NUEVA LÓGICA DE FILTRADO (FIX: Strict Number) ---\n// Queremos que este workflow SOLO salte si el usuario escribe un NÚMERO (1-5).\n// Ignoramos todo lo demás (OK, Hola, etc.) para evitar conflictos.\n\nconst selection = parseInt(text.trim());\nconst isNumber = !isNaN(selection) && selection >= 1 && selection <= 5;\n\n// Si NO es un número válido 1-5 -> IGNORAR SILENCIOSAMENTE \n// (Devolvemos array vacío para que el workflow se detenga aquí)\nif (!isNumber) {\n  return [];\n}\n\n// Si ES 1-5, continuamos (ignorando si es reply o no)\n\n// Buscamos los datos de Google Sheets\nconst lastRow = items[items.length - 1].json;\n\n// --- 2. EXTRACCIÓN DEL TEMA ---\nlet memory;\ntry {\n  memory = lastRow.data_json ? JSON.parse(lastRow.data_json) : {};\n} catch (e) {\n  return { json: { error: \"❌ Error crítico: JSON inválido.\", valid: false } };\n}\n\nconst topics = memory.topics || [];\nconst topic = topics[selection - 1];\n\nif (!topic) {\n  return { json: { error: `❌ Tema no encontrado (${selection}).`, valid: false } };\n}\n\n// --- 3. PREPARAR PAQUETE ---\nreturn {\n  json: {\n    valid: true,\n    user_selection: selection,\n    topic_title: topic.title,\n    topic_rationale: topic.rationale,\n    topic_sources: topic.sources ? topic.sources.join(\", \") : \"\",\n    system_prompt: topic.system_prompt || \"\"\n  }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        64,
-        0
-      ],
-      "id": "ae5a1d9b-0b8b-4ea4-88ea-fd7633a09c57",
-      "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "models/gemini-2.5-flash",
-          "mode": "list",
-          "cachedResultName": "models/gemini-2.5-flash"
         },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        260,
-        180
-      ],
-      "id": "f854748b-fa7f-4bdc-a7ca-6c4f2c83854d",
-      "name": "Google Gemini Model",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "ScgXEyFYKFmtP8M4",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "messages": {
-          "messageValues": [
-            {
-              "type": "HumanMessagePromptTemplate",
-              "message": "=Actúa como YO, Manu Santana. Soy Head of Marketing y experto en Growth de negocio y Marketing, con un tono directo, un poco canalla, muy técnico pero sin palabras de relleno. Odio el lenguaje corporativo tipo \"en el panorama actual\". Soy un apasionado de la IA y la aplico en mi día a día. Me quiero posicionar como el mayor experto en Transformar departamentos de marketing traducionales en nuevos departamentos de marketing preparados para IA, ahorrando costes a la empresas y siendo más productivos.\n\nMI ESTILO DE ESCRITURA:\n- Frases cortas. Punchy.\n- Uso de flechas (->) o listas para explicar lógica.\n- Preguntas retóricas para enganchar.\n- Cero paja. Voy al grano.\n- Escribe segunda persona del singular. \"Prepárate. Lo que vamos a discutir no es un futuro prometedor, ni una tendencia emergente. Es una realidad que Google acaba de poner sobre la mesa y que va a cambiar, de forma radical, las reglas del juego del comercio online. Olvida las predicciones.\"\n- Cero palabras mal sonantes. Sé educado.\n\nEJEMPLO DE CÓMO ESCRIBO (Imita este tono):\n\"Excelente primera jornada representando a Zumex Group en el EDEM Escuela de Empresarios del hashtag#programa hashtag#agroalimentario con un interesante café con Hortensia Roig y ponentes top como: José María Bonmatí Eduardo Baamonde Leonor Sáiz Amorós Víctor Yuste Jordán y Manuel Lainez Andrés Mañana más y mejor!\"\n\"Gran gala de los hashtag#premiosmia24 organizada por el Club Marketing Mediterráneo y la inspiradora charla de Amuda Goueli para seguir innovando y el gran valor estratégico del área de marketing en los mejores, y sobre todo, en los peores momentos. Muchas gracias por esa inspiración para todo el equipo Zumex Group que represento esta noche.\"\n\nDATOS DEL TEMA DE HOY:\n- Título: {{ $json.topic_title }}\n- Razón: {{ $json.topic_rationale }}\n- Fuentes: {{ $json.topic_sources }}\n- Prompt Sistema: {{ $json.system_prompt }}\n\nTAREA:\n1. Escribe un borrador para LinkedIn (max 1500 caracteres).\n2. Escribe un borrador para Blog (HTML formateado con H2, H3, p, ul).\n3. Genera un prompt para crear una imagen destacada en DALL-E 3 que represente este tema.\n    - ESTILO ARTÍSTICO: Estilo de imagen de la App de iPad Paper 53, estilo más de dibujo, esquema de acuarela.\n    - DETALLES DE ESTILO: Debe parecer un boceto artístico hecho a mano en tablet, con trazos sueltos y aguadas de acuarela.\n    - RESTRICCIÓN: El 'image_prompt' generado NO debe superar los 999 caracteres.\n    - Keywords finales a incluir siempre: \"Paper 53 app style, digital drawing, watercolor sketch, hand-drawn, loose lines, artistic.\"\n\nFORMATO JSON ESPERADO:\n{\n  \"linkedin_draft\": \"...\",\n  \"blog_draft\": \"...\",\n  \"image_prompt\": \"...\"\n}\n\nIMPORTANTE: Devuelve SOLO el JSON válido. Sin bloques de código markdown (```json). Sin texto antes ni después."
-            }
-          ]
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.4,
-      "position": [
-        272,
-        0
-      ],
-      "id": "basic-llm-chain",
-      "name": "Basic LLM Chain"
-    },
-    {
-      "parameters": {
-        "jsCode": "// 1. Limpieza JSON (Igual que antes)\nconst root = items[0].json;\nconst rawText = (root.content && root.content.parts) ? root.content.parts[0].text : root.text;\n\n// Buscador de llaves para evitar basura\nconst firstBrace = rawText.indexOf('{');\nconst lastBrace = rawText.lastIndexOf('}');\nlet cleanJSON = rawText;\n\nif (firstBrace !== -1 && lastBrace !== -1) {\n    cleanJSON = rawText.substring(firstBrace, lastBrace + 1);\n}\n\n// 2. Fix saltos de l\u00ednea y Parseo\nlet content = {};\ntry {\n    const fixedJSON = cleanJSON.replace(/\\n/g, \"\\\\n\").replace(/\\r/g, \"\");\n    content = JSON.parse(fixedJSON);\n} catch (e) {\n    try { content = JSON.parse(cleanJSON); } catch(e2) {\n        content = { linkedin_content: \"\u26a0\ufe0f Error formato\", blog_content: \"Error\" };\n    }\n}\n\n// 3. RECUPERAR T\u00cdTULO ORIGINAL\nlet originalTitle = \"Borrador Autom\u00e1tico\";\ntry {\n    originalTitle = $('Code in JavaScript').first().json.target_topic.title; \n} catch(e) {\n    try { originalTitle = $('Code in JavaScript').first().json.topic_title; } catch(e2) {}\n}\n\n// SALIDA ACTUALIZADA CON EL PROMPT DE IMAGEN\nreturn {\n    json: {\n        title: originalTitle,\n        linkedin_draft: content.linkedin_content || content.linkedin_draft,\n        blog_draft: content.blog_content || content.blog_draft,\n        // A\u00d1ADIMOS ESTA L\u00cdNEA (MODIFICADO): Limitamos a 999 chars y estilo Paper 53\n        image_prompt: (content.image_prompt || \"iPad app Paper 53 style, drawing style, watercolor sketch, conceptual illustration\").substring(0, 999)\n    }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        608,
-        0
-      ],
-      "id": "9a50eba4-e10c-4709-a4ec-776ccb89ba18",
-      "name": "Code"
-    },
-    {
-      "parameters": {
-        "chatId": "7284267714",
-        "text": "=\ud83d\ude80 *WORKFLOW COMPLETADO*\n\n\ud83d\udcf1 *Para LinkedIn (Copiar y Pegar):*\n-----------------------------\n{{ $('Code').item.json.linkedin_draft }}\n-----------------------------\n\n\ud83d\udcdd *WordPress:*\n\u2705 Borrador creado correctamente:\nTitle: {{ $json.title.rendered || $json.title }}\nID: {{ $json.id }}\n\n(Entra a tu WP para editar y publicar el art\u00edculo)",
-        "additionalFields": {
-          "parse_mode": "Markdown"
-        }
-      },
-      "id": "79d42b9e-8d34-452a-ab50-b83fc9290f1b",
-      "name": "Notificar a Manu",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.1,
-      "position": [
-        1760,
-        0
-      ],
-      "webhookId": "1e5f367b-022f-4c81-992c-77a37e7ac330",
-      "credentials": {
-        "telegramApi": {
-          "id": "yDpQzNCgbZRDEeGA",
-          "name": "Telegram account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "resource": "image",
-        "operation": "generate",
-        "prompt": "={{ $json.image_prompt }}",
-        "n": 1,
-        "size": "1024x1024",
-        "responseFormat": "url",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.openAi",
-      "typeVersion": 1,
-      "position": [
-        800,
-        0
-      ],
-      "id": "5011b4c8-f55e-42ec-b2ab-5309120e3f09",
-      "name": "Generate Image (DALL-E)",
-      "credentials": {
-        "openAiApi": {
-          "id": "2hav82eKKT2LEptu",
-          "name": "Openai - n8n"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://manusantana.com/wp-json/wp/v2/media",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "wordpressApi",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "User-Agent",
-              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            },
-            {
-              "name": "Content-Disposition",
-              "value": "attachment; filename=portada_ia.png"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "binaryData",
-        "inputDataFieldName": "=data",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1264,
-        0
-      ],
-      "id": "66365db8-4ed9-4e7a-bb94-2cf8e674e1d1",
-      "name": "HTTP Request",
-      "credentials": {
-        "wordpressApi": {
-          "id": "wfB9IY5mVyTdtlVF",
-          "name": "Wordpress account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://manusantana.com/wp-json/wp/v2/posts",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "wordpressApi",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "=title",
-              "value": "={{ $('Code').item.json.title }}"
-            },
-            {
-              "name": "=content",
-              "value": "={{ $('Code').item.json.blog_draft }}"
-            },
-            {
-              "name": "=status",
-              "value": "draft"
-            },
-            {
-              "name": "featured_media",
-              "value": "={{ $json.id }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1504,
-        0
-      ],
-      "id": "d6d4277d-c13c-4744-a942-d06e5df74d25",
-      "name": "Wordpress Connect",
-      "credentials": {
-        "wordpressApi": {
-          "id": "wfB9IY5mVyTdtlVF",
-          "name": "Wordpress account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "amount": 3
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        1040,
-        0
-      ],
-      "id": "40c54081-e8c0-4a62-8902-ca86f9267278",
-      "name": "Wait",
-      "webhookId": "c710ee37-d4e0-4f18-bc2e-95595a2d4b8a"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "value1": "={{ $json.valid }}",
-              "value2": true
-            }
-          ]
-        }
-      },
-      "id": "bbdf65cb-0a9a-4a2c-b621-f66239659d51",
-      "name": "Check Validity",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        460,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "chatId": "7284267714",
-        "text": "={{ $json.error }}",
-        "additionalFields": {
-          "parse_mode": "HTML"
-        }
-      },
-      "id": "5a5021de-7fcc-43f2-9bd5-6ee3a2bed626",
-      "name": "Notify Error",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.1,
-      "position": [
-        460,
-        200
-      ],
-      "webhookId": "e98953a0-db5e-41f0-bd78-5f90f63f791e",
-      "credentials": {
-        "telegramApi": {
-          "id": "yDpQzNCgbZRDEeGA",
-          "name": "Telegram account"
-        }
-      }
-    }
-  ],
-  "connections": {
-    "Telegram Trigger": {
-      "main": [
-        [
-          {
-            "node": "Get row(s) in sheet",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get row(s) in sheet": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Check Validity",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Gemini Model": {
-      "ai_language_model": [
-        [
-          {
-            "node": "Basic LLM Chain",
-            "type": "ai_language_model",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Basic LLM Chain": {
-      "main": [
-        [
-          {
-            "node": "Code",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code": {
-      "main": [
-        [
-          {
-            "node": "Generate Image (DALL-E)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Generate Image (DALL-E)": {
-      "main": [
-        [
-          {
-            "node": "Wait",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "Wordpress Connect",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wordpress Connect": {
-      "main": [
-        [
-          {
-            "node": "Notificar a Manu",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Validity": {
-      "main": [
-        [
-          {
-            "node": "Basic LLM Chain",
-            "type": "main",
-            "index": 0
-          }
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          -192,
+          0
         ],
-        [
-          {
-            "node": "Notify Error",
-            "type": "main",
-            "index": 0
+        "id": "54be314c-f2bb-4210-bf5c-0d34383e87d5",
+        "name": "Get row(s) in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "l2xD3QINvvmbY8nJ",
+            "name": "Google Sheets account"
           }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// --- 1. OBTENER INPUTS ---\nconst triggerData = $('Telegram Trigger').first();\nconst text = triggerData ? triggerData.json.message.text : \"\";\n\n// --- NUEVA L\u00d3GICA DE FILTRADO (FIX: Strict Number) ---\n// Queremos que este workflow SOLO salte si el usuario escribe un N\u00daMERO (1-5).\n// Ignoramos todo lo dem\u00e1s (OK, Hola, etc.) para evitar conflictos.\n\nconst selection = parseInt(text.trim());\nconst isNumber = !isNaN(selection) && selection >= 1 && selection <= 5;\n\n// Si NO es un n\u00famero v\u00e1lido 1-5 -> IGNORAR SILENCIOSAMENTE \n// (Devolvemos array vac\u00edo para que el workflow se detenga aqu\u00ed)\nif (!isNumber) {\n  return [];\n}\n\n// Si ES 1-5, continuamos (ignorando si es reply o no)\n\n// Buscamos los datos de Google Sheets\nconst lastRow = items[items.length - 1].json;\n\n// --- 2. EXTRACCI\u00d3N DEL TEMA ---\nlet memory;\ntry {\n  memory = lastRow.data_json ? JSON.parse(lastRow.data_json) : {};\n} catch (e) {\n  return { json: { error: \"\u274c Error cr\u00edtico: JSON inv\u00e1lido.\", valid: false } };\n}\n\nconst topics = memory.topics || [];\nconst topic = topics[selection - 1];\n\nif (!topic) {\n  return { json: { error: `\u274c Tema no encontrado (${selection}).`, valid: false } };\n}\n\n// --- 3. PREPARAR PAQUETE ---\nreturn {\n  json: {\n    valid: true,\n    user_selection: selection,\n    topic_title: topic.title,\n    topic_rationale: topic.rationale,\n    topic_sources: topic.sources ? topic.sources.join(\", \") : \"\",\n    system_prompt: topic.system_prompt || \"\"\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          64,
+          0
+        ],
+        "id": "ae5a1d9b-0b8b-4ea4-88ea-fd7633a09c57",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {
+          "modelId": {
+            "__rl": true,
+            "value": "models/gemini-2.5-flash",
+            "mode": "list",
+            "cachedResultName": "models/gemini-2.5-flash"
+          },
+          "messages": {
+            "values": [
+              {}
+            ]
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.googleGemini",
+        "typeVersion": 1.1,
+        "position": [
+          -96,
+          -544
+        ],
+        "id": "f854748b-fa7f-4bdc-a7ca-6c4f2c83854d",
+        "name": "Google Gemini Model",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "ScgXEyFYKFmtP8M4",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Act\u00faa como YO, Manu Santana. Soy Head of Marketing y experto en Growth de negocio y Marketing, con un tono directo, un poco canalla, muy t\u00e9cnico pero sin palabras de relleno. Odio el lenguaje corporativo tipo \"en el panorama actual\". Soy un apasionado de la IA y la aplico en mi d\u00eda a d\u00eda. Me quiero posicionar como el mayor experto en Transformar departamentos de marketing traducionales en nuevos departamentos de marketing preparados para IA, ahorrando costes a la empresas y siendo m\u00e1s productivos.\n\nMI ESTILO DE ESCRITURA:\n- Frases cortas. Punchy.\n- Uso de flechas (->) o listas para explicar l\u00f3gica.\n- Preguntas ret\u00f3ricas para enganchar.\n- Cero paja. Voy al grano.\n- Escribe segunda persona del singular. \"Prep\u00e1rate. Lo que vamos a discutir no es un futuro prometedor, ni una tendencia emergente. Es una realidad que Google acaba de poner sobre la mesa y que va a cambiar, de forma radical, las reglas del juego del comercio online. Olvida las predicciones.\"\n- Cero palabras mal sonantes. S\u00e9 educado.\n\nEJEMPLO DE C\u00d3MO ESCRIBO (Imita este tono):\n\"Excelente primera jornada representando a Zumex Group en el EDEM Escuela de Empresarios del hashtag#programa hashtag#agroalimentario con un interesante caf\u00e9 con Hortensia Roig. Ma\u00f1ana m\u00e1s y mejor!\"\n\"Gran gala de los hashtag#premiosmia24 organizada por el Club Marketing Mediterr\u00e1neo y la inspiradora charla de Amuda Goueli para seguir innovando y el gran valor estrat\u00e9gico del \u00e1rea de marketing en los mejores, y sobre todo, en los peores momentos. Muchas gracias por esa inspiraci\u00f3n para todo el equipo Zumex Group que represento esta noche.\"\n\nDATOS DEL TEMA DE HOY:\n- T\u00edtulo: {{ $json.topic_title }}\n- Raz\u00f3n: {{ $json.topic_rationale }}\n- Fuentes: {{ $json.topic_sources }}\n- Prompt Sistema: {{ $json.system_prompt }}\n\nTAREA:\n1. Escribe un borrador para LinkedIn (max 1500 caracteres).\n2. Escribe un borrador para Blog (HTML formateado con H2, H3, p, ul).\n3. Generate structured data to define the image concept (DO NOT generate a full image prompt).\n\nReturn the following fields:\n\n- image_subject:\n  A single, real, recognizable subject from the real world (animal, person, object, or everyday scene).\n  It must be concrete and literal, not conceptual or metaphorical.\n  Examples:\n  - \"a real dog portrait, calm expression, indoors\"\n  - \"a person reading news on a laptop at a desk\"\n  - \"a smartphone showing a social media post\"\n  - \"a storefront seen from the street\"\n\n- image_theme:\n  A short sentence describing the news topic or context of the image.\n  This is for context only, not for visual metaphors.\n  Example:\n  - \"publishers blocking Google AI overviews\"\n\n- image_keywords:\n  An array of 5 to 10 REAL, common words related to the topic.\n  Use only real language.\n  Do NOT invent words.\n  Examples:\n  [\"Marketing\",\"AI\",\"Google\",\"Traffic\",\"SEO\",\"Visibility\"]\n\nImportant rules:\n- Do NOT generate a full image prompt.\n- Do NOT describe style, drawing technique, or artistic aesthetics.\n- Do NOT include futuristic, abstract, or symbolic concepts.\n- The subject must always be something that exists in the real world.\n- Keywords must be real, commonly used words only.\n\n\nFORMATO JSON ESPERADO:\n{\n  \"linkedin_draft\": \"...\",\n  \"blog_draft\": \"...\",\n  \"image_subject\": \"\",\n  \"image_theme\": \"\",\n  \"image_keywords\": [\"\", \"\", \"\", \"\", \"\"]\n}\n\nIMPORTANTE: Devuelve SOLO el JSON v\u00e1lido. Sin bloques de c\u00f3digo markdown (```json). Sin texto antes ni despu\u00e9s."
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.4,
+        "position": [
+          272,
+          -288
+        ],
+        "id": "basic-llm-chain",
+        "name": "Basic LLM Chain"
+      },
+      {
+        "parameters": {
+          "jsCode": "// 1) Limpieza JSON (igual que antes)\nconst root = items[0].json;\nconst rawText = (root.content && root.content.parts) ? root.content.parts[0].text : (root.text || \"\");\n\n// Buscador de llaves para evitar basura\nconst firstBrace = rawText.indexOf('{');\nconst lastBrace = rawText.lastIndexOf('}');\nlet cleanJSON = rawText;\n\nif (firstBrace !== -1 && lastBrace !== -1) {\n  cleanJSON = rawText.substring(firstBrace, lastBrace + 1);\n}\n\n// 2) Fix saltos de l\u00ednea y Parseo\nlet content = {};\ntry {\n  const fixedJSON = cleanJSON.replace(/\\n/g, \"\\\\n\").replace(/\\r/g, \"\");\n  content = JSON.parse(fixedJSON);\n} catch (e) {\n  try {\n    content = JSON.parse(cleanJSON);\n  } catch (e2) {\n    content = { linkedin_content: \"\u26a0\ufe0f Error formato\", blog_content: \"Error\" };\n  }\n}\n\n// 2.1) Normalizador de campos (por si vienen con keys raras)\nconst linkedin_draft = content.linkedin_draft || content.linkedin_content || \"\";\nconst blog_draft = content.blog_draft || content.blog_content || \"\";\n\nconst image_subject =\n  content.image_subject ||\n  content.imageSubject ||\n  content.subject ||\n  \"\";\n\nconst image_theme =\n  content.image_theme ||\n  content.image_Theme ||\n  content.imageTheme ||\n  content.theme ||\n  \"\";\n\nlet image_keywords =\n  content.image_keywords ||\n  content.image_Keywords ||\n  content.imageKeywords ||\n  content.keywords ||\n  [];\n\n// keywords puede venir como string \"a, b, c\"\nif (typeof image_keywords === \"string\") {\n  image_keywords = image_keywords\n    .split(\",\")\n    .map(s => s.trim())\n    .filter(Boolean);\n}\n\nif (!Array.isArray(image_keywords)) image_keywords = [];\nimage_keywords = image_keywords\n  .map(k => String(k).trim())\n  .filter(Boolean)\n  .slice(0, 10);\n\n// 3) RECUPERAR T\u00cdTULO ORIGINAL (igual que antes)\nlet originalTitle = \"Borrador Autom\u00e1tico\";\ntry {\n  originalTitle = $('Code in JavaScript').first().json.target_topic.title;\n} catch (e) {\n  try { originalTitle = $('Code in JavaScript').first().json.topic_title; } catch (e2) {}\n}\n\n// 4) PROMPT FIJO (tu estilo)\nconst STYLE_PROMPT =\n  \"A realistic subject illustrated in the style of the iPad app Paper by FiftyThree. \" +\n  \"The subject must be a real, recognizable thing from the real world (animal, person, object, or everyday scene), not a metaphor, not an abstract concept. \" +\n  \"Hand-sketched watercolor look with loose pencil and ink lines, imperfect strokes, soft watercolor washes, and an off-white paper background. \" +\n  \"Paper53 style as an aesthetic, not a drawing action. \" +\n  \"No hands, no people, no body parts, no drawing tools. \" +\n  \"No robots, no mechanical parts, no futuristic or sci-fi aesthetics. \" +\n  \"No diagrams, no mind maps, no abstract symbols. \" +\n  \"Text is optional and secondary; if present, use only real, common words related to the topic. \" +\n  \"No invented words, no pseudo-text, no filler. \" +\n  \"Calm, human, organic, editorial tone.\";\n\n// 5) Construcci\u00f3n del prompt final (controlado)\nconst subjectFinal = (image_subject && String(image_subject).trim()) || `a real-world subject related to: ${originalTitle}`;\nconst themeFinal = (image_theme && String(image_theme).trim()) || \"\";\nconst keywordsFinal = (image_keywords && image_keywords.length) ? image_keywords.join(\", \") : \"\";\n\nconst finalImagePrompt = (\n  `${STYLE_PROMPT}\\n\\n` +\n  `Main subject: ${subjectFinal}.\\n` +\n  (themeFinal ? `Theme/context: ${themeFinal}.\\n` : \"\") +\n  (keywordsFinal ? `Optional real words (if used, short): ${keywordsFinal}.\\n` : \"\") +\n  \"Prefer the image to work even with no text.\"\n).substring(0, 999);\n\n// 6) SALIDA FINAL\nreturn {\n  json: {\n    title: originalTitle,\n    linkedin_draft,\n    blog_draft,\n    image_subject: subjectFinal,\n    image_theme: themeFinal,\n    image_keywords: image_keywords,\n    image_prompt: finalImagePrompt\n  }\n};\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          656,
+          0
+        ],
+        "id": "9a50eba4-e10c-4709-a4ec-776ccb89ba18",
+        "name": "Code"
+      },
+      {
+        "parameters": {
+          "chatId": "7284267714",
+          "text": "=\u00f0\u009f\u009a\u0080 *WORKFLOW COMPLETADO*\n\n\u00f0\u009f\u0093\u00b1 *Para LinkedIn (Copiar y Pegar):*\n-----------------------------\n{{ $('Code').item.json.linkedin_draft }}\n-----------------------------\n\n\u00f0\u009f\u0093\u009d *WordPress:*\n\u2705 Borrador creado correctamente:\nTitle: {{ $json.title.rendered || $json.title }}\nID: {{ $json.id }}\n\n(Entra a tu WP para editar y publicar el art\u00edculo)",
+          "additionalFields": {
+            "parse_mode": "Markdown"
+          }
+        },
+        "id": "79d42b9e-8d34-452a-ab50-b83fc9290f1b",
+        "name": "Notificar a Manu",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.1,
+        "position": [
+          1760,
+          0
+        ],
+        "webhookId": "1e5f367b-022f-4c81-992c-77a37e7ac330",
+        "credentials": {
+          "telegramApi": {
+            "id": "yDpQzNCgbZRDEeGA",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resource": "image",
+          "prompt": "=A realistic subject illustrated in the style of the iPad app Paper by FiftyThree.\nThe subject must be a real, recognizable thing from the real world (animal, person, object, or everyday scene), not a metaphor, not a concept, not an abstract idea.\nThe illustration should feel like a hand-sketched watercolor drawing, with loose pencil and ink lines, imperfect strokes, soft watercolor washes, and natural texture.\nNo hands, no people, no robots, no mechanical elements, no futuristic or sci-fi aesthetics.\nNo diagrams, no mind maps, no abstract symbols.\nText is optional and should be minimal; if present, use only real, common words (never invented words or filler text).\nOff-white paper background. Calm, human, organic, warm tone. Looks like a real sketch made by a human, not AI concept art.\n\nMain subject: {{ $json.image_subject }}\nTheme/context (subtle): {{ $json.image_theme }}\nOptional real words (if used, short): {{ Array.isArray($json.image_keywords) ? $json.image_keywords.join(\", \") : $json.image_keywords }}",
+          "model": "dall-e-3",
+          "options": {},
+          "requestOptions": {}
+        },
+        "type": "n8n-nodes-base.openAi",
+        "typeVersion": 1,
+        "position": [
+          848,
+          0
+        ],
+        "id": "5011b4c8-f55e-42ec-b2ab-5309120e3f09",
+        "name": "Generate Image (DALL-E)",
+        "credentials": {
+          "openAiApi": {
+            "id": "2hav82eKKT2LEptu",
+            "name": "Openai - n8n"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://manusantana.com/wp-json/wp/v2/media",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "wordpressApi",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "User-Agent",
+                "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+              },
+              {
+                "name": "Content-Disposition",
+                "value": "attachment; filename=portada_ia.png"
+              }
+            ]
+          },
+          "sendBody": true,
+          "contentType": "binaryData",
+          "inputDataFieldName": "=data",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1264,
+          0
+        ],
+        "id": "66365db8-4ed9-4e7a-bb94-2cf8e674e1d1",
+        "name": "HTTP Request",
+        "credentials": {
+          "wordpressApi": {
+            "id": "wfB9IY5mVyTdtlVF",
+            "name": "Wordpress account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://manusantana.com/wp-json/wp/v2/posts",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "wordpressApi",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "=title",
+                "value": "={{ $('Code').item.json.title }}"
+              },
+              {
+                "name": "=content",
+                "value": "={{ $('Code').item.json.blog_draft }}"
+              },
+              {
+                "name": "=status",
+                "value": "draft"
+              },
+              {
+                "name": "featured_media",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1504,
+          0
+        ],
+        "id": "d6d4277d-c13c-4744-a942-d06e5df74d25",
+        "name": "Wordpress Connect",
+        "credentials": {
+          "wordpressApi": {
+            "id": "wfB9IY5mVyTdtlVF",
+            "name": "Wordpress account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 3
+        },
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          1040,
+          0
+        ],
+        "id": "40c54081-e8c0-4a62-8902-ca86f9267278",
+        "name": "Wait",
+        "webhookId": "c710ee37-d4e0-4f18-bc2e-95595a2d4b8a"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "boolean": [
+              {
+                "value1": "={{ $json.valid }}",
+                "value2": true
+              }
+            ]
+          }
+        },
+        "id": "bbdf65cb-0a9a-4a2c-b621-f66239659d51",
+        "name": "Check Validity",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 1,
+        "position": [
+          464,
+          0
         ]
+      },
+      {
+        "parameters": {
+          "chatId": "7284267714",
+          "text": "={{ $json.error }}",
+          "additionalFields": {
+            "parse_mode": "HTML"
+          }
+        },
+        "id": "5a5021de-7fcc-43f2-9bd5-6ee3a2bed626",
+        "name": "Notify Error",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.1,
+        "position": [
+          576,
+          304
+        ],
+        "webhookId": "e98953a0-db5e-41f0-bd78-5f90f63f791e",
+        "credentials": {
+          "telegramApi": {
+            "id": "yDpQzNCgbZRDEeGA",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          160,
+          -96
+        ],
+        "id": "493a63b8-6d36-4d2d-b833-64bd1854efac",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "2hav82eKKT2LEptu",
+            "name": "Openai - n8n"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Telegram Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Check Validity",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Gemini Model": {
+        "ai_language_model": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "ai_language_model",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Basic LLM Chain": {
+        "main": [
+          [
+            {
+              "node": "Code",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code": {
+        "main": [
+          [
+            {
+              "node": "Generate Image (DALL-E)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Image (DALL-E)": {
+        "main": [
+          [
+            {
+              "node": "Wait",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Wordpress Connect",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wordpress Connect": {
+        "main": [
+          [
+            {
+              "node": "Notificar a Manu",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait": {
+        "main": [
+          [
+            {
+              "node": "HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Validity": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Notify Error",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "staticData": null,
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "pinData": {
+      "Telegram Trigger": [
+        {
+          "json": {
+            "update_id": 173264291,
+            "message": {
+              "message_id": 43,
+              "from": {
+                "id": 7284267714,
+                "is_bot": false,
+                "first_name": "Manu",
+                "last_name": "Santana",
+                "language_code": "es"
+              },
+              "chat": {
+                "id": 7284267714,
+                "first_name": "Manu",
+                "last_name": "Santana",
+                "type": "private"
+              },
+              "date": 1768319122,
+              "text": "2"
+            }
+          },
+          "pairedItem": {
+            "item": 0
+          }
+        }
       ]
-    }
-  },
-  "settings": {},
-  "active": false
-}
+    },
+    "versionId": "1b21f2bf-ad69-4970-86aa-ce7d756f1bf7",
+    "activeVersionId": "1b21f2bf-ad69-4970-86aa-ce7d756f1bf7",
+    "versionCounter": 71,
+    "triggerCount": 1,
+    "tags": [
+      {
+        "updatedAt": "2026-01-11T08:53:52.795Z",
+        "createdAt": "2026-01-11T08:53:52.795Z",
+        "id": "uhHZ5uXbgX7TuWN5",
+        "name": "CreaContenido"
+      }
+    ],
+    "shared": [
+      {
+        "updatedAt": "2026-01-11T08:53:45.712Z",
+        "createdAt": "2026-01-11T08:53:45.712Z",
+        "role": "workflow:owner",
+        "workflowId": "LTtD6izOWBatig-7qv8IA",
+        "projectId": "zZvuPL6pwZZ6dEqo",
+        "project": {
+          "updatedAt": "2025-05-02T20:26:00.569Z",
+          "createdAt": "2025-05-02T20:12:42.968Z",
+          "id": "zZvuPL6pwZZ6dEqo",
+          "name": "Manu Santana <manu@manusantana.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+        }
+      }
+    ]
+  }
+]
