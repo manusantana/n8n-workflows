@@ -1,11 +1,5 @@
 {
-  "updatedAt": "2026-01-31T07:20:21.100Z",
-  "createdAt": "2026-01-31T06:54:17.685Z",
-  "id": "HhEbv3PhcA2XgDtN",
   "name": "LinkedIn Publisher (Reply Handler)",
-  "description": null,
-  "active": true,
-  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -32,58 +26,15 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "value1": "={{ !!$json.message.reply_to_message && ($json.message.reply_to_message.text.includes('WORKFLOW COMPLETADO') || $json.message.reply_to_message.text.includes('Para LinkedIn')) }}",
-              "value2": true
-            }
-          ]
-        },
-        "combinator": "all"
+        "jsCode": "const msg = $(\'Telegram Trigger\').item.json.message;\nconst reply = msg.reply_to_message;\nconst text = msg.text.trim();\n\n// 1. Check validation (must be reply to workflow)\nconst isWorkflowReply = reply && (reply.text.includes(\'WORKFLOW COMPLETADO\') || reply.text.includes(\'Para LinkedIn\'));\n\nif (!isWorkflowReply) {\n  // Not for us -> Ignore\n  return [];\n}\n\n// 2. Determine Mode\nlet contentToPost = \"\";\nlet mode = \"custom\";\n\nif (/^(ok|vale|si|yes|publicar)$/i.test(text)) {\n   // Mode: OK (Draft)\n   mode = \"draft\";\n   // Extract\n   const regex = /-{10,}\\n([\\s\\S]*?)\\n-{10,}/;\n   const match = reply.text.match(regex);\n   if (match && match[1]) {\n     contentToPost = match[1].trim();\n   } else {\n     contentToPost = reply.text; // Fallback\n   }\n} else {\n   // Mode: Custom\n   mode = \"custom\";\n   contentToPost = text; // Post the user's reply text\n}\n\nreturn { json: { content: contentToPost, mode } };"
       },
-      "id": "check-is-reply",
-      "name": "Check if Reply to Draft",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        16
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{ $json.message.text }}",
-              "operation": "regex",
-              "value2": "^(OK|ok|Ok|vale|si)$"
-            }
-          ]
-        },
-        "combinator": "all"
-      },
-      "id": "check-ok",
-      "name": "Check Content",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        208,
-        16
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const original = $('Telegram Trigger').item.json.message.reply_to_message.text;\n// Regex para sacar texto entre las l\u00edneas punteada\nconst regex = /-{10,}\\n([\\s\\S]*?)\\n-{10,}/;\nconst match = original.match(regex);\n\nlet content = \"\";\nif (match && match[1]) {\n  content = match[1].trim();\n} else {\n  // Fallback por si cambia el formato\n  content = original;\n}\n\nreturn { json: { content } };"
-      },
-      "id": "extract-copy",
-      "name": "Extract Copy",
+      "id": "router-code",
+      "name": "Router & Extract",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        464,
-        -160
+        0,
+        0
       ]
     },
     {
@@ -91,37 +42,21 @@
         "content": {
           "text": "={{ $json.content }}"
         },
-        "options": {}
-      },
-      "id": "linkedin-publish-draft",
-      "name": "LinkedIn Publish (Draft)",
-      "type": "n8n-nodes-base.linkedIn",
-      "typeVersion": 2,
-      "position": [
-        656,
-        -80
-      ],
-      "credentials": {
-        "linkedInOAuth2Api": {
-          "id": "lkHYGw5gYDx3I0H2",
-          "name": "LinkedIn account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "content": {
-          "text": "={{ $('Telegram Trigger').item.json.message.text }}"
+        "postAs": "person",
+        "person": {
+          "__rl": true,
+          "value": "me",
+          "mode": "id"
         },
         "options": {}
       },
-      "id": "linkedin-publish-new",
-      "name": "LinkedIn Publish (New)",
+      "id": "linkedin-publish",
+      "name": "LinkedIn Publish",
       "type": "n8n-nodes-base.linkedIn",
       "typeVersion": 2,
       "position": [
-        464,
-        224
+        240,
+        0
       ],
       "credentials": {
         "linkedInOAuth2Api": {
@@ -144,7 +79,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.1,
       "position": [
-        928,
+        480,
         0
       ],
       "webhookId": "fd5c893a-d9c7-431d-900b-371169ea1a39",
@@ -161,65 +96,25 @@
       "main": [
         [
           {
-            "node": "Check if Reply to Draft",
+            "node": "Router & Extract",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Check if Reply to Draft": {
+    "Router & Extract": {
       "main": [
         [
           {
-            "node": "Check Content",
+            "node": "LinkedIn Publish",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Check Content": {
-      "main": [
-        [
-          {
-            "node": "Extract Copy",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "LinkedIn Publish (New)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Copy": {
-      "main": [
-        [
-          {
-            "node": "LinkedIn Publish (Draft)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LinkedIn Publish (Draft)": {
-      "main": [
-        [
-          {
-            "node": "Notify Success",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LinkedIn Publish (New)": {
+    "LinkedIn Publish": {
       "main": [
         [
           {
@@ -231,34 +126,5 @@
       ]
     }
   },
-  "settings": {},
-  "staticData": null,
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
-  "pinData": {},
-  "versionId": "a978a07f-af33-4703-996f-45975f5f9b97",
-  "activeVersionId": null,
-  "versionCounter": 3,
-  "triggerCount": 0,
-  "tags": [],
-  "shared": [
-    {
-      "updatedAt": "2026-01-31T06:54:17.688Z",
-      "createdAt": "2026-01-31T06:54:17.688Z",
-      "role": "workflow:owner",
-      "workflowId": "HhEbv3PhcA2XgDtN",
-      "projectId": "zZvuPL6pwZZ6dEqo",
-      "project": {
-        "updatedAt": "2025-05-02T20:26:00.569Z",
-        "createdAt": "2025-05-02T20:12:42.968Z",
-        "id": "zZvuPL6pwZZ6dEqo",
-        "name": "Manu Santana <manu@manusantana.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
-      }
-    }
-  ]
+  "idx": 0
 }
