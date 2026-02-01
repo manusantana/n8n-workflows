@@ -32,7 +32,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const msg = $('Telegram Trigger').item.json.message;\nconst reply = msg.reply_to_message;\nconst text = msg.text.trim();\n\n// 1. Validation: Must be a reply\nif (!reply) {\n  return [];\n}\n\n// 2. CHECK: If text is a number 1-5, IGNORE IT.\n// (Let \"The Reactor\" handle it)\nconst selection = parseInt(text);\nif (!isNaN(selection) && selection >= 1 && selection <= 5) {\n   return [];\n}\n\n// 3. Determine Mode\nlet contentToPost = \"\";\nlet mode = \"custom\";\n\nif (/^(ok|vale|si|yes|publicar)$/i.test(text)) {\n   // Mode: OK (Draft)\n   mode = \"draft\";\n   // Extract content between dashed lines if available\n   const regex = /-{10,}\\n([\\s\\S]*?)\\n-{10,}/;\n   const match = reply.text.match(regex);\n   if (match && match[1]) {\n     contentToPost = match[1].trim();\n   } else {\n     // Fallback: Post the entire reply text (for testing or manual messages)\n     contentToPost = reply.text; \n   }\n} else {\n   // Mode: Custom\n   mode = \"custom\";\n   contentToPost = text; // Post the user's reply text\n}\n\n// 4. Safety Check: Don't post empty content\nif (!contentToPost) {\n    return [];\n}\n\nreturn { json: { content: contentToPost, mode } };"
+        "jsCode": "const msg = items[0].json.message;\n// Safety check if msg exists\nif (!msg) return [];\n\nconst reply = msg.reply_to_message;\nconst text = (msg.text || \"\").trim();\n\n// 1. ROUTE TO 'THE REACTOR' (Numbers 1-5)\n// Check this FIRST. It doesn't need to be a reply.\nconst selection = parseInt(text);\nif (!isNaN(selection) && selection >= 1 && selection <= 5) {\n   // Return item to Output Index 1\n   return [ [], [{ json: items[0].json }] ];\n}\n\n// 2. ROUTE TO LINKEDIN (Must be a reply)\nif (!reply) {\n  return [];\n}\n\n// 3. Determine Mode (Draft vs Custom)\nlet contentToPost = \"\";\nlet mode = \"custom\";\n\nif (/^(ok|vale|si|yes|publicar)$/i.test(text)) {\n   // Mode: OK (Draft)\n   mode = \"draft\";\n   // Extract content between dashed lines if available\n   const regex = /-{10,}\\n([\\s\\S]*?)\\n-{10,}/;\n   const match = reply.text.match(regex);\n   if (match && match[1]) {\n     contentToPost = match[1].trim();\n   } else {\n     contentToPost = reply.text; \n   }\n} else {\n   mode = \"custom\";\n   contentToPost = text;\n}\n\nif (!contentToPost) return [];\n\n// Return item to Output Index 0\nreturn [ [{ json: { content: contentToPost, mode } }], [] ];"
       },
       "id": "router-code",
       "name": "Router & Extract",
@@ -90,6 +90,20 @@
           "name": "LinkedIn account"
         }
       }
+    },
+    {
+      "parameters": {
+        "workflowId": "LTtD6izOWBatig-7qv8IA",
+        "mode": "transferredData"
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        224,
+        200
+      ],
+      "id": "execute-reactor",
+      "name": "Execute Reactor"
     }
   ],
   "connections": {
@@ -109,6 +123,13 @@
         [
           {
             "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Reactor",
             "type": "main",
             "index": 0
           }
