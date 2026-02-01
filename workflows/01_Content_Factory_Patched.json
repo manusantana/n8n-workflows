@@ -1,575 +1,228 @@
-[
-  {
-    "updatedAt": "2026-01-23T09:58:23.800Z",
-    "createdAt": "2026-01-23T09:39:28.331Z",
-    "id": "dCowk1Znj0XafmtI",
-    "name": "SEO Content Generator (Agentic)",
-    "description": null,
-    "active": false,
-    "isArchived": false,
-    "nodes": [
-      {
-        "parameters": {
-          "updates": [
-            "message"
-          ],
-          "additionalFields": {
-            "userIds": "7284267714"
-          }
-        },
-        "type": "n8n-nodes-base.telegramTrigger",
-        "typeVersion": 1.2,
-        "position": [
-          0,
-          0
-        ],
-        "id": "telegram-trigger-message",
-        "name": "Telegram Trigger (Message)",
-        "webhookId": "961c3a33-d277-44ea-ab41-cee65ffa5f33",
-        "credentials": {
-          "telegramApi": {
-            "id": "yDpQzNCgbZRDEeGA",
-            "name": "Telegram account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "https://api.perplexity.ai/chat/completions",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "perplexityApi",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Authorization",
-                "value": "Bearer PPLX_API_KEY_HERE"
-              },
-              {
-                "name": "Content-Type",
-                "value": "application/json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "model",
-                "value": "sonar-medium-online"
-              },
-              {
-                "name": "messages",
-                "value": "={{ [{\"role\": \"user\", \"content\": \"Busca tendencias, problemas t\u00e9cnicos, estad\u00edsticas recientes y discusiones en Reddit/LinkedIn sobre: \" + $('Telegram Trigger (Message)').item.json.message.text}] }}"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          224,
-          0
-        ],
-        "id": "perplexity-research",
-        "name": "Investigador (Perplexity)",
-        "credentials": {
-          "perplexityApi": {
-            "id": "HHBcJ67vw3ipnWKl",
-            "name": "Perplexity account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "options": {},
-          "requestOptions": {}
-        },
-        "type": "n8n-nodes-base.openAi",
-        "typeVersion": 1,
-        "position": [
-          448,
-          0
-        ],
-        "id": "openai-brain",
-        "name": "Cerebro (Router)",
-        "credentials": {
-          "openAiApi": {
-            "id": "2hav82eKKT2LEptu",
-            "name": "Openai - n8n"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "fileName": "=/tmp/seo_context_{{ $('Telegram Trigger (Message)').item.json.message.chat.id }}.json",
-          "options": {}
-        },
-        "type": "n8n-nodes-base.writeBinaryFile",
-        "typeVersion": 1,
-        "position": [
-          672,
-          112
-        ],
-        "id": "save-context",
-        "name": "Save Context"
-      },
-      {
-        "parameters": {
-          "chatId": "={{ $('Telegram Trigger (Message)').item.json.message.chat.id }}",
-          "text": "\ud83e\udde0 *Estrategia Generada*\nSelecciona un \u00e1ngulo para desarrollar el contenido:",
-          "replyMarkup": "inlineKeyboard",
-          "additionalFields": {
-            "parse_mode": "Markdown"
-          }
-        },
-        "type": "n8n-nodes-base.telegram",
-        "typeVersion": 1.1,
-        "position": [
-          672,
-          -96
-        ],
-        "id": "telegram-menu",
-        "name": "Menu Telegram",
-        "webhookId": "42ef942a-0712-4cdb-a906-a52b5b02c1d1",
-        "credentials": {
-          "telegramApi": {
-            "id": "yDpQzNCgbZRDEeGA",
-            "name": "Telegram account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "updates": [
-            "callback_query"
-          ],
-          "additionalFields": {
-            "userIds": "7284267714"
-          }
-        },
-        "type": "n8n-nodes-base.telegramTrigger",
-        "typeVersion": 1.2,
-        "position": [
-          0,
-          400
-        ],
-        "id": "telegram-trigger-callback",
-        "name": "Telegram Trigger (Callback)",
-        "webhookId": "842d10a1-77c5-4d24-bd0f-4e17d925d389",
-        "credentials": {
-          "telegramApi": {
-            "id": "yDpQzNCgbZRDEeGA",
-            "name": "Telegram account"
-          }
-        }
-      },
-      {
-        "parameters": {},
-        "type": "n8n-nodes-base.readBinaryFile",
-        "typeVersion": 1,
-        "position": [
-          224,
-          400
-        ],
-        "id": "read-context",
-        "name": "Read Context"
-      },
-      {
-        "parameters": {
-          "jsCode": "const binaryData = items[0].binary.data;\nconst jsonString = Buffer.from(binaryData.data, 'base64').toString('utf8');\nconst context = JSON.parse(jsonString);\nconst callbackData = $('Telegram Trigger (Callback)').item.json.callback_query.data;\n// Callback format: \"id|titulo\"\nconst parts = callbackData.split('|');\nconst selectedId = parts[0];\nconst selectedTitle = parts.slice(1).join('|'); // Join back in case title has |\n\nreturn {\n  json: {\n    perplexity_output: context.perplexity,\n    titulo_seleccionado: selectedTitle,\n    category_id: selectedId\n  }\n};"
-        },
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          448,
-          400
-        ],
-        "id": "parse-context",
-        "name": "Parse Context"
-      },
-      {
-        "parameters": {
-          "options": {},
-          "requestOptions": {}
-        },
-        "type": "n8n-nodes-base.openAi",
-        "typeVersion": 1,
-        "position": [
-          672,
-          400
-        ],
-        "id": "openai-writer",
-        "name": "Redactor AEO"
-      },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "https://api.banana.dev/start/v4/",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Authorization",
-                "value": "Bearer BANANA_API_KEY_HERE"
-              },
-              {
-                "name": "Content-Type",
-                "value": "application/json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "prompt",
-                "value": "Corporate Tech Blue style illustration for: {{ $('Parse Context').item.json.titulo_seleccionado }}"
-              },
-              {
-                "name": "width",
-                "value": 1024
-              },
-              {
-                "name": "height",
-                "value": 1024
-              }
-            ]
-          },
-          "options": {}
-        },
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          672,
-          608
-        ],
-        "id": "nano-banana",
-        "name": "Dise\u00f1ador (Nano Banana)"
-      },
-      {
-        "parameters": {
-          "url": "={{ $json.modelOutputs[0].image_url }}",
-          "options": {}
-        },
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          880,
-          608
-        ],
-        "id": "download-image",
-        "name": "Gestor de Archivos"
-      },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "https://manusantana.com/wp-json/wp/v2/media",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "wordpressApi",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Content-Disposition",
-                "value": "attachment; filename=image.png"
-              }
-            ]
-          },
-          "sendBody": true,
-          "contentType": "binaryData",
-          "inputDataFieldName": "data",
-          "options": {}
-        },
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          1104,
-          608
-        ],
-        "id": "wp-upload-media",
-        "name": "WP Upload Media",
-        "credentials": {
-          "wordpressApi": {
-            "id": "wfB9IY5mVyTdtlVF",
-            "name": "Wordpress account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "title": "={{ $('Parse Context').item.json.titulo_seleccionado }}",
-          "content": "={{ $('Redactor AEO').item.json.content }}",
-          "additionalFields": {
-            "featuredMediaId": "={{ $json.id }}",
-            "status": "draft"
-          }
-        },
-        "type": "n8n-nodes-base.wordpress",
-        "typeVersion": 2,
-        "position": [
-          1328,
-          400
-        ],
-        "id": "wp-create-post",
-        "name": "Publisher",
-        "credentials": {
-          "wordpressApi": {
-            "id": "wfB9IY5mVyTdtlVF",
-            "name": "Wordpress account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "options": {},
-          "requestOptions": {}
-        },
-        "type": "n8n-nodes-base.openAi",
-        "typeVersion": 1,
-        "position": [
-          1552,
-          400
-        ],
-        "id": "social-copy",
-        "name": "Social Copy",
-        "credentials": {
-          "openAiApi": {
-            "id": "2hav82eKKT2LEptu",
-            "name": "Openai - n8n"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "chatId": "={{ $('Telegram Trigger (Callback)').item.json.callback_query.message.chat.id }}",
-          "text": "=\u2705 Post Subido a Borradores.\n\n\ud83d\udd17 [Link Preview]({{ $('Publisher').item.json.link }})\n\n\ud83d\udcdd LinkedIn Copy:\n{{ $json.content }}",
-          "additionalFields": {
-            "parse_mode": "Markdown"
-          }
-        },
-        "type": "n8n-nodes-base.telegram",
-        "typeVersion": 1.1,
-        "position": [
-          1760,
-          400
-        ],
-        "id": "telegram-notify",
-        "name": "Notificaci\u00f3n Final",
-        "webhookId": "d0968e9c-94c2-4c39-895d-602d0d93215c",
-        "credentials": {
-          "telegramApi": {
-            "id": "yDpQzNCgbZRDEeGA",
-            "name": "Telegram account"
-          }
-        }
-      },
-      {
-        "parameters": {
-          "conditions": {
-            "boolean": [
-              {
-                "value1": "={{ !$json.message.reply_to_message }}",
-                "value2": true
-              }
-            ]
-          }
-        },
-        "id": "filter-replies",
-        "name": "Ignore Replies",
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 1,
-        "position": [
-          224,
-          -200
-        ]
-      }
-    ],
-    "connections": {
-      "Telegram Trigger (Message)": {
-        "main": [
-          [
+{
+  "name": "01 - SEO Content Generator (Scheduled)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
             {
-              "node": "Ignore Replies",
-              "type": "main",
-              "index": 0
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
             }
           ]
-        ]
+        }
       },
-      "Investigador (Perplexity)": {
-        "main": [
-          [
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger (7AM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
             {
-              "node": "Cerebro (Router)",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Cerebro (Router)": {
-        "main": [
-          [
-            {
-              "node": "Save Context",
-              "type": "main",
-              "index": 0
+              "name": "Authorization",
+              "value": "Bearer PPLX_API_KEY_HERE"
             },
             {
-              "node": "Menu Telegram",
-              "type": "main",
-              "index": 0
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
-        ]
-      },
-      "Telegram Trigger (Callback)": {
-        "main": [
-          [
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
             {
-              "node": "Read Context",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Read Context": {
-        "main": [
-          [
-            {
-              "node": "Parse Context",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Parse Context": {
-        "main": [
-          [
-            {
-              "node": "Redactor AEO",
-              "type": "main",
-              "index": 0
+              "name": "model",
+              "value": "sonar-medium-online"
             },
             {
-              "node": "Dise\u00f1ador (Nano Banana)",
-              "type": "main",
-              "index": 0
+              "name": "messages",
+              "value": "={{ [{\"role\": \"user\", \"content\": \"Busca las 5 noticias más importantes de Marketing, Inteligencia Artificial y Negocios Digitales de las últimas 24 horas. Dame títulos, resumen y fuentes.\"}] }}"
             }
           ]
-        ]
+        },
+        "options": {}
       },
-      "Dise\u00f1ador (Nano Banana)": {
-        "main": [
-          [
-            {
-              "node": "Gestor de Archivos",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Gestor de Archivos": {
-        "main": [
-          [
-            {
-              "node": "WP Upload Media",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Redactor AEO": {
-        "main": [
-          [
-            {
-              "node": "Publisher",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "WP Upload Media": {
-        "main": [
-          [
-            {
-              "node": "Publisher",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Publisher": {
-        "main": [
-          [
-            {
-              "node": "Social Copy",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Social Copy": {
-        "main": [
-          [
-            {
-              "node": "Notificaci\u00f3n Final",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Ignore Replies": {
-        "main": [
-          [
-            {
-              "node": "Investigador (Perplexity)",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          []
-        ]
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "perplexity-research",
+      "name": "Investigador (Perplexity)",
+      "credentials": {
+        "perplexityApi": {
+          "id": "HHBcJ67vw3ipnWKl",
+          "name": "Perplexity account"
+        }
       }
     },
-    "settings": {},
-    "staticData": null,
-    "meta": null,
-    "pinData": {},
-    "versionId": "52bf04e8-ca16-4603-8527-6821b4066511",
-    "activeVersionId": null,
-    "versionCounter": 2,
-    "triggerCount": 0,
-    "tags": [],
-    "shared": [
-      {
-        "updatedAt": "2026-01-23T09:39:28.337Z",
-        "createdAt": "2026-01-23T09:39:28.337Z",
-        "role": "workflow:owner",
-        "workflowId": "dCowk1Znj0XafmtI",
-        "projectId": "zZvuPL6pwZZ6dEqo",
-        "project": {
-          "updatedAt": "2025-05-02T20:26:00.569Z",
-          "createdAt": "2025-05-02T20:12:42.968Z",
-          "id": "zZvuPL6pwZZ6dEqo",
-          "name": "Manu Santana <manu@manusantana.com>",
-          "type": "personal",
-          "icon": null,
-          "description": null,
-          "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+    {
+      "parameters": {
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "openai-brain",
+      "name": "Cerebro (Router)",
+      "credentials": {
+        "openAiApi": {
+          "id": "2hav82eKKT2LEptu",
+          "name": "Openai - n8n"
         }
       }
-    ]
-  }
-]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Hoja 1",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "data_json": "={{ JSON.stringify($json) }}",
+            "date": "={{ new Date().toISOString() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "data_json",
+              "displayName": "data_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "save-to-sheets",
+      "name": "Save to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        672,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "l2xD3QINvvmbY8nJ",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7284267714",
+        "text": "🧠 *Estrategia Generada*\nSelecciona un ángulo para desarrollar el contenido:",
+        "replyMarkup": "inlineKeyboard",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        0
+      ],
+      "id": "telegram-menu",
+      "name": "Menu Telegram",
+      "credentials": {
+        "telegramApi": {
+          "id": "yDpQzNCgbZRDEeGA",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (7AM)": {
+      "main": [
+        [
+          {
+            "node": "Investigador (Perplexity)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Investigador (Perplexity)": {
+      "main": [
+        [
+          {
+            "node": "Cerebro (Router)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cerebro (Router)": {
+      "main": [
+        [
+          {
+            "node": "Save to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Sheets": {
+      "main": [
+        [
+          {
+            "node": "Menu Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "pinData": {}
+}

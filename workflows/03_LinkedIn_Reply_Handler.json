@@ -1,38 +1,20 @@
 {
-  "updatedAt": "2026-02-01T09:36:07.414Z",
-  "createdAt": "2026-01-31T06:54:17.685Z",
-  "id": "HhEbv3PhcA2XgDtN",
-  "name": "LinkedIn Publisher (Reply Handler)",
-  "description": null,
-  "active": true,
-  "isArchived": false,
+  "name": "03 - LinkedIn Publisher (Worker)",
   "nodes": [
     {
-      "parameters": {
-        "updates": [
-          "message"
-        ],
-        "additionalFields": {}
-      },
-      "id": "telegram-trigger",
-      "name": "Telegram Trigger",
-      "type": "n8n-nodes-base.telegramTrigger",
-      "typeVersion": 1.1,
+      "parameters": {},
+      "id": "execute-workflow-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
       "position": [
         -224,
         0
-      ],
-      "webhookId": "linkedin-reply-webhook",
-      "credentials": {
-        "telegramApi": {
-          "id": "yDpQzNCgbZRDEeGA",
-          "name": "Telegram account"
-        }
-      }
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const msg = items[0].json.message;\n// Safety check if msg exists\nif (!msg) return [];\n\nconst reply = msg.reply_to_message;\nconst text = (msg.text || \"\").trim();\n\n// 1. ROUTE TO 'THE REACTOR' (Numbers 1-5)\n// Check this FIRST. It doesn't need to be a reply.\nconst selection = parseInt(text);\nif (!isNaN(selection) && selection >= 1 && selection <= 5) {\n   // Return item to Output Index 1\n   return [ [], [{ json: items[0].json }] ];\n}\n\n// 2. ROUTE TO LINKEDIN (Must be a reply)\nif (!reply) {\n  return [];\n}\n\n// 3. Determine Mode (Draft vs Custom)\nlet contentToPost = \"\";\nlet mode = \"custom\";\n\nif (/^(ok|vale|si|yes|publicar)$/i.test(text)) {\n   // Mode: OK (Draft)\n   mode = \"draft\";\n   // Extract content between dashed lines if available\n   const regex = /-{10,}\\n([\\s\\S]*?)\\n-{10,}/;\n   const match = reply.text.match(regex);\n   if (match && match[1]) {\n     contentToPost = match[1].trim();\n   } else {\n     contentToPost = reply.text; \n   }\n} else {\n   mode = \"custom\";\n   contentToPost = text;\n}\n\nif (!contentToPost) return [];\n\n// Return item to Output Index 0\nreturn [ [{ json: { content: contentToPost, mode } }], [] ];"
+        "jsCode": "// WORKER LOGIC - LINKEDIN PUBLISHER\n// Receives message from Router. Only handles Publishing logic.\n\nlet msg = items[0].json.message;\n// Fallback if needed\nif (!msg && $('Execute Workflow Trigger')) {\n    try { msg = $('Execute Workflow Trigger').first().json.message; } catch(e){}\n}\n\nif (!msg) return [];\n\nconst reply = msg.reply_to_message;\nconst text = (msg.text || \"\").trim();\n\n// 2. ROUTE TO LINKEDIN (Must be a reply)\n// Note: Even though Router sends replies here, we double check.\nif (!reply) {\n  return [];\n}\n\n// 3. Determine Mode (Draft vs Custom)\nlet contentToPost = \"\";\nlet mode = \"custom\";\n\nif (/^(ok|vale|si|yes|publicar)$/i.test(text)) {\n   // Mode: OK (Draft)\n   mode = \"draft\";\n   // Extract content between dashed lines if available\n   const regex = /-{10,}\\n([\\s\\S]*?)\\n-{10,}/;\n   const match = reply.text.match(regex);\n   if (match && match[1]) {\n     contentToPost = match[1].trim();\n   } else {\n     contentToPost = reply.text; \n   }\n} else {\n   mode = \"custom\";\n   contentToPost = text;\n}\n\nif (!contentToPost) return [];\n\n// Return item to Output Index 0\nreturn { json: { content: contentToPost, mode } };"
       },
       "id": "router-code",
       "name": "Router & Extract",
@@ -46,8 +28,8 @@
     {
       "parameters": {
         "operation": "sendMessage",
-        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
-        "text": "\u2705 *Publicado en LinkedIn*\n\nTu post ya est\u00e1 en vivo.",
+        "chatId": "={{ $json.message ? $json.message.chat.id : 7284267714 }}",
+        "text": "✅ *Publicado en LinkedIn*\n\nTu post ya está en vivo.",
         "additionalFields": {
           "parse_mode": "Markdown"
         }
@@ -60,7 +42,6 @@
         480,
         0
       ],
-      "webhookId": "fd5c893a-d9c7-431d-900b-371169ea1a39",
       "credentials": {
         "telegramApi": {
           "id": "yDpQzNCgbZRDEeGA",
@@ -71,7 +52,7 @@
     {
       "parameters": {
         "person": "3aUnLlTakC",
-        "text": "={{ $('Telegram Trigger').item.json.message.reply_to_message.text }}",
+        "text": "={{ $json.content }}",
         "additionalFields": {
           "visibility": "PUBLIC"
         }
@@ -90,24 +71,10 @@
           "name": "LinkedIn account"
         }
       }
-    },
-    {
-      "parameters": {
-        "workflowId": "LTtD6izOWBatig-7qv8IA",
-        "mode": "transferredData"
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
-      "position": [
-        224,
-        200
-      ],
-      "id": "execute-reactor",
-      "name": "Execute Reactor"
     }
   ],
   "connections": {
-    "Telegram Trigger": {
+    "Execute Workflow Trigger": {
       "main": [
         [
           {
@@ -123,13 +90,6 @@
         [
           {
             "node": "Create a post",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Execute Reactor",
             "type": "main",
             "index": 0
           }
@@ -149,40 +109,6 @@
     }
   },
   "settings": {},
-  "staticData": null,
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
   "pinData": {},
-  "versionId": "d8dd1f52-b0f5-4fee-9680-50bde54e2ac1",
-  "activeVersionId": "d8dd1f52-b0f5-4fee-9680-50bde54e2ac1",
-  "versionCounter": 15,
-  "triggerCount": 1,
-  "tags": [
-    {
-      "updatedAt": "2026-01-11T08:53:52.795Z",
-      "createdAt": "2026-01-11T08:53:52.795Z",
-      "id": "uhHZ5uXbgX7TuWN5",
-      "name": "CreaContenido"
-    }
-  ],
-  "shared": [
-    {
-      "updatedAt": "2026-01-31T06:54:17.688Z",
-      "createdAt": "2026-01-31T06:54:17.688Z",
-      "role": "workflow:owner",
-      "workflowId": "HhEbv3PhcA2XgDtN",
-      "projectId": "zZvuPL6pwZZ6dEqo",
-      "project": {
-        "updatedAt": "2025-05-02T20:26:00.569Z",
-        "createdAt": "2025-05-02T20:12:42.968Z",
-        "id": "zZvuPL6pwZZ6dEqo",
-        "name": "Manu Santana <manu@manusantana.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
-      }
-    }
-  ]
+  "id": "HhEbv3PhcA2XgDtN"
 }

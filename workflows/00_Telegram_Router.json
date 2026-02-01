@@ -1,0 +1,105 @@
+{
+    "name": "00 - Telegram Router (The Switchboard)",
+    "nodes": [
+        {
+            "parameters": {
+                "updates": [
+                    "message"
+                ],
+                "additionalFields": {
+                    "userIds": "7284267714"
+                }
+            },
+            "id": "telegram-main-trigger",
+            "name": "Telegram Webhook (Master)",
+            "type": "n8n-nodes-base.telegramTrigger",
+            "typeVersion": 1.1,
+            "position": [
+                0,
+                0
+            ],
+            "webhookId": "switchboard-router-production",
+            "credentials": {
+                "telegramApi": {
+                    "id": "yDpQzNCgbZRDEeGA",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// ROUTING LOGIC\nconst msg = items[0].json.message;\nconst text = (msg.text || \"\").trim();\nconst reply = msg.reply_to_message;\n\n// 1. IS IT A NUMBER 1-5? -> THE REACTOR\nconst selection = parseInt(text);\nif (!isNaN(selection) && selection >= 1 && selection <= 5) {\n  return [ [items[0]], [] ]; // Output 0: Reactor\n}\n\n// 2. IS IT A REPLY OR OTHER TEXT? -> PUBLISHER\n// We send everything else to Publisher to handle (it has its own \"Ignore\" logic if needed, but primarily for replies)\n// Actually, let's be strict: Only route if it looks like a reply OR 'OK' command.\n\nreturn [ [], [items[0]] ]; // Output 1: Publisher\n"
+            },
+            "id": "router-logic",
+            "name": "Router (Code)",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                220,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": "LTtD6izOWBatig-7qv8IA",
+                "mode": "transferredData"
+            },
+            "id": "exec-reactor",
+            "name": "Execute Reactor",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                460,
+                -100
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": "HhEbv3PhcA2XgDtN",
+                "mode": "transferredData"
+            },
+            "id": "exec-publisher",
+            "name": "Execute Publisher",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                460,
+                100
+            ]
+        }
+    ],
+    "connections": {
+        "Telegram Webhook (Master)": {
+            "main": [
+                [
+                    {
+                        "node": "Router (Code)",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Router (Code)": {
+            "main": [
+                [
+                    {
+                        "node": "Execute Reactor",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Execute Publisher",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {},
+    "staticData": null,
+    "pinData": {}
+}
