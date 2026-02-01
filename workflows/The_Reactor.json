@@ -144,7 +144,7 @@
       {
         "parameters": {
           "chatId": "7284267714",
-          "text": "=\u00f0\u009f\u009a\u0080 *WORKFLOW COMPLETADO*\n\n\u00f0\u009f\u0093\u00b1 *Para LinkedIn (Copiar y Pegar):*\n-----------------------------\n{{ $('Code').item.json.linkedin_draft }}\n-----------------------------\n\n\u00f0\u009f\u0093\u009d *WordPress:*\n\u2705 Borrador creado correctamente:\nTitle: {{ $json.title.rendered || $json.title }}\nID: {{ $json.id }}\n\n(Entra a tu WP para editar y publicar el art\u00edculo)",
+          "text": "=🚀 *WORKFLOW COMPLETADO*\n\n📱 *Para LinkedIn:*\n-----------------------------\n{{ $('Code').item.json.linkedin_draft }}\n-----------------------------\n\n📝 *WordPress:*\n✅ Borrador creado (ID: {{ $json.id }})\n\n👇 *¿QUÉ HACEMOS?*\n- Escribe **OK** para publicar esto en LinkedIn ahora.\n- O **envía el mensaje editado** (copia, pega y corrige) para publicar esa versión.",
           "additionalFields": {
             "parse_mode": "Markdown"
           }
