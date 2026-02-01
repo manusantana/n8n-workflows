@@ -1,5 +1,7 @@
 {
+  "id": "HhEbv3PhcA2XgDtN",
   "name": "LinkedIn Publisher (Reply Handler)",
+  "active": true,
   "nodes": [
     {
       "parameters": {
@@ -125,6 +127,5 @@
         ]
       ]
     }
-  },
-  "idx": 0
+  }
 }
