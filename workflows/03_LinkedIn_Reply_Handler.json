@@ -1,7 +1,11 @@
 {
+  "updatedAt": "2026-02-01T09:36:07.414Z",
+  "createdAt": "2026-01-31T06:54:17.685Z",
   "id": "HhEbv3PhcA2XgDtN",
   "name": "LinkedIn Publisher (Reply Handler)",
+  "description": null,
   "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -41,35 +45,6 @@
     },
     {
       "parameters": {
-        "content": {
-          "text": "={{ $json.content }}"
-        },
-        "postAs": "person",
-        "person": {
-          "__rl": true,
-          "value": "me",
-          "mode": "id"
-        },
-        "options": {}
-      },
-      "id": "linkedin-publish",
-      "name": "LinkedIn Publish",
-      "type": "n8n-nodes-base.linkedIn",
-      "typeVersion": 2,
-      "position": [
-        240,
-        0
-      ],
-      "credentials": {
-        "linkedInOAuth2Api": {
-          "id": "lkHYGw5gYDx3I0H2",
-          "name": "LinkedIn account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "sendMessage",
         "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
         "text": "\u2705 *Publicado en LinkedIn*\n\nTu post ya est\u00e1 en vivo.",
         "additionalFields": {
@@ -91,6 +66,29 @@
           "name": "Telegram account"
         }
       }
+    },
+    {
+      "parameters": {
+        "person": "3aUnLlTakC",
+        "text": "={{ $('Telegram Trigger').item.json.message.reply_to_message.text }}",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "84fef436-40b9-4cc4-ad3f-a0dc62ddb0dd",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "lkHYGw5gYDx3I0H2",
+          "name": "LinkedIn account"
+        }
+      }
     }
   ],
   "connections": {
@@ -109,14 +107,14 @@
       "main": [
         [
           {
-            "node": "LinkedIn Publish",
+            "node": "Create a post",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "LinkedIn Publish": {
+    "Create a post": {
       "main": [
         [
           {
@@ -127,5 +125,42 @@
         ]
       ]
     }
-  }
+  },
+  "settings": {},
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "d8dd1f52-b0f5-4fee-9680-50bde54e2ac1",
+  "activeVersionId": "d8dd1f52-b0f5-4fee-9680-50bde54e2ac1",
+  "versionCounter": 15,
+  "triggerCount": 1,
+  "tags": [
+    {
+      "updatedAt": "2026-01-11T08:53:52.795Z",
+      "createdAt": "2026-01-11T08:53:52.795Z",
+      "id": "uhHZ5uXbgX7TuWN5",
+      "name": "CreaContenido"
+    }
+  ],
+  "shared": [
+    {
+      "updatedAt": "2026-01-31T06:54:17.688Z",
+      "createdAt": "2026-01-31T06:54:17.688Z",
+      "role": "workflow:owner",
+      "workflowId": "HhEbv3PhcA2XgDtN",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
 }
