@@ -35,7 +35,7 @@
         "conditions": {
           "boolean": [
             {
-              "value1": "={{ !!$json.message.reply_to_message && $json.message.reply_to_message.text.includes('Post Subido a Borradores') }}",
+              "value1": "={{ !!$json.message.reply_to_message && ($json.message.reply_to_message.text.includes('WORKFLOW COMPLETADO') || $json.message.reply_to_message.text.includes('Para LinkedIn')) }}",
               "value2": true
             }
           ]
@@ -51,7 +51,17 @@
       ]
     },
     {
-      "parameters": {},
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.message.text }}",
+              "operation": "regex",
+              "value2": "^(OK|ok|Ok|vale|si)$"
+            }
+          ]
+        }
+      },
       "id": "check-ok",
       "name": "Check Content",
       "type": "n8n-nodes-base.if",
@@ -63,7 +73,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const original = $('Telegram Trigger').item.json.message.reply_to_message.text;\nconst marker = \"LinkedIn Copy:\";\nlet content = \"\";\nif (original.includes(marker)) {\n  content = original.split(marker)[1].trim();\n} else {\n  content = original;\n}\nreturn { json: { content } };"
+        "jsCode": "const original = $('Telegram Trigger').item.json.message.reply_to_message.text;\n// Regex para sacar texto entre las l\u00edneas punteada\nconst regex = /-{10,}\\n([\\s\\S]*?)\\n-{10,}/;\nconst match = original.match(regex);\n\nlet content = \"\";\nif (match && match[1]) {\n  content = match[1].trim();\n} else {\n  // Fallback por si cambia el formato\n  content = original;\n}\n\nreturn { json: { content } };"
       },
       "id": "extract-copy",
       "name": "Extract Copy",
