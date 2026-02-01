@@ -39,7 +39,8 @@
               "value2": true
             }
           ]
-        }
+        },
+        "combinator": "all"
       },
       "id": "check-is-reply",
       "name": "Check if Reply to Draft",
@@ -60,7 +61,8 @@
               "value2": "^(OK|ok|Ok|vale|si)$"
             }
           ]
-        }
+        },
+        "combinator": "all"
       },
       "id": "check-ok",
       "name": "Check Content",
@@ -130,6 +132,7 @@
     },
     {
       "parameters": {
+        "operation": "sendMessage",
         "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
         "text": "\u2705 *Publicado en LinkedIn*\n\nTu post ya est\u00e1 en vivo.",
         "additionalFields": {

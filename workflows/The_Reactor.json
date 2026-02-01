@@ -67,7 +67,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// --- 1. OBTENER INPUTS ---\n// Buscamos el mensaje original del usuario en el nodo Trigger\nconst triggerData = $('Telegram Trigger').first();\nconst userMsg = triggerData ? triggerData.json.message.text : \"1\"; // Fallback para tests\n\n// Buscamos los datos de Google Sheets (Input directo de este nodo)\n// Cogemos la \u00daLTIMA fila, que es la de hoy\nconst lastRow = items[items.length - 1].json;\n\n// --- 2. VALIDACI\u00d3N ---\nconst selection = parseInt(userMsg);\n\n// Validamos que sea un n\u00famero entre 1 y 4\nif (isNaN(selection) || selection < 1 || selection > 4) {\n  return { json: { error: \"\u26a0\ufe0f Input no v\u00e1lido. Escribe un n\u00famero del 1 al 4.\", valid: false } };\n}\n\n// --- 3. EXTRACCI\u00d3N DEL TEMA ---\nlet memory;\ntry {\n  // Intentamos leer el JSON. Si est\u00e1 vac\u00edo o mal formado, no explota.\n  memory = lastRow.data_json ? JSON.parse(lastRow.data_json) : {};\n} catch (e) {\n  return { json: { error: \"\u274c Error cr\u00edtico: La memoria del d\u00eda est\u00e1 corrupta o el JSON es inv\u00e1lido.\", valid: false } };\n}\n\n// === EL FIX EST\u00c1 AQU\u00cd ===\n// Si 'topics' no existe, usamos una lista vac\u00eda [] para que NO de error \"undefined\"\nconst topics = memory.topics || []; \n\n// Array empieza en 0, as\u00ed que restamos 1 (Input \"1\" = Index 0)\n// Ahora 'topics' siempre es un array, as\u00ed que esto es seguro\nconst topic = topics[selection - 1];\n\nif (!topic) {\n  // Si no encuentra el tema, avisa claramente en vez de dar error 500\n  return { json: { error: `\u274c Tema no encontrado. El sistema ha le\u00eddo ${topics.length} temas. (Revisa si ejecutaste Content Factory hoy)`, valid: false } };\n}\n\n// --- 4. PREPARAR PAQUETE PARA LA IA ---\nreturn {\n  json: {\n    valid: true,\n    user_selection: selection,\n    topic_title: topic.title,\n    topic_rationale: topic.rationale,\n    topic_sources: topic.sources ? topic.sources.join(\", \") : \"Varias fuentes\",\n    system_instruction: \"Genera un post de LinkedIn viral, t\u00e9cnico y directo.\"\n  }\n};"
+        "jsCode": "// --- 1. OBTENER INPUTS ---\nconst triggerData = $('Telegram Trigger').first();\nconst text = triggerData ? triggerData.json.message.text : \"\";\n\n// --- FIX CONFLICTO CON REPLY HANDLER ---\n// Si es una respuesta (Reply) o es un comando de aprobaci\u00f3n (OK), IGNORAR.\n// Esto evita que 'The Reactor' intente procesarlo como un n\u00famero.\nconst isReply = triggerData?.json?.message?.reply_to_message;\nconst isApproval = /^(ok|vale|si|yes|publicar)$/i.test(text.trim());\n\nif (isReply || isApproval) {\n  // Devolvemos array vac\u00edo para detener este workflow silenciosamente\n  return [];\n}\n\n// ... Resto de la l\u00f3gica original ...\nconst userMsg = text || \"1\"; \n\n// Buscamos los datos de Google Sheets\nconst lastRow = items[items.length - 1].json;\n\n// --- 2. VALIDACI\u00d3N ---\nconst selection = parseInt(userMsg);\n\nif (isNaN(selection) || selection < 1 || selection > 5) {\n  return { json: { error: \"\u26a0\ufe0f Input no v\u00e1lido. Escribe un n\u00famero del 1 al 5.\", valid: false } };\n}\n\n// --- 3. EXTRACCI\u00d3N DEL TEMA ---\nlet memory;\ntry {\n  memory = lastRow.data_json ? JSON.parse(lastRow.data_json) : {};\n} catch (e) {\n  return { json: { error: \"\u274c Error cr\u00edtico: JSON inv\u00e1lido.\", valid: false } };\n}\n\nconst topics = memory.topics || [];\nconst topic = topics[selection - 1];\n\nif (!topic) {\n  return { json: { error: `\u274c Tema no encontrado (${selection}).`, valid: false } };\n}\n\n// --- 4. PREPARAR PAQUETE ---\nreturn {\n  json: {\n    valid: true,\n    user_selection: selection,\n    topic_title: topic.title,\n    topic_rationale: topic.rationale,\n    topic_sources: topic.sources ? topic.sources.join(\", \") : \"\",\n    system_prompt: topic.system_prompt || \"\"\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -86,24 +86,16 @@
           "mode": "list",
           "cachedResultName": "models/gemini-2.5-flash"
         },
-        "messages": {
-          "values": [
-            {
-              "content": "=Act\u00faa como YO, Manu Santana. Soy Head of Marketing y experto en Growth de negocio y Marketing, con un tono directo, un poco canalla, muy t\u00e9cnico pero sin palabras de relleno. Odio el lenguaje corporativo tipo \"en el panorama actual\". Soy un apasionado de la IA y la aplico en mi d\u00eda a d\u00eda. Me quiero posicionar como el mayor experto en Transformar departamentos de marketing traducionales en nuevos departamentos de marketing preparados para IA, ahorrando costes a la empresas y siendo m\u00e1s productivos.\n\nMI ESTILO DE ESCRITURA:\n- Frases cortas. Punchy.\n- Uso de flechas (->) o listas para explicar l\u00f3gica.\n- Preguntas ret\u00f3ricas para enganchar.\n- Cero paja. Voy al grano.\n- Escribe segunda persona del singular. \"Prep\u00e1rate. Lo que vamos a discutir no es un futuro prometedor, ni una tendencia emergente. Es una realidad que Google acaba de poner sobre la mesa y que va a cambiar, de forma radical, las reglas del juego del comercio online. Olvida las predicciones.\"\n- Cero palabras mal sonantes. S\u00e9 educado.\n\nEJEMPLO DE C\u00d3MO ESCRIBO (Imita este tono):\n\"Excelente primera jornada representando a Zumex Group en el EDEM Escuela de Empresarios del hashtag#programa hashtag#agroalimentario con un interesante caf\u00e9 con Hortensia Roig y ponentes top como: Jos\u00e9 Mar\u00eda Bonmat\u00ed Eduardo Baamonde Leonor S\u00e1iz Amor\u00f3s V\u00edctor Yuste Jord\u00e1n y Manuel Lainez Andre\u0301s Ma\u00f1ana m\u00e1s y mejor!\"\n\"Gran gala de los hashtag#premiosmia24 organizada por el Club Marketing Mediterr\u00e1neo y la inspiradora charla de Amuda Goueli para seguir innovando y el gran valor estrat\u00e9gico del \u00e1rea de marketing en los mejores, y sobre todo, en los peores momentos. Muchas gracias por esa inspiraci\u00f3n para todo el equipo Zumex Group que represento esta noche.\"\n\nDATOS DEL TEMA DE HOY:\n- T\u00edtulo: {{ $json.topic_title }}\n- Raz\u00f3n: {{ $json.topic_rationale }}\n- Fuentes: {{ $json.topic_sources }}\n\nTU TAREA:\nGenera un objeto JSON v\u00e1lido (sin markdown) con dos campos:\n\n1. \"linkedin_content\":\n   - Post de LinkedIn siguiendo MI ESTILO.\n   - M\u00e1ximo 150 palabras.\n   - Empieza con una afirmaci\u00f3n pol\u00e9mica.\n\n2. \"blog_content\":\n   - Art\u00edculo HTML para WordPress de aproximadamente 800 palabras (solo el body, sin <html>).\n   - Usa <h2>, <p>, <ul> optimizado para SEO.\n   - IDIOMA: El contenido debe estar escrito \u00daNICAMENTE en ESPA\u00d1OL.\n   - Tono educativo pero entretenido.\n\n3. \"image_prompt\":\n   - TU MISI\u00d3N: Escribir un prompt descriptivo en ingl\u00e9s para generar la imagen de portada.\n   - CONTENIDO OBLIGATORIO: La imagen DEBE representar visualmente los conceptos clave del art\u00edculo (T\u00edtulo: {{ $json.topic_title }}).\n   - EJEMPLOS VISUALES: Si el texto habla de \"Google UCP y carritos abandonados\", el prompt debe describir, por ejemplo, un logo de Google estilizado conectado por l\u00edneas a un carrito de compra abstracto con un cerebro de IA dentro. S\u00e9 creativo con las met\u00e1foras visuales del tema.\n   - ESTILO ART\u00cdSTICO: Ilustraci\u00f3n digital conceptual imitando un boceto suelto hecho en iPad (estilo app Paper53).\n   - DETALLES DE ESTILO: Debe parecer hecho a mano, con texturas visibles de papel granulado, aguadas de acuarela (watercolor washes), y l\u00edneas de tinta imperfectas y sueltas.\n   - Keywords finales a incluir siempre: \"Conceptual editorial illustration, digital sketch, Paper53 style, watercolor and ink on textured paper, hand-drawn, loose brushstrokes, minimalist.\"\n\nOUTPUT FORMAT (JSON RAW):\n{\n  \"linkedin_content\": \"...\",\n  \"blog_content\": \"...\"\n}\nIMPORTANTE: El JSON debe ser v\u00e1lido. Escapa los saltos de l\u00ednea del texto usando \\n. No uses saltos de l\u00ednea reales dentro de los valores."
-            }
-          ]
-        },
-        "builtInTools": {},
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        272,
-        0
+        260,
+        180
       ],
       "id": "f854748b-fa7f-4bdc-a7ca-6c4f2c83854d",
-      "name": "Message a model",
+      "name": "Google Gemini Model",
       "credentials": {
         "googlePalmApi": {
           "id": "ScgXEyFYKFmtP8M4",
@@ -113,7 +105,20 @@
     },
     {
       "parameters": {
-        "jsCode": "// 1. Limpieza JSON (Igual que antes)\nconst root = items[0].json;\nconst rawText = (root.content && root.content.parts) ? root.content.parts[0].text : root.text;\n\n// Buscador de llaves para evitar basura\nconst firstBrace = rawText.indexOf('{');\nconst lastBrace = rawText.lastIndexOf('}');\nlet cleanJSON = rawText;\n\nif (firstBrace !== -1 && lastBrace !== -1) {\n    cleanJSON = rawText.substring(firstBrace, lastBrace + 1);\n}\n\n// 2. Fix saltos de l\u00ednea y Parseo\nlet content = {};\ntry {\n    const fixedJSON = cleanJSON.replace(/\\n/g, \"\\\\n\").replace(/\\r/g, \"\");\n    content = JSON.parse(fixedJSON);\n} catch (e) {\n    try { content = JSON.parse(cleanJSON); } catch(e2) {\n        content = { linkedin_content: \"\u26a0\ufe0f Error formato\", blog_content: \"Error\" };\n    }\n}\n\n// 3. RECUPERAR T\u00cdTULO ORIGINAL\nlet originalTitle = \"Borrador Autom\u00e1tico\";\ntry {\n    originalTitle = $('Code in JavaScript').first().json.target_topic.title; \n} catch(e) {\n    try { originalTitle = $('Code in JavaScript').first().json.topic_title; } catch(e2) {}\n}\n\n// SALIDA ACTUALIZADA CON EL PROMPT DE IMAGEN\nreturn {\n    json: {\n        title: originalTitle,\n        linkedin_draft: content.linkedin_content || content.linkedin_draft,\n        blog_draft: content.blog_content || content.blog_draft,\n        // A\u00d1ADIMOS ESTA L\u00cdNEA:\n        image_prompt: content.image_prompt || \"Futuristic technology concept, editorial photography, 8k\" // Fallback por si acaso\n    }\n};"
+        "prompt": "=Actúa como YO, Manu Santana. Soy Head of Marketing y experto en Growth de negocio y Marketing, con un tono directo, un poco canalla, muy técnico pero sin palabras de relleno. Odio el lenguaje corporativo tipo \"en el panorama actual\". Soy un apasionado de la IA y la aplico en mi día a día. Me quiero posicionar como el mayor experto en Transformar departamentos de marketing traducionales en nuevos departamentos de marketing preparados para IA, ahorrando costes a la empresas y siendo más productivos.\n\nMI ESTILO DE ESCRITURA:\n- Frases cortas. Punchy.\n- Uso de flechas (->) o listas para explicar lógica.\n- Preguntas retóricas para enganchar.\n- Cero paja. Voy al grano.\n- Escribe segunda persona del singular. \"Prepárate. Lo que vamos a discutir no es un futuro prometedor, ni una tendencia emergente. Es una realidad que Google acaba de poner sobre la mesa y que va a cambiar, de forma radical, las reglas del juego del comercio online. Olvida las predicciones.\"\n- Cero palabras mal sonantes. Sé educado.\n\nEJEMPLO DE CÓMO ESCRIBO (Imita este tono):\n\"Excelente primera jornada representando a Zumex Group en el EDEM Escuela de Empresarios del hashtag#programa hashtag#agroalimentario con un interesante café con Hortensia Roig y ponentes top como: José María Bonmatí Eduardo Baamonde Leonor Sáiz Amorós Víctor Yuste Jordán y Manuel Lainez Andrés Mañana más y mejor!\"\n\"Gran gala de los hashtag#premiosmia24 organizada por el Club Marketing Mediterráneo y la inspiradora charla de Amuda Goueli para seguir innovando y el gran valor estratégico del área de marketing en los mejores, y sobre todo, en los peores momentos. Muchas gracias por esa inspiración para todo el equipo Zumex Group que represento esta noche.\"\n\nDATOS DEL TEMA DE HOY:\n- Título: {{ $json.topic_title }}\n- Razón: {{ $json.topic_rationale }}\n- Fuentes: {{ $json.topic_sources }}\n- Prompt Sistema: {{ $json.system_prompt }}\n\nTAREA:\n1. Escribe un borrador para LinkedIn (max 1500 caracteres).\n2. Escribe un borrador para Blog (HTML formateado con H2, H3, p, ul).\n3. Genera un prompt para crear una imagen destacada en DALL-E 3 que represente este tema.\n    - ESTILO ARTÍSTICO: Estilo de imagen de la App de iPad Paper 53, estilo más de dibujo, esquema de acuarela.\n    - DETALLES DE ESTILO: Debe parecer un boceto artístico hecho a mano en tablet, con trazos sueltos y aguadas de acuarela.\n    - RESTRICCIÓN: El 'image_prompt' generado NO debe superar los 999 caracteres.\n    - Keywords finales a incluir siempre: \"Paper 53 app style, digital drawing, watercolor sketch, hand-drawn, loose lines, artistic.\"\n\nFORMATO JSON ESPERADO:\n{\n  \"linkedin_draft\": \"...\",\n  \"blog_draft\": \"...\",\n  \"image_prompt\": \"...\"\n}\n\nIMPORTANTE: Devuelve SOLO el JSON válido. Sin bloques de código markdown (```json). Sin texto antes ni después."
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        272,
+        0
+      ],
+      "id": "basic-llm-chain",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Limpieza JSON (Igual que antes)\nconst root = items[0].json;\nconst rawText = (root.content && root.content.parts) ? root.content.parts[0].text : root.text;\n\n// Buscador de llaves para evitar basura\nconst firstBrace = rawText.indexOf('{');\nconst lastBrace = rawText.lastIndexOf('}');\nlet cleanJSON = rawText;\n\nif (firstBrace !== -1 && lastBrace !== -1) {\n    cleanJSON = rawText.substring(firstBrace, lastBrace + 1);\n}\n\n// 2. Fix saltos de l\u00ednea y Parseo\nlet content = {};\ntry {\n    const fixedJSON = cleanJSON.replace(/\\n/g, \"\\\\n\").replace(/\\r/g, \"\");\n    content = JSON.parse(fixedJSON);\n} catch (e) {\n    try { content = JSON.parse(cleanJSON); } catch(e2) {\n        content = { linkedin_content: \"\u26a0\ufe0f Error formato\", blog_content: \"Error\" };\n    }\n}\n\n// 3. RECUPERAR T\u00cdTULO ORIGINAL\nlet originalTitle = \"Borrador Autom\u00e1tico\";\ntry {\n    originalTitle = $('Code in JavaScript').first().json.target_topic.title; \n} catch(e) {\n    try { originalTitle = $('Code in JavaScript').first().json.topic_title; } catch(e2) {}\n}\n\n// SALIDA ACTUALIZADA CON EL PROMPT DE IMAGEN\nreturn {\n    json: {\n        title: originalTitle,\n        linkedin_draft: content.linkedin_content || content.linkedin_draft,\n        blog_draft: content.blog_content || content.blog_draft,\n        // A\u00d1ADIMOS ESTA L\u00cdNEA (MODIFICADO): Limitamos a 999 chars y estilo Paper 53\n        image_prompt: (content.image_prompt || \"iPad app Paper 53 style, drawing style, watercolor sketch, conceptual illustration\").substring(0, 999)\n    }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -172,23 +177,6 @@
           "name": "Openai - n8n"
         }
       }
-    },
-    {
-      "parameters": {
-        "method": "GET",
-        "url": "={{ $json.url }}",
-        "authentication": "none",
-        "responseFormat": "file",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        920,
-        0
-      ],
-      "id": "download-image-node",
-      "name": "Download Image"
     },
     {
       "parameters": {
@@ -366,7 +354,18 @@
         ]
       ]
     },
-    "Message a model": {
+    "Google Gemini Model": {
+      "ai_language_model": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_language_model",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
       "main": [
         [
           {
@@ -389,17 +388,6 @@
       ]
     },
     "Generate Image (DALL-E)": {
-      "main": [
-        [
-          {
-            "node": "Download Image",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Download Image": {
       "main": [
         [
           {
@@ -447,7 +435,7 @@
       "main": [
         [
           {
-            "node": "Message a model",
+            "node": "Basic LLM Chain",
             "type": "main",
             "index": 0
           }
