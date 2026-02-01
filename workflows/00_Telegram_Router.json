@@ -1,5 +1,6 @@
 {
     "name": "00 - Telegram Router (The Switchboard)",
+    "id": "SwitchboardRouterV1",
     "nodes": [
         {
             "parameters": {
