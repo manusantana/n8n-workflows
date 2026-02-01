@@ -14,6 +14,10 @@ services:
       - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
       - GENERIC_TIMEZONE=${TIMEZONE}
       - TZ=${TIMEZONE}
+      # Fix for "Too many requests" / ERR_ERL_UNEXPECTED_X_FORWARDED_FOR
+      - N8N_PROXY_HOPS=1
+      - N8N_HOST=n8n.srv675145.hstgr.cloud
+      - N8N_EDITOR_BASE_URL=https://n8n.srv675145.hstgr.cloud
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.n8n.rule=Host(`n8n.srv675145.hstgr.cloud`)"
