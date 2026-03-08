@@ -1,0 +1,67 @@
+{
+  "updatedAt": "2026-02-20T17:48:30.000Z",
+  "createdAt": "2026-02-18T21:20:04.791Z",
+  "id": "h-Y5IKSM-5bQbUKCUQgl2",
+  "name": "WF Scan - Nexprix",
+  "description": null,
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "radar-scan",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "be6cd076-e199-44ff-b88c-5fe49a80d598",
+      "name": "Webhook",
+      "webhookId": "e2993923-2925-4c03-9471-dbadcf630788"
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "1ae2824b-efb3-4f44-9b64-6f1c70df1091",
+  "activeVersionId": null,
+  "versionCounter": 4,
+  "triggerCount": 0,
+  "tags": [
+    {
+      "updatedAt": "2026-02-18T21:20:14.385Z",
+      "createdAt": "2026-02-18T21:20:14.385Z",
+      "id": "XB42bzgPI5byLx00",
+      "name": "NexPrix"
+    }
+  ],
+  "shared": [
+    {
+      "updatedAt": "2026-02-18T21:20:04.794Z",
+      "createdAt": "2026-02-18T21:20:04.794Z",
+      "role": "workflow:owner",
+      "workflowId": "h-Y5IKSM-5bQbUKCUQgl2",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

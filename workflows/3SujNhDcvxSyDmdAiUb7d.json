@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-01-14T11:09:20.003Z",
+  "updatedAt": "2026-03-03T22:33:26.205Z",
   "createdAt": "2026-01-08T21:54:43.953Z",
   "id": "3SujNhDcvxSyDmdAiUb7d",
-  "name": "Content Factory-Web & LinkedIn",
+  "name": "1-Content Factory-Web & LinkedIn",
   "description": null,
   "active": true,
   "isArchived": false,
@@ -12,7 +12,7 @@
         "rule": {
           "interval": [
             {
-              "triggerAtHour": 7
+              "triggerAtHour": 22
             }
           ]
         }
@@ -20,8 +20,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        -992,
-        320
+        -2704,
+        -32
       ],
       "id": "c0eca7f5-d0de-46ba-aea8-760588585d89",
       "name": "Schedule Trigger",
@@ -29,46 +29,14 @@
     },
     {
       "parameters": {
-        "url": "https://webmasters.googleblog.com/feeds/posts/default",
-        "options": {
-          "customFields": ""
-        }
-      },
-      "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1.2,
-      "position": [
-        -768,
-        -16
-      ],
-      "id": "eb37ae52-671f-4083-ac50-b1d9042f5cb5",
-      "name": "RSS Google",
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "url": "https://searchengineland.com/feed",
+        "url": "https://www.shopify.com/blog/feed",
         "options": {}
       },
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        -768,
-        320
-      ],
-      "id": "fc1b5a4a-137d-42ed-a534-e16b91de128b",
-      "name": "RSS SearchEngine",
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "url": "https://shopify.engineering/feed",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1.2,
-      "position": [
-        -768,
-        672
+        -1648,
+        592
       ],
       "id": "ecd0dd23-b85c-4b54-a4aa-cd951223451a",
       "name": "RSS Shopify",
@@ -76,29 +44,14 @@
     },
     {
       "parameters": {
-        "url": "https://martech.org/feed",
+        "url": "https://www.practicalecommerce.com/feed",
         "options": {}
       },
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        -768,
-        496
-      ],
-      "id": "6ba7c93e-3c9d-4776-9dc5-cfc493fa4e0f",
-      "name": "RSS Martech",
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "url": "https://openai.com/blog/rss.xml",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1.2,
-      "position": [
-        -768,
-        144
+        -1648,
+        736
       ],
       "id": "7322bfa4-7f99-42ca-bc14-18adb26194ca",
       "name": "RSS OpenAI",
@@ -106,16 +59,53 @@
     },
     {
       "parameters": {
-        "numberInputs": 5
+        "numberInputs": 10
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -432,
-        272
+        -848,
+        -144
       ],
       "id": "afb6d909-a73e-48d5-8888-bf8d92533ffa",
       "name": "Merge"
+    },
+    {
+      "parameters": {
+        "chatId": "7284267714",
+        "text": "={{ $json.telegram_message }}",
+        "additionalFields": {
+          "parse_mode": "MarkdownV2"
+        }
+      },
+      "id": "2d6e73d2-6b74-4f4f-a823-8c73a2da8f47",
+      "name": "Notificar a Manu",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        2480,
+        48
+      ],
+      "webhookId": "1e5f367b-022f-4c81-992c-77a37e7ac330",
+      "credentials": {
+        "telegramApi": {
+          "id": "yDpQzNCgbZRDEeGA",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const hoursBack = 96; \nconst cutoffDate = new Date(Date.now() - hoursBack * 60 * 60 * 1000);\n\nreturn items\n  .filter(item => {\n    const pubDate = new Date(item.json.pubDate || item.json.isoDate || item.json.date);\n    return pubDate && pubDate > cutoffDate;\n  })\n  .map(item => ({\n    json: {\n      title: item.json.title,\n      content: item.json.contentSnippet || item.json.content || \"\",\n      link: item.json.link,\n      source: item.json.source || \"RSS\"\n    }\n  }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        48
+      ],
+      "id": "24fb50b7-bfce-48ad-8ed0-0ef55e88f894",
+      "name": "Filtrado"
     },
     {
       "parameters": {
@@ -128,21 +118,25 @@
         "messages": {
           "values": [
             {
-              "content": "=ROL:\nEres un Analista de Growth Senior preparando un \"Morning Briefing\" para un CEO ocupado. Tu objetivo es la m\u00e1xima densidad de informaci\u00f3n en el menor n\u00famero de palabras posible. Odias el relleno (fluff) y los adjetivos innecesarios.\n\nINPUT:\nRecibir\u00e1s una lista de noticias recientes sobre E-commerce y Marketing.\nAqu\u00ed tienes las noticias para analizar:\n{{ $json.final_context }}\n\nTU TAREA:\nAnaliza las noticias y genera un OBJETO JSON con dos campos obligatorios:\n\n1. \"briefing_html\" (String): El contenido legible para enviar por email/telegram.\n   - Usa HTML simple (<b>, <a href>).\n   - ESTRUCTURA:\n     - Titular Macro (1 frase).\n     - Lista numerada (1-4) con las noticias m\u00e1s impactantes.\n     - Formato: <b>T\u00cdTULO CORTO</b>: Resumen punchy. \ud83d\udd17 <a href=\"LINK\">Leer m\u00e1s</a>\n     - Footer obligatorio al final: <br><b>\ud83d\udc47 Responde con el n\u00famero (1-4) para redactar.</b>\n\n2. \"topics\" (Array of Objects): Estructura de datos para uso interno.\n   - IMPORTANTE: La clave debe ser \"topics\" (en ingl\u00e9s). NO traduzcas las claves del JSON.\n   - Cada objeto del array debe corresponder a una de las 4 noticias seleccionadas.\n   - Campos de cada objeto:\n     - \"id\" (Number): 1, 2, 3, 4\n     - \"title\" (String): El t\u00edtulo de la noticia.\n     - \"rationale\" (String): Breve explicaci\u00f3n de por qu\u00e9 es importante (para darle contexto al redactor IA despu\u00e9s).\n     - \"sources\" (Array of Strings): [\"URL original\"]\n\nOUTPUT FORMAT (JSON RAW, NO MARKDOWN):\n{\n  \"briefing_html\": \"...\",\n  \"topics\": [\n    { \"id\": 1, \"title\": \"...\", \"rationale\": \"...\", \"sources\": [\"...\"] },\n    ...\n  ]\n}\nIMPORTANTE: El output debe ser un JSON v\u00e1lido parseable. Escapa caracteres especiales si es necesario. Claves en INGL\u00c9S (\"topics\", \"briefing_html\")."
+              "content": "=Analiza esta noticia o contenido y devuelve SOLO un JSON válido.\n\nTítulo: {{ $json.title }}\nResumen: {{ $json.content }}\nURL: {{ $json.link }}\n\nEvalúa estratégicamente para una marca personal experta en:\n- IA aplicada a negocio\n- Automatización\n- Marketing B2B\n- Ecommerce\n- Producto SaaS\n\nDevuelve este JSON exacto:\n\n{\n  \"tipo_contenido\": \"authority | product | hybrid | evergreen\",\n  \"prioridad\": 1-5,\n  \"potencial_linkedin\": 0-100,\n  \"potencial_seo\": 0-100,\n  \"potencial_nexprix\": 0-100,\n  \"riesgo_reputacional\": \"bajo | medio | alto\",\n  \"angulo_recomendado\": \"string breve\"\n}\n\nNo devuelvas texto adicional.\nSolo JSON.\n"
             }
           ]
         },
+        "jsonOutput": true,
         "builtInTools": {},
-        "options": {}
+        "options": {
+          "includeMergedResponse": false,
+          "candidateCount": 1
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        -80,
-        320
+        -320,
+        -96
       ],
-      "id": "65f4d9a6-9eef-4081-9e07-481a8aa04c6d",
-      "name": "Message a model2",
+      "id": "2de77c14-2389-4885-89d7-bf5adc76b065",
+      "name": "Strategic Scoring LLM",
       "credentials": {
         "googlePalmApi": {
           "id": "ScgXEyFYKFmtP8M4",
@@ -152,115 +146,479 @@
     },
     {
       "parameters": {
-        "chatId": "7284267714",
-        "text": "={{ $json.mensaje_final }}",
-        "additionalFields": {
-          "parse_mode": "HTML"
-        }
-      },
-      "id": "2d6e73d2-6b74-4f4f-a823-8c73a2da8f47",
-      "name": "Notificar a Manu",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.1,
-      "position": [
-        576,
-        464
-      ],
-      "webhookId": "1e5f367b-022f-4c81-992c-77a37e7ac330",
-      "credentials": {
-        "telegramApi": {
-          "id": "yDpQzNCgbZRDEeGA",
-          "name": "Telegram account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Configuraci\u00f3n: Horas hacia atr\u00e1s para considerar una noticia \"fresca\"\nconst hoursBack = 72;\nconst cutoffDate = new Date(new Date().getTime() - (hoursBack * 60 * 60 * 1000));\n\n// Filtramos los items que tengan fecha y sean recientes\nconst recentNews = items.filter(item => {\n  const pubDate = new Date(item.json.pubDate || item.json.isoDate || item.json.date);\n  return pubDate > cutoffDate;\n});\n\n// Limpiamos la data para ahorrar tokens\nconst cleanList = recentNews.map(item => {\n  return {\n    title: item.json.title,\n    content: item.json.contentSnippet || item.json.content || \"\",\n    link: item.json.link,\n    source: item.json.source || \"Unknown\"\n  };\n});\n\n// --- NUEVA L\u00d3GICA (EL SECRETO) ---\n// Convertimos el JSON en un texto legible para la IA\n// As\u00ed forzamos que el link vaya pegado al t\u00edtulo\nconst textForAI = cleanList.map((news, index) => {\n    return `\n    Noticia #${index + 1}:\n    Titulo: ${news.title}\n    Resumen: ${news.content}\n    Link_Original: ${news.link}\n    -----------------------\n    `;\n}).join(\"\\n\");\n\n// Devolvemos el texto listo para usar\nreturn [{ json: { final_context: textForAI } }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -256,
-        320
-      ],
-      "id": "24fb50b7-bfce-48ad-8ed0-0ef55e88f894",
-      "name": "Filtrado"
-    },
-    {
-      "parameters": {
-        "jsCode": "// 1. Obtener la respuesta cruda\nconst rawContent = items[0].json.content;\nlet cleanContent = \"\";\nlet parsed;\n\n// 2. Determinar tipo y limpiar (Handling Gemini Envelope)\nif (typeof rawContent === 'object' && rawContent !== null) {\n  // Check if it's the Gemini Envelope { parts: [{ text: \"...\" }] }\n  if (rawContent.parts && rawContent.parts[0] && rawContent.parts[0].text) {\n      const innerText = rawContent.parts[0].text;\n      const rawString = String(innerText || \"\");\n      cleanContent = rawString.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n      try {\n        parsed = JSON.parse(cleanContent);\n      } catch (e) {\n        parsed = {\n            briefing_html: \"\u26a0\ufe0f Error Parseando Inner JSON: \" + rawString,\n            topics: []\n        };\n      }\n  } else {\n     // Maybe it's already the flat object?\n     parsed = rawContent; \n     cleanContent = JSON.stringify(rawContent, null, 2);\n  }\n} else {\n  // Es string directo?\n  const rawString = String(rawContent || \"\");\n  cleanContent = rawString.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n  try {\n    parsed = JSON.parse(cleanContent);\n  } catch (e) {\n    parsed = {\n      briefing_html: \"\u26a0\ufe0f Error Parseando String JSON: \" + rawString,\n      topics: []\n    };\n  }\n}\n\n// 3. Sanitizar HTML para Telegram (Dumb & Safe Replace)\n// Telegram NO soporta <br> ni <p>\nlet finalMsg = parsed.briefing_html || \"Error de formato (No briefing_html)\";\nfinalMsg = finalMsg.split('<br>').join('\\n')\n                 .split('<br/>').join('\\n')\n                 .split('<br />').join('\\n')\n                 .split('<p>').join('\\n')\n                 .split('</p>').join('\\n');\n\n// 4. Robustez de Claves\nconst topics = parsed.topics || parsed.temas || parsed.items || parsed.noticias || [];\n\n// 5. Preparar Outputs\nreturn [{\n  json: {\n    // Para Telegram (Texto) - Unwrapped String\n    mensaje_final: finalMsg,\n    \n    // Para Google Sheets\n    data_json: JSON.stringify({ topics: topics })\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        304,
-        320
-      ],
-      "id": "fa6f59b2-6347-40d8-a075-2c32101aef86",
-      "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
-        "operation": "append",
-        "documentId": {
-          "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit?gid=0#gid=0",
-          "mode": "url"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Hoja 1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit#gid=0"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "date": "={{ $json.date }}",
-            "data_json": "={{ $json.data_json }}"
-          },
-          "matchingColumns": [],
-          "schema": [
+        "tableId": "content_topics",
+        "fieldsUi": {
+          "fieldValues": [
             {
-              "id": "date",
-              "displayName": "date",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
+              "fieldId": "source",
+              "fieldValue": "={{$json.source}}"
             },
             {
-              "id": "data_json",
-              "displayName": "data_json",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
+              "fieldId": "source_type",
+              "fieldValue": "={{$json.source_type}}"
+            },
+            {
+              "fieldId": "original_url",
+              "fieldValue": "={{$json.original_url}}"
+            },
+            {
+              "fieldId": "original_title",
+              "fieldValue": "={{$json.original_title}}"
+            },
+            {
+              "fieldId": "original_summary",
+              "fieldValue": "={{$json.original_summary}}"
+            },
+            {
+              "fieldId": "tipo_contenido",
+              "fieldValue": "={{$json.tipo_contenido}}"
+            },
+            {
+              "fieldId": "prioridad",
+              "fieldValue": "={{$json.prioridad}}"
+            },
+            {
+              "fieldId": "potencial_linkedin",
+              "fieldValue": "={{$json.potencial_linkedin}}"
+            },
+            {
+              "fieldId": "potencial_seo",
+              "fieldValue": "={{$json.potencial_seo}}"
+            },
+            {
+              "fieldId": "potencial_nexprix",
+              "fieldValue": "={{$json.potencial_nexprix}}"
+            },
+            {
+              "fieldId": "riesgo_reputacional",
+              "fieldValue": "={{$json.riesgo_reputacional}}"
+            },
+            {
+              "fieldId": "angulo_recomendado",
+              "fieldValue": "={{$json.angulo_recomendado}}"
+            },
+            {
+              "fieldId": "estado",
+              "fieldValue": "\"discovered\""
+            },
+            {
+              "fieldId": "linkedin_post",
+              "fieldValue": "={{ $json.linkedin_post ?? $json.content?.parts?.[0]?.text ?? null }}"
+            },
+            {
+              "fieldId": "fecha_digest",
+              "fieldValue": "={{ DateTime.now().setZone('Europe/Madrid').toISODate() }}"
+            },
+            {
+              "fieldId": "rank_dia",
+              "fieldValue": "={{$json.rank_dia}}"
             }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
+          ]
+        }
       },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
       "position": [
-        560,
-        192
+        2048,
+        48
       ],
-      "id": "5f1e7afb-5163-4c72-9d61-dfe54f547b1a",
-      "name": "Append row in sheet",
+      "id": "cb359013-2a6d-4acc-b5d2-87fe149869a7",
+      "name": "Create a row",
       "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "l2xD3QINvvmbY8nJ",
-          "name": "Google Sheets account"
+        "supabaseApi": {
+          "id": "xjv1ITY7cmIbF4Up",
+          "name": "SB-Personal"
         }
       }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extraer JSON del modelo\nconst raw = $json.content_1?.parts?.[0]?.text;\n\nif (!raw) return null;\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  return null;\n}\n\nreturn {\n  json: {\n    // Datos originales RSS\n    original_title: $json.title,\n    original_url: $json.link,\n    original_summary: $json.content,\n\n    // Datos estratégicos\n    tipo_contenido: parsed.tipo_contenido,\n    prioridad: parsed.prioridad,\n    potencial_linkedin: parsed.potencial_linkedin,\n    potencial_seo: parsed.potencial_seo,\n    potencial_nexprix: parsed.potencial_nexprix,\n    riesgo_reputacional: parsed.riesgo_reputacional,\n    angulo_recomendado: parsed.angulo_recomendado,\n\n    // Sistema\n    source: \"rss\",\n    source_type: \"rss\",\n    estado: \"discovered\"\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        32
+      ],
+      "id": "b4b2b358-f89f-455d-99c9-93e61a1b8cbc",
+      "name": "Parse Strategic JSON",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfb74027-98e9-4f74-8562-a001b2cc6954",
+              "name": "rss_tittle",
+              "value": "={{$json.title}}",
+              "type": "string"
+            },
+            {
+              "id": "d9b700fc-ed39-4705-acf8-974aa7db8ac2",
+              "name": "rss_url",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "b639bd3e-408f-4849-92e6-5192bf018fc1",
+              "name": "rss_content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -496,
+        48
+      ],
+      "id": "64718a54-7fdf-4314-9e72-17fe09d136a1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "addSuffix"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        32,
+        32
+      ],
+      "id": "e9278299-d08d-410a-ba14-1b5486490fb9",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "content": "Growth&Marketing B2B",
+        "height": 560,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1696,
+        -832
+      ],
+      "typeVersion": 1,
+      "id": "8126e4d9-b7ff-425e-82d3-873c4ac84e00",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "https://ahrefs.com/blog/feed/",
+        "options": {
+          "customFields": ""
+        }
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -784
+      ],
+      "id": "eb37ae52-671f-4083-ac50-b1d9042f5cb5",
+      "name": "aHrefs",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://blog.hubspot.com/marketing/rss.xml",
+        "options": {
+          "customFields": ""
+        }
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -528
+      ],
+      "id": "a6f29091-4b41-42d6-8068-58300902cf8f",
+      "name": "Hubspot",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.marketingprofs.com/rss",
+        "options": {
+          "customFields": ""
+        }
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -656
+      ],
+      "id": "fcc35754-82f8-4956-b49a-4b8351ff087c",
+      "name": "marketingprofs",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "SaaS & Escalabilidad",
+        "height": 320,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1696,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "fd6c9674-672d-49c8-acc8-6c05cdb8fe03",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "url": "https://www.saastr.com/feed/",
+        "options": {
+          "customFields": ""
+        }
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -192
+      ],
+      "id": "afd23dd5-5b61-4dc1-980b-d0c61fa442e5",
+      "name": "saastr",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://andrewchen.com/feed/",
+        "options": {
+          "customFields": ""
+        }
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -48
+      ],
+      "id": "269c44f1-e9c6-49d2-9e7a-21a632307440",
+      "name": "andrewchen",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "Automatizacion",
+        "height": 336,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1696,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "709987bc-5458-406b-9c32-a21b087924a1",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.io/blog/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        224
+      ],
+      "id": "6ba7c93e-3c9d-4776-9dc5-cfc493fa4e0f",
+      "name": "n8n",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://make.com/en/blog/rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        368
+      ],
+      "id": "5461ae14-611b-404b-bc99-93669c432f96",
+      "name": "make",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "Ecommerce",
+        "height": 336,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1696,
+        544
+      ],
+      "typeVersion": 1,
+      "id": "3523e856-24cc-4bd7-8926-5c5301c1050e",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "url": "https://www.searchenginejournal.com/feed/",
+        "options": {
+          "customFields": ""
+        }
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -400
+      ],
+      "id": "9b4bc82b-a7f8-471e-9d1b-a53a30fe4e2a",
+      "name": "searchengine",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "prioridad",
+              "order": "descending"
+            },
+            {
+              "fieldName": "potencial_linkedin",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {
+          "disableDotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        480,
+        32
+      ],
+      "id": "5c0e2f41-46e2-4a0b-9c08-8ac62ae298fc",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "maxItems": 4
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        688,
+        32
+      ],
+      "id": "2120854a-865f-43a8-8b1b-297178450269",
+      "name": "Best-4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        880,
+        208
+      ],
+      "id": "0eeda26b-b9b4-4119-997a-e2e4d24cb1dd",
+      "name": "TheBest"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Actúa como Manu Santana, experto en Revenue Architecture, automatización y crecimiento B2B.\n\nNo eres periodista.\nNo resumes la noticia completa.\nNo repites titulares.\nNo redactas un post largo.\nNo haces eco de comunicados corporativos.\n\nTu trabajo es convertir esta noticia en un resumen estratégico breve y accionable para decidir si merece publicarse hoy.\n\nDatos de entrada:\nTítulo: {{ $json.original_title }}\nResumen: {{ $json.original_summary }}\nÁngulo estratégico sugerido: {{ $json.angulo_recomendado }}\nTipo de contenido: {{ $json.tipo_contenido }}\n\nInstrucciones:\n\n- Escribe en español.\n- Máximo 70 palabras (ideal: 45-60).\n- 2-3 frases cortas.\n- No copies el titular literal.\n- No uses tono hype ni académico.\n- Enfoca solo en impacto real de negocio B2B:\n  • eficiencia operativa\n  • automatización\n  • CAC / LTV\n  • alineación Marketing-Ventas\n  • escalabilidad SaaS/B2B\n- Puede incluir 1 pregunta retórica breve si aporta claridad.\n- No incluyas hashtags.\n- No incluyas CTA comercial.\n- No menciones manusantana.com ni nexprix.com.\n- Sin introducciones tipo “en esta noticia”.\n- Evita relleno y adjetivos vacíos.\n\nDevuelve solo el resumen final, limpio, en un único párrafo.\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {
+          "includeMergedResponse": false,
+          "candidateCount": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        320
+      ],
+      "id": "090f6052-99d6-4879-84c8-e85d57e08193",
+      "name": "LLM-OwnContent",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ScgXEyFYKFmtP8M4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function escapeMarkdownV2(value = \"\") {\n  return String(value).replace(/[_*[\\]()~`>#+\\-=|{}.!]/g, \"\\\\$&\");\n}\n\n// Soporta 3 casos: data[], rows[] o items directos\nlet items = [];\nif (Array.isArray($json.data)) items = $json.data;\nelse if (Array.isArray($json.rows)) items = $json.rows;\nelse items = $input.all().map(i => i.json);\n\nitems = items.slice(0, 5);\n\nconst lines = [\"🧠 *Top 5 oportunidades estratégicas de hoy:*\", \"\"];\n\nitems.forEach((item, i) => {\n  const rank = item.rank_dia || i + 1;\n  const title = escapeMarkdownV2(item.original_title || \"Contenido estratégico propio\");\n  const summary = escapeMarkdownV2(item.original_summary || \"\");\n  const url = item.original_url ? escapeMarkdownV2(item.original_url) : \"\";\n\n  const li = escapeMarkdownV2(item.potencial_linkedin ?? \"N/D\");\n  const seo = escapeMarkdownV2(item.potencial_seo ?? \"N/D\");\n  const nx = escapeMarkdownV2(item.potencial_nexprix ?? \"N/D\");\n  const risk = escapeMarkdownV2(item.riesgo_reputacional ?? \"N/D\");\n\n  lines.push(`${rank}️⃣ *${title}*`);\n  if (summary) lines.push(summary);\n  lines.push(`📊 LI ${li} • SEO ${seo} • NExprix ${nx}`);\n  lines.push(`⚠️ Riesgo reputacional: ${risk}`);\n  if (url) lines.push(`🔗 ${url}`);\n  lines.push(\"\");\n});\n\nlines.push(\"👉 Responde con un número \\\\(1\\\\-5\\\\)\");\n\nreturn [{ json: { telegram_message: lines.join(\"\\n\") } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2272,
+        48
+      ],
+      "id": "8bbb2725-d750-4732-92b9-70ea4ca88683",
+      "name": "CodeTelegram"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1536,
+        48
+      ],
+      "id": "dc427478-3751-4378-aa1a-f1335b91b3fb",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fechaDigest = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });\n// devuelve YYYY-MM-DD en horario Madrid\n\nfunction pickGeminiText(j) {\n  if (typeof j.content === 'string' && j.content.trim()) return j.content.trim();\n  const a = j.content?.parts?.[0]?.text;\n  if (typeof a === 'string' && a.trim()) return a.trim();\n  const b = j.content?.parts?.parts?.[0]?.text;\n  if (typeof b === 'string' && b.trim()) return b.trim();\n  return null;\n}\n\nfunction buildTitle(originalTitle, summaryText) {\n  if (originalTitle && String(originalTitle).trim()) return String(originalTitle).trim();\n  if (!summaryText) return 'Señales estratégicas para crecer en B2B en 2026';\n\n  const firstSentence = String(summaryText).replace(/\\s+/g, ' ').trim().split(/[.!?]/)[0].trim();\n  const clean = firstSentence.replace(/^[\"'“”]+|[\"'“”]+$/g, '');\n  return clean.length > 90 ? `${clean.slice(0, 87).trim()}...` : (clean || 'Señales estratégicas para crecer en B2B en 2026');\n}\n\nreturn $input.all().map((item, idx) => {\n  const j = item.json;\n  const geminiText = pickGeminiText(j);\n  const isAIItem = !!geminiText && (!j.source || !j.original_url || !j.original_title);\n\n  const summaryFinal = geminiText ?? j.original_summary ?? null;\n  const titleFinal = buildTitle(j.original_title, summaryFinal);\n\n  return {\n    json: {\n      source: isAIItem ? 'IA' : (j.source ?? 'rss'),\n      source_type: isAIItem ? 'Gemini' : (j.source_type ?? 'rss'),\n      original_url: isAIItem ? 'https://manusantana.com' : (j.original_url ?? null),\n      original_title: titleFinal,\n      original_summary: summaryFinal,\n      tipo_contenido: j.tipo_contenido ?? null,\n      prioridad: j.prioridad ?? null,\n      potencial_linkedin: j.potencial_linkedin ?? null,\n      potencial_seo: j.potencial_seo ?? null,\n      potencial_nexprix: j.potencial_nexprix ?? null,\n      riesgo_reputacional: j.riesgo_reputacional ?? null,\n      angulo_recomendado: j.angulo_recomendado ?? null,\n      estado: j.estado ?? 'discovered',\n      fecha_digest: fechaDigest,\n      rank_dia: idx + 1,\n    },\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        48
+      ],
+      "id": "37f5fc43-7610-45a4-873a-9df4cc4780aa",
+      "name": "Code in JavaScript"
     }
   ],
   "connections": {
@@ -268,7 +626,7 @@
       "main": [
         [
           {
-            "node": "RSS Google",
+            "node": "aHrefs",
             "type": "main",
             "index": 0
           },
@@ -278,12 +636,7 @@
             "index": 0
           },
           {
-            "node": "RSS SearchEngine",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "RSS Martech",
+            "node": "n8n",
             "type": "main",
             "index": 0
           },
@@ -291,15 +644,29 @@
             "node": "RSS Shopify",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "RSS Google": {
-      "main": [
-        [
+          },
           {
-            "node": "Merge",
+            "node": "Hubspot",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "marketingprofs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "saastr",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "andrewchen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "searchengine",
             "type": "main",
             "index": 0
           }
@@ -312,29 +679,7 @@
           {
             "node": "Merge",
             "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "RSS SearchEngine": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
-    "RSS Martech": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 3
+            "index": 9
           }
         ]
       ]
@@ -345,7 +690,7 @@
           {
             "node": "Merge",
             "type": "main",
-            "index": 4
+            "index": 8
           }
         ]
       ]
@@ -361,7 +706,231 @@
         ]
       ]
     },
-    "Message a model2": {
+    "Notificar a Manu": {
+      "main": [
+        []
+      ]
+    },
+    "Filtrado": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Strategic Scoring LLM": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "CodeTelegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Strategic JSON": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Strategic Scoring LLM",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Parse Strategic JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aHrefs": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "marketingprofs": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Hubspot": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "saastr": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "andrewchen": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "make": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "searchengine": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Best-4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Best-4": {
+      "main": [
+        [
+          {
+            "node": "TheBest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TheBest": {
+      "main": [
+        [
+          {
+            "node": "LLM-OwnContent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM-OwnContent": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "CodeTelegram": {
+      "main": [
+        [
+          {
+            "node": "Notificar a Manu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
       "main": [
         [
           {
@@ -372,32 +941,11 @@
         ]
       ]
     },
-    "Notificar a Manu": {
-      "main": [
-        []
-      ]
-    },
-    "Filtrado": {
-      "main": [
-        [
-          {
-            "node": "Message a model2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Code in JavaScript": {
       "main": [
         [
           {
-            "node": "Notificar a Manu",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Append row in sheet",
+            "node": "Create a row",
             "type": "main",
             "index": 0
           }
@@ -414,9 +962,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "4d1ff342-6784-4c91-942e-ab89e1fa201e",
-  "activeVersionId": "4d1ff342-6784-4c91-942e-ab89e1fa201e",
-  "versionCounter": 32,
+  "versionId": "6c0830e1-61a2-44dc-a192-8daa22ce8d5f",
+  "activeVersionId": "a20c7b5d-cc43-41fe-96bb-c5a58cb01d07",
+  "versionCounter": 119,
   "triggerCount": 1,
   "tags": [
     {

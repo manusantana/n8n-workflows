@@ -1,0 +1,431 @@
+{
+  "updatedAt": "2026-03-07T22:05:42.561Z",
+  "createdAt": "2026-01-31T06:54:17.685Z",
+  "id": "HhEbv3PhcA2XgDtN",
+  "name": "4-LinkedIn Publisher (Worker)",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Run Once for All Items (1 item esperado desde \"Get many rows\")\nconst row = $input.first()?.json ?? {};\n\n// Texto base desde Supabase\nconst draftText = (row.linkedin_post || \"\").toString().trim();\n\n// Mensaje opcional de override (si este WF lo dispara Telegram con texto)\nlet telegramMsg = \"\";\ntry {\n  telegramMsg =\n    $(\"Start\").first().json.message?.text ??\n    $(\"Start\").first().json.text ??\n    \"\";\n} catch (e) {\n  telegramMsg = \"\";\n}\ntelegramMsg = String(telegramMsg).trim();\n\n// Si llega \"ok/vale/si/yes/publicar/confirmar\", usa borrador DB.\n// Si llega otro texto, úsalo como override.\nconst isApproval = /^(ok|vale|si|sí|yes|publicar|confirmar)$/i.test(telegramMsg);\n\nfunction toBoldUnicode(str) {\n  const boldMap = {\n    a:\"𝗮\",b:\"𝗯\",c:\"𝗰\",d:\"𝗱\",e:\"𝗲\",f:\"𝗳\",g:\"𝗴\",h:\"𝗵\",i:\"𝗶\",j:\"𝗷\",k:\"𝗸\",l:\"𝗹\",m:\"𝗺\",n:\"𝗻\",o:\"𝗼\",p:\"𝗽\",q:\"𝗾\",r:\"𝗿\",s:\"𝘀\",t:\"𝘁\",u:\"𝘂\",v:\"𝘃\",w:\"𝘄\",x:\"𝘅\",y:\"𝘆\",z:\"𝘇\",\n    A:\"𝗔\",B:\"𝗕\",C:\"𝗖\",D:\"𝗗\",E:\"𝗘\",F:\"𝗙\",G:\"𝗚\",H:\"𝗛\",I:\"𝗜\",J:\"𝗝\",K:\"𝗞\",L:\"𝗟\",M:\"𝗠\",N:\"𝗡\",O:\"𝗢\",P:\"𝗣\",Q:\"𝗤\",R:\"𝗥\",S:\"𝗦\",T:\"𝗧\",U:\"𝗨\",V:\"𝗩\",W:\"𝗪\",X:\"𝗫\",Y:\"𝗬\",Z:\"𝗭\",\n    0:\"𝟬\",1:\"𝟭\",2:\"𝟮\",3:\"𝟯\",4:\"𝟰\",5:\"𝟱\",6:\"𝟲\",7:\"𝟳\",8:\"𝟴\",9:\"𝟵\"\n  };\n  return str.split(\"\").map(c => boldMap[c] || c).join(\"\");\n}\n\nlet finalContent = draftText;\nif (telegramMsg && !isApproval) {\n  finalContent = telegramMsg.replace(/\\*\\*(.*?)\\*\\*/g, (_, p1) => toBoldUnicode(p1));\n}\n\n// Si no hay texto final, cortar flujo\nif (!finalContent) return [];\n\n// Imagen robusta con fallback\nconst imageUrl = String(\n  row.imagen ||\n  row.image_url ||\n  row.wp_image_url ||\n  row.featured_image ||\n  \"\"\n).trim();\n\nreturn [{\n  json: {\n    row_id: row.id || null,                 // UUID de content_topics\n    final_text: finalContent,               // texto para LinkedIn\n    wp_url: row.wp_url || \"\",               // URL post WP\n    original_title: row.original_title || \"\",\n    imagen: imageUrl                        // URL imagen (puede quedar vacía)\n  }\n}];\n"
+      },
+      "id": "router-code",
+      "name": "Router & Extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "=7284267714",
+        "text": "✅ *Publicado en LinkedIn*\n\nTu post ya está en vivo.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "notify-success",
+      "name": "Notify Success",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1504,
+        0
+      ],
+      "webhookId": "dda217f7-8d26-48f9-9491-79690f00ada8",
+      "credentials": {
+        "telegramApi": {
+          "id": "yDpQzNCgbZRDEeGA",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "3aUnLlTakC",
+        "text": "={{ $('Router & Extract').item.json.final_text }}\n\n👇 Lee el artículo completo aquí:\n{{ $('Router & Extract').item.json.wp_url }}\n",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "84fef436-40b9-4cc4-ad3f-a0dc62ddb0dd",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "lkHYGw5gYDx3I0H2",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "execute-workflow-trigger",
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 9,
+        "unit": "hours"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "0e8d123f-b6a7-4f29-ac85-0280b643b178",
+      "name": "Wait",
+      "webhookId": "b73bbe91-564e-49b8-9cce-3ea52c6105d2",
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $items('Router & Extract', 0, 0)[0].json.imagen }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "dd2b7ab0-60fb-44f1-8ae8-c71e7b96b4b6",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "content_topics",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Get many rows').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "estado",
+              "fieldValue": "published_LK"
+            },
+            {
+              "fieldId": "linkedin_url",
+              "fieldValue": "={{ $('Create a post').item.json.urn }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        0
+      ],
+      "id": "2937bdb4-b1c6-4880-b51b-3c9028663f71",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "xjv1ITY7cmIbF4Up",
+          "name": "SB-Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "content_topics",
+        "limit": 1,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "estado",
+              "condition": "eq",
+              "keyValue": "published"
+            },
+            {
+              "keyName": "imagen",
+              "condition": "neq",
+              "keyValue": "\"\""
+            },
+            {
+              "keyName": "created_at",
+              "condition": "gte",
+              "keyValue": "={{ DateTime.now().setZone('Europe/Madrid').minus({ days: 1 }).toFormat('yyyy-LL-dd') }}"
+            },
+            {
+              "keyName": "estado",
+              "condition": "neq",
+              "keyValue": "published_LK"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "6be22e26-4e5c-4da0-9cfe-99cdd39c3448",
+      "name": "Get many rows",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "xjv1ITY7cmIbF4Up",
+          "name": "SB-Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "796ddb2c-af15-4d56-a5b0-251c984fa746",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "cd1f5bb8-2341-4b00-97a4-2633d1bbc302",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "={{$json.wp_url}}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        464,
+        0
+      ],
+      "id": "9a1faadf-e9a0-4ba5-a269-55ec3260f188",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "chatId": "=7284267714",
+        "text": "⚠️ Publisher detenido: la URL de WordPress no está pública o devolvió error.  • Status: {{$json.statusCode}} • Título: {{$('Router & Extract').item.json.original_title}} • URL: {{$('Router & Extract').item.json.wp_url}}  No se publicó en LinkedIn.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "2f68233d-954f-4771-9236-3c7225d9e0f8",
+      "name": "Notify Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        160
+      ],
+      "webhookId": "dda217f7-8d26-48f9-9491-79690f00ada8",
+      "credentials": {
+        "telegramApi": {
+          "id": "yDpQzNCgbZRDEeGA",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Router & Extract": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post": {
+      "main": [
+        [
+          {
+            "node": "Notify Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Success": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Router & Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "672314bd-6dd9-445b-ac9b-7fc566017475",
+  "activeVersionId": "672314bd-6dd9-445b-ac9b-7fc566017475",
+  "versionCounter": 144,
+  "triggerCount": 0,
+  "tags": [
+    {
+      "updatedAt": "2026-01-11T08:53:52.795Z",
+      "createdAt": "2026-01-11T08:53:52.795Z",
+      "id": "uhHZ5uXbgX7TuWN5",
+      "name": "CreaContenido"
+    }
+  ],
+  "shared": [
+    {
+      "updatedAt": "2026-01-31T06:54:17.688Z",
+      "createdAt": "2026-01-31T06:54:17.688Z",
+      "role": "workflow:owner",
+      "workflowId": "HhEbv3PhcA2XgDtN",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

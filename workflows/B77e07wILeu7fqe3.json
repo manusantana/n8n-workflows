@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2025-05-11T18:04:20.000Z",
+  "updatedAt": "2026-02-02T17:16:07.326Z",
   "createdAt": "2025-05-10T18:03:30.217Z",
   "id": "B77e07wILeu7fqe3",
   "name": "Chat-manusantana.com",
@@ -17,7 +17,7 @@
       "typeVersion": 1.1,
       "position": [
         -400,
-        -140
+        -144
       ],
       "id": "be690cb2-1ff3-49ab-b02a-2c1d4a898ebe",
       "name": "When chat message received",
@@ -32,44 +32,11 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.9,
       "position": [
-        -180,
-        -140
+        -176,
+        -144
       ],
       "id": "a243bdf8-bb58-4dd8-bbe9-11acbcce69e9",
       "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-4o-mini"
-        },
-        "options": {
-          "frequencyPenalty": 0,
-          "maxTokens": -1,
-          "responseFormat": "text",
-          "temperature": 0.7,
-          "timeout": 60000,
-          "maxRetries": 2,
-          "topP": 1
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [
-        -160,
-        80
-      ],
-      "id": "ecfa5105-1466-4e65-be4a-7d73ab755f32",
-      "name": "OpenAI Chat Model",
-      "notesInFlow": false,
-      "credentials": {
-        "openAiApi": {
-          "id": "2hav82eKKT2LEptu",
-          "name": "Openai - n8n"
-        }
-      }
     },
     {
       "parameters": {},
@@ -81,6 +48,26 @@
       ],
       "id": "6073f1db-25ef-4b24-bf4e-6e8f12567c90",
       "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        64
+      ],
+      "id": "b560c708-0e14-44fa-9027-58843f4357b2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ScgXEyFYKFmtP8M4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     }
   ],
   "connections": {
@@ -90,17 +77,6 @@
           {
             "node": "AI Agent",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -116,6 +92,17 @@
           }
         ]
       ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -126,9 +113,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "f00a39e1-3057-45d2-b52b-715971904c28",
-  "activeVersionId": "f00a39e1-3057-45d2-b52b-715971904c28",
-  "versionCounter": 4,
+  "versionId": "db4e3f7a-d6ce-406b-8741-fc24b2e2960f",
+  "activeVersionId": "db4e3f7a-d6ce-406b-8741-fc24b2e2960f",
+  "versionCounter": 13,
   "triggerCount": 1,
   "tags": [],
   "shared": [

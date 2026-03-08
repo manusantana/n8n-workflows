@@ -1,82 +1,31 @@
 {
-  "updatedAt": "2026-01-13T22:03:43.205Z",
+  "updatedAt": "2026-03-07T22:22:53.192Z",
   "createdAt": "2026-01-11T08:53:45.709Z",
   "id": "LTtD6izOWBatig-7qv8IA",
-  "name": "The Reactor",
+  "name": "3-The Reactor",
   "description": null,
   "active": true,
   "isArchived": false,
   "nodes": [
     {
-      "parameters": {
-        "updates": [
-          "message"
-        ],
-        "additionalFields": {
-          "userIds": "7284267714"
-        }
-      },
-      "type": "n8n-nodes-base.telegramTrigger",
-      "typeVersion": 1.2,
+      "parameters": {},
+      "id": "execute-workflow-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
       "position": [
-        -448,
-        0
-      ],
-      "id": "97d8f78e-d316-4afa-bd99-935847178a30",
-      "name": "Telegram Trigger",
-      "webhookId": "b522a8fe-76eb-4c56-8ded-52ee891bbf26",
-      "credentials": {
-        "telegramApi": {
-          "id": "yDpQzNCgbZRDEeGA",
-          "name": "Telegram account"
-        }
-      }
+        -624,
+        -160
+      ]
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit?gid=0#gid=0",
-          "mode": "url"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Hoja 1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5gQDV1xRswrj2qljb7C3xzSyrjjacLdS6Y5vMkM5V0/edit#gid=0"
-        },
-        "options": {
-          "dataLocationOnSheet": {
-            "values": {
-              "rangeDefinition": "detectAutomatically"
-            }
-          }
-        }
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        -192,
-        0
-      ],
-      "id": "54be314c-f2bb-4210-bf5c-0d34383e87d5",
-      "name": "Get row(s) in sheet",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "l2xD3QINvvmbY8nJ",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// --- 1. OBTENER INPUTS ---\n// Buscamos el mensaje original del usuario en el nodo Trigger\n// (Aseg\u00farate de que el nodo se llame \"Telegram Trigger\", si no, ajusta el nombre aqu\u00ed)\nconst triggerData = $('Telegram Trigger').first();\nconst userMsg = triggerData ? triggerData.json.message.text : \"1\"; // Fallback para tests\n\n// Buscamos los datos de Google Sheets (Input directo de este nodo)\n// Cogemos la \u00daLTIMA fila, que es la de hoy\nconst lastRow = items[items.length - 1].json;\n\n// --- 2. VALIDACI\u00d3N ---\nconst selection = parseInt(userMsg);\n\nif (isNaN(selection) || selection < 1 || selection > 4) {\n  // Si no es un n\u00famero v\u00e1lido, paramos (o devolvemos un aviso)\n  return { json: { error: \"\u26a0\ufe0f Input no v\u00e1lido. Escribe un n\u00famero del 1 al 4.\", valid: false } };\n}\n\n// --- 3. EXTRACCI\u00d3N DEL TEMA ---\nlet memory;\ntry {\n  memory = JSON.parse(lastRow.data_json);\n} catch (e) {\n  return { json: { error: \"\u274c Error cr\u00edtico: La memoria del d\u00eda est\u00e1 corrupta.\", valid: false } };\n}\n\n// Array empieza en 0, as\u00ed que restamos 1 (Input \"1\" = Index 0)\nconst topics = memory.topics || [];\nconst topic = topics[selection - 1];\n\nif (!topic) {\n  return { json: { error: \"\u274c Tema no encontrado. (Falta 'topics' en el JSON. \u00bfEjecutaste Content Factory hoy tras el fix?)\", valid: false } };\n}\n\n// --- 4. PREPARAR PAQUETE PARA LA IA ---\nreturn {\n  json: {\n    valid: true,\n    user_selection: selection,\n    topic_title: topic.title,\n    topic_rationale: topic.rationale,\n    topic_sources: topic.sources ? topic.sources.join(\", \") : \"Varias fuentes\",\n    system_instruction: \"Genera un post de LinkedIn viral, t\u00e9cnico y directo.\"\n  }\n};"
+        "jsCode": "const j = $json;\n\n// Si no hay topic seleccionado, corta aquí\nif (!j.id) return [];\n\n// Resumen corto para no meter tronchos al prompt\nconst summary = (j.original_summary || \"\").toString().replace(/\\s+/g, \" \").trim();\nconst shortSummary = summary.length > 500 ? summary.slice(0, 500) + \"...\" : summary;\n\nreturn [\n  {\n    json: {\n      valid: true,\n      topic_id: j.id,\n      fecha_digest: j.fecha_digest ?? null,\n      rank_dia: j.rank_dia ?? null,\n\n      original_title: j.original_title ?? \"\",\n      original_summary: shortSummary,\n      original_url: j.original_url ?? \"\",\n\n      tipo_contenido: j.tipo_contenido ?? \"\",\n      prioridad: j.prioridad ?? null,\n      potencial_linkedin: j.potencial_linkedin ?? null,\n      potencial_seo: j.potencial_seo ?? null,\n      potencial_nexprix: j.potencial_nexprix ?? null,\n      riesgo_reputacional: j.riesgo_reputacional ?? \"\",\n      angulo_recomendado: j.angulo_recomendado ?? \"\",\n\n      // Prompt base para Basic LLM Chain\n      reactor_input: [\n        `Título: ${j.original_title ?? \"\"}`,\n        `Resumen: ${shortSummary}`,\n        `URL: ${j.original_url ?? \"\"}`,\n        `Ángulo recomendado: ${j.angulo_recomendado ?? \"\"}`,\n        `Tipo contenido: ${j.tipo_contenido ?? \"\"}`,\n        `Prioridad: ${j.prioridad ?? \"\"}`,\n        `Potencial LinkedIn: ${j.potencial_linkedin ?? \"\"}`,\n        `Potencial SEO: ${j.potencial_seo ?? \"\"}`,\n        `Potencial NExprix: ${j.potencial_nexprix ?? \"\"}`,\n        `Riesgo reputacional: ${j.riesgo_reputacional ?? \"\"}`,\n      ].join(\"\\n\"),\n    },\n  },\n];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        64,
+        480,
         0
       ],
       "id": "ae5a1d9b-0b8b-4ea4-88ea-fd7633a09c57",
@@ -84,45 +33,26 @@
     },
     {
       "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "models/gemini-2.5-flash",
-          "mode": "list",
-          "cachedResultName": "models/gemini-2.5-flash"
-        },
-        "messages": {
-          "values": [
-            {
-              "content": "=Act\u00faa como YO, Manu Santana. Soy Head of Marketing y experto en Growth de negocio y Marketing, con un tono directo, un poco canalla, muy t\u00e9cnico pero sin palabras de relleno. Odio el lenguaje corporativo tipo \"en el panorama actual\". Soy un apasionado de la IA y la aplico en mi d\u00eda a d\u00eda. Me quiero posicionar como el mayor experto en Transformar departamentos de marketing traducionales en nuevos departamentos de marketing preparados para IA, ahorrando costes a la empresas y siendo m\u00e1s productivos.\n\nMI ESTILO DE ESCRITURA:\n- Frases cortas. Punchy.\n- Uso de flechas (->) o listas para explicar l\u00f3gica.\n- Preguntas ret\u00f3ricas para enganchar.\n- Cero paja. Voy al grano.\n- Escribe segunda persona del singular. \"Prep\u00e1rate. Lo que vamos a discutir no es un futuro prometedor, ni una tendencia emergente. Es una realidad que Google acaba de poner sobre la mesa y que va a cambiar, de forma radical, las reglas del juego del comercio online. Olvida las predicciones.\"\n- Cero palabras mal sonantes. S\u00e9 educado.\n\nEJEMPLO DE C\u00d3MO ESCRIBO (Imita este tono):\n\"Excelente primera jornada representando a Zumex Group en el EDEM Escuela de Empresarios del hashtag#programa hashtag#agroalimentario con un interesante caf\u00e9 con Hortensia Roig y ponentes top como: Jos\u00e9 Mar\u00eda Bonmat\u00ed Eduardo Baamonde Leonor S\u00e1iz Amor\u00f3s V\u00edctor Yuste Jord\u00e1n y Manuel Lainez Andre\u0301s Ma\u00f1ana m\u00e1s y mejor!\"\n\"Gran gala de los hashtag#premiosmia24 organizada por el Club Marketing Mediterr\u00e1neo y la inspiradora charla de Amuda Goueli para seguir innovando y el gran valor estrat\u00e9gico del \u00e1rea de marketing en los mejores, y sobre todo, en los peores momentos. Muchas gracias por esa inspiraci\u00f3n para todo el equipo Zumex Group que represento esta noche.\"\n\nDATOS DEL TEMA DE HOY:\n- T\u00edtulo: {{ $json.topic_title }}\n- Raz\u00f3n: {{ $json.topic_rationale }}\n- Fuentes: {{ $json.topic_sources }}\n\nTU TAREA:\nGenera un objeto JSON v\u00e1lido (sin markdown) con dos campos:\n\n1. \"linkedin_content\":\n   - Post de LinkedIn siguiendo MI ESTILO.\n   - M\u00e1ximo 150 palabras.\n   - Empieza con una afirmaci\u00f3n pol\u00e9mica.\n\n2. \"blog_content\":\n   - Art\u00edculo HTML para WordPress de aproximadamente 800 palabras (solo el body, sin <html>).\n   - Usa <h2>, <p>, <ul> optimizado para SEO.\n   - IDIOMA: El contenido debe estar escrito \u00daNICAMENTE en ESPA\u00d1OL.\n   - Tono educativo pero entretenido.\n\n3. \"image_prompt\":\n   - TU MISI\u00d3N: Escribir un prompt descriptivo en ingl\u00e9s para generar la imagen de portada.\n   - CONTENIDO OBLIGATORIO: La imagen DEBE representar visualmente los conceptos clave del art\u00edculo (T\u00edtulo: {{ $json.topic_title }}).\n   - EJEMPLOS VISUALES: Si el texto habla de \"Google UCP y carritos abandonados\", el prompt debe describir, por ejemplo, un logo de Google estilizado conectado por l\u00edneas a un carrito de compra abstracto con un cerebro de IA dentro. S\u00e9 creativo con las met\u00e1foras visuales del tema.\n   - ESTILO ART\u00cdSTICO: Ilustraci\u00f3n digital conceptual imitando un boceto suelto hecho en iPad (estilo app Paper53).\n   - DETALLES DE ESTILO: Debe parecer hecho a mano, con texturas visibles de papel granulado, aguadas de acuarela (watercolor washes), y l\u00edneas de tinta imperfectas y sueltas.\n   - Keywords finales a incluir siempre: \"Conceptual editorial illustration, digital sketch, Paper53 style, watercolor and ink on textured paper, hand-drawn, loose brushstrokes, minimalist.\"\n\nOUTPUT FORMAT (JSON RAW):\n{\n  \"linkedin_content\": \"...\",\n  \"blog_content\": \"...\"\n}\nIMPORTANTE: El JSON debe ser v\u00e1lido. Escapa los saltos de l\u00ednea del texto usando \\n. No uses saltos de l\u00ednea reales dentro de los valores."
-            }
-          ]
-        },
-        "builtInTools": {},
-        "options": {}
+        "promptType": "define",
+        "text": "=You are Manu Santana, Head of Marketing and Strategic Growth Advisor focused on Revenue Architecture, Automation, and B2B scale.\n\nYour job is to transform today's topic into high-quality, practical content for LinkedIn and Blog, with SEO + AEO optimization, while keeping a clear, educational, business-first tone.\n\nVOICE & STYLE\n- Analytical and didactic: explain the why behind decisions.\n- Polite but direct: no fluff, no corporate jargon.\n- Advisor tone: guide, do not lecture.\n- Translate technical concepts (AI, automation, data) into business outcomes.\n- Write in second person in Spanish (\"tu\", \"vuestra\"). NOT \"usted\", \"ustedes\"\n\nLANGUAGE RULE\n- Write ALL output in Spanish (neutral, professional, natural).\n- Keep readability high: short paragraphs, clear transitions, concrete language.\n\nINPUT DATA\n- title: {{ $json.original_title }}\n- summary: {{ $json.original_summary }}\n- url: {{ $json.original_url }}\n- content_type: {{ $json.tipo_contenido }}\n- strategic_angle: {{ $json.angulo_recomendado }}\n- priority: {{ $json.prioridad }}\n- linkedin_potential: {{ $json.potencial_linkedin }}\n- seo_potential: {{ $json.potencial_seo }}\n- nexprix_potential: {{ $json.potencial_nexprix }}\n- reputational_risk: {{ $json.riesgo_reputacional }}\n\nSTRATEGIC INTERPRETATION RULES\n- Do not rewrite the headline literally.\n- Do not sound like a news reporter.\n- Connect the topic to B2B growth levers:\n  - operational efficiency\n  - automation\n  - CAC/LTV\n  - marketing-sales alignment\n  - scalable GTM\n- If reputational_risk is high, use more cautious wording and avoid absolute claims.\n- Use linkedin_potential/seo_potential/nexprix_potential to prioritize framing:\n  - High LinkedIn: stronger hook + practical POV.\n  - High SEO/AEO: clearer entities, intent-driven structure, direct answers.\n  - High NExprix: include one natural mention of productized automation use case (non-salesy).\n\nSEO + AEO REQUIREMENTS (for blog)\n- Include search intent coverage (informational + practical).\n- Use semantic structure with H2/H3.\n- Include one short FAQ section (2-3 Q&A) to improve AEO.\n- Add concise, entity-rich wording (no keyword stuffing).\n- Keep HTML clean: only h2, h3, p, ul, li, strong.\n\nCONTENT TASKS\n1) linkedin_draft\n- Max 1500 characters.\n- Structure:\n  - Context/reflection\n  - Causal logic with arrows (->)\n  - Tangible business benefit\n  - 3 to 5 strategic hashtags\n- No aggressive imperative tone.\n- Forbidden words: “crucial”, “fundamental”, “vanguardia”, “revolucionario”.\n\n2) blog_draft\n- HTML formatted using h2, h3, p, ul, li, strong.\n- Educational, practical, semantically optimized.\n- Include a short FAQ section for AEO.\n- No markdown fences.\n- Do NOT include <h1>. WordPress already renders the main title.\n- Start directly with <h2>.\n- Do NOT repeat the exact post title in the first <h2>.\n\n\n3) Image metadata\nGenerate:\n- image_subject: one real, recognizable, literal subject.\n- image_theme: concise context of this topic.\n- image_keywords: array of 5-10 real words.\n\nOUTPUT FORMAT\nReturn ONLY valid JSON with this exact shape:\n{\n  \"linkedin_draft\": \"...\",\n  \"blog_draft\": \"...\",\n  \"image_subject\": \"\",\n  \"image_theme\": \"\",\n  \"image_keywords\": [\"\", \"\", \"\", \"\", \"\"]\n}\n\nIMPORTANT\n- Return JSON only.\n- No markdown.\n- No text before or after JSON.\n"
       },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
       "position": [
-        272,
-        0
+        688,
+        -288
       ],
-      "id": "f854748b-fa7f-4bdc-a7ca-6c4f2c83854d",
-      "name": "Message a model",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "ScgXEyFYKFmtP8M4",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
+      "id": "basic-llm-chain",
+      "name": "Basic LLM Chain"
     },
     {
       "parameters": {
-        "jsCode": "// 1. Limpieza JSON\nconst root = items[0].json;\n// Handle Gemini Envelope (parts vs text)\nlet rawText = (root.content && root.content.parts) ? root.content.parts[0].text : (root.text || root.content || \"\");\n\n// Buscador de llaves para extraccion\nconst firstBrace = rawText.indexOf('{');\nconst lastBrace = rawText.lastIndexOf('}');\nlet cleanJSON = rawText;\n\nif (firstBrace !== -1 && lastBrace !== -1) {\n    cleanJSON = rawText.substring(firstBrace, lastBrace + 1);\n}\n\n// 2. Parsers intent (Try multiple strategies)\nlet content = {};\nlet parseSuccess = false;\n\n// Strategy A: Direct Parse (Best for valid JSON)\nif (!parseSuccess) {\n    try {\n        content = JSON.parse(cleanJSON);\n        parseSuccess = true;\n    } catch (e) {}\n}\n\n// Strategy B: Clean Markdown code blocks if existing\nif (!parseSuccess) {\n    try {\n        let noMarkdown = cleanJSON.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n        content = JSON.parse(noMarkdown);\n        parseSuccess = true;\n    } catch(e) {}\n}\n\n// Strategy C: Fix unescaped newlines (Old Logic - improved)\nif (!parseSuccess) {\n    try {\n        // Only escape newlines if they seem to be breaking strings? \n        // Actually, replacing all \\n with \\\\n breaks headers.\n        // Let's try to just parse what we can or return fallback.\n        // Attempt aggressive cleanup:\n        const fixedJSON = cleanJSON.replace(/\\n/g, \"\\\\n\").replace(/\\r/g, \"\");\n        content = JSON.parse(fixedJSON);\n        parseSuccess = true;\n    } catch (e) {\n        // Fallback final\n        content = { \n            linkedin_content: \"\u26a0\ufe0f Error formato: \" + rawText.substring(0, 100), \n            blog_content: \"Error\",\n            image_prompt: \"Abstract AI concept\"\n        };\n    }\n}\n\n// 3. RECUPERAR T\u00cdTULO ORIGINAL\nlet originalTitle = \"Borrador Autom\u00e1tico\";\ntry {\n    originalTitle = $('Code in JavaScript').first().json.target_topic.title; \n} catch(e) {\n    try { originalTitle = $('Code in JavaScript').first().json.topic_title; } catch(e2) {}\n}\n\n// SALIDA\nreturn {\n    json: {\n        title: originalTitle,\n        linkedin_draft: content.linkedin_content || content.linkedin_draft,\n        blog_draft: content.blog_content || content.blog_draft,\n        image_prompt: content.image_prompt || \"Futuristic technology concept, editorial photography, 8k\"\n    }\n};"
+        "jsCode": "// Nodo Code (Run Once for Each Item recomendado)\n\n// 1) Leer texto del LLM\nconst root = $json;\nconst rawText = (\n  root.text ??\n  root.content?.parts?.[0]?.text ??\n  root.output_text ??\n  \"\"\n).toString();\n\n// 2) Extraer bloque JSON\nconst firstBrace = rawText.indexOf(\"{\");\nconst lastBrace = rawText.lastIndexOf(\"}\");\nlet jsonCandidate =\n  firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace\n    ? rawText.slice(firstBrace, lastBrace + 1)\n    : rawText;\n\n// 3) Parse robusto\nlet content = {};\ntry {\n  content = JSON.parse(jsonCandidate);\n} catch {\n  try {\n    const repaired = jsonCandidate.replace(/,\\s*([}\\]])/g, \"$1\");\n    content = JSON.parse(repaired);\n  } catch {\n    content = {};\n  }\n}\n\n// 4) Normalización de campos\nconst linkedin_draft = content.linkedin_draft || content.linkedin_content || \"\";\nlet blog_draft = content.blog_draft || content.blog_content || \"\";\n\n// NUEVO: título sugerido por el LLM (si lo devuelve)\nconst llmTitle =\n  content.blog_title ||\n  content.seo_title ||\n  content.title ||\n  \"\";\n\nconst image_subject =\n  content.image_subject ||\n  content.imageSubject ||\n  content.subject ||\n  \"\";\n\nconst image_theme =\n  content.image_theme ||\n  content.imageTheme ||\n  content.theme ||\n  \"\";\n\nlet image_keywords =\n  content.image_keywords ||\n  content.imageKeywords ||\n  content.keywords ||\n  [];\n\nif (typeof image_keywords === \"string\") {\n  image_keywords = image_keywords.split(\",\").map(s => s.trim()).filter(Boolean);\n}\nif (!Array.isArray(image_keywords)) image_keywords = [];\nimage_keywords = image_keywords.map(k => String(k).trim()).filter(Boolean).slice(0, 10);\n\n// 5) Título final\nlet originalTitle =\n  llmTitle ||\n  root.original_title ||\n  root.topic_title ||\n  root.title ||\n  \"\";\n\nif (!originalTitle || originalTitle === \"Borrador Automático\") {\n  const candidate =\n    (blog_draft || linkedin_draft || \"\")\n      .replace(/<[^>]+>/g, \" \")\n      .replace(/\\s+/g, \" \")\n      .trim()\n      .split(/[.!?]/)[0]\n      .trim();\n\n  originalTitle = candidate ? candidate.slice(0, 90) : \"Artículo\";\n}\n\n// NUEVO: limpiar duplicado de título en blog\nfunction normalizeText(str) {\n  return String(str || \"\")\n    .toLowerCase()\n    .normalize(\"NFD\")\n    .replace(/[\\u0300-\\u036f]/g, \"\")\n    .replace(/<[^>]+>/g, \" \")\n    .replace(/[^\\w\\s]/g, \" \")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\n// Quitar H1 inicial siempre (WP ya pinta título)\nblog_draft = blog_draft.replace(/^\\s*<h1\\b[^>]*>[\\s\\S]*?<\\/h1>\\s*/i, \"\");\n\n// Quitar primer H2 si repite el título\nconst firstH2 = blog_draft.match(/^\\s*<h2\\b[^>]*>([\\s\\S]*?)<\\/h2>\\s*/i);\nif (firstH2) {\n  const h2Text = normalizeText(firstH2[1]);\n  const titleText = normalizeText(originalTitle);\n  if (h2Text === titleText || h2Text.includes(titleText) || titleText.includes(h2Text)) {\n    blog_draft = blog_draft.replace(/^\\s*<h2\\b[^>]*>[\\s\\S]*?<\\/h2>\\s*/i, \"\");\n  }\n}\nblog_draft = blog_draft.trim();\n\n// 6) Prompt imagen\nconst STYLE_PROMPT =\n  \"A realistic subject illustrated in the style of the iPad app Paper by FiftyThree. \" +\n  \"The subject must be a real, recognizable thing from the real world (animal, person, object, or everyday scene), not a metaphor, not an abstract concept. \" +\n  \"Hand-sketched watercolor look with loose pencil and ink lines, imperfect strokes, soft watercolor washes, and an off-white paper background. \" +\n  \"Paper53 style as an aesthetic, not a drawing action. \" +\n  \"No hands, no people, no body parts, no drawing tools. \" +\n  \"No robots, no mechanical parts, no futuristic or sci-fi aesthetics. \" +\n  \"No diagrams, no mind maps, no abstract symbols. \" +\n  \"Text is optional and secondary; if present, use only real, common words related to the topic. \" +\n  \"No invented words, no pseudo-text, no filler. \" +\n  \"Calm, human, organic, editorial tone.\";\n\nconst subjectFinal = image_subject || `a real-world subject related to: ${originalTitle}`;\nconst themeFinal = image_theme || \"\";\nconst keywordsFinal = image_keywords.length ? image_keywords.join(\", \") : \"\";\n\nconst finalImagePrompt = (\n  `${STYLE_PROMPT}\\n\\n` +\n  `Main subject: ${subjectFinal}.\\n` +\n  (themeFinal ? `Theme/context: ${themeFinal}.\\n` : \"\") +\n  (keywordsFinal ? `Optional real words (if used, short): ${keywordsFinal}.\\n` : \"\") +\n  \"Prefer the image to work even with no text.\"\n).slice(0, 999);\n\n// 7) Salida\nreturn [\n  {\n    json: {\n      ...root,\n      title: originalTitle,\n      linkedin_draft,\n      blog_draft,\n      image_subject: subjectFinal,\n      image_theme: themeFinal,\n      image_keywords,\n      image_prompt: finalImagePrompt\n    }\n  }\n];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        608,
+        1072,
         0
       ],
       "id": "9a50eba4-e10c-4709-a4ec-776ccb89ba18",
@@ -131,7 +61,7 @@
     {
       "parameters": {
         "chatId": "7284267714",
-        "text": "=\ud83d\ude80 *WORKFLOW COMPLETADO*\n\n\ud83d\udcf1 *Para LinkedIn (Copiar y Pegar):*\n-----------------------------\n{{ $('Code').item.json.linkedin_draft }}\n-----------------------------\n\n\ud83d\udcdd *WordPress:*\n\u2705 Borrador creado correctamente:\nTitle: {{ $json.title.rendered || $json.title }}\nID: {{ $json.id }}\n\n(Entra a tu WP para editar y publicar el art\u00edculo)",
+        "text": "=🚀 *WORKFLOW COMPLETADO*\n\n📱 *Para LinkedIn:*\n-----------------------------\n{{ $('Code').item.json.linkedin_draft }}\n-----------------------------\n\n📝 *WordPress:*\n✅ Borrador creado (ID: {{ $json.id }})\n\n👇 *¿QUÉ HACEMOS?*\n- Escribe **OK** para publicar esto en LinkedIn ahora.\n- O **envía el mensaje editado** (copia, pega y corrige) para publicar esa versión.",
         "additionalFields": {
           "parse_mode": "Markdown"
         }
@@ -141,7 +71,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.1,
       "position": [
-        1760,
+        2384,
         0
       ],
       "webhookId": "1e5f367b-022f-4c81-992c-77a37e7ac330",
@@ -149,33 +79,6 @@
         "telegramApi": {
           "id": "yDpQzNCgbZRDEeGA",
           "name": "Telegram account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "resource": "image",
-        "modelId": {
-          "__rl": true,
-          "value": "models/gemini-2.5-flash-image",
-          "mode": "list",
-          "cachedResultName": "models/gemini-2.5-flash-image (Nano Banana)"
-        },
-        "prompt": "3. \"image_prompt\":\n   - TU MISI\u00d3N: Escribir un prompt descriptivo en ingl\u00e9s para generar la imagen de portada.\n   - CONTENIDO OBLIGATORIO: La imagen DEBE representar visualmente los conceptos clave del art\u00edculo (T\u00edtulo: {{ $json.topic_title }}).\n   - EJEMPLOS VISUALES: Si el texto habla de \"Google UCP y carritos abandonados\", el prompt debe describir, por ejemplo, un logo de Google estilizado conectado por l\u00edneas a un carrito de compra abstracto con un cerebro de IA dentro. S\u00e9 creativo con las met\u00e1foras visuales del tema.\n   - ESTILO ART\u00cdSTICO: Ilustraci\u00f3n digital conceptual imitando un boceto suelto hecho en iPad (estilo app Paper53).\n   - DETALLES DE ESTILO: Debe parecer hecho a mano, con texturas visibles de papel granulado, aguadas de acuarela (watercolor washes), y l\u00edneas de tinta imperfectas y sueltas.\n   - Keywords finales a incluir siempre: \"Conceptual editorial illustration, digital sketch, Paper53 style, watercolor and ink on textured paper, hand-drawn, loose brushstrokes, minimalist.\"",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        800,
-        0
-      ],
-      "id": "5011b4c8-f55e-42ec-b2ab-5309120e3f09",
-      "name": "Generate an image",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "ScgXEyFYKFmtP8M4",
-          "name": "Google Gemini(PaLM) Api account"
         }
       }
     },
@@ -195,6 +98,10 @@
             {
               "name": "Content-Disposition",
               "value": "attachment; filename=portada_ia.png"
+            },
+            {
+              "name": "Content-Type",
+              "value": "image/png"
             }
           ]
         },
@@ -206,7 +113,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1264,
+        1680,
         0
       ],
       "id": "66365db8-4ed9-4e7a-bb94-2cf8e674e1d1",
@@ -241,7 +148,11 @@
             },
             {
               "name": "featured_media",
-              "value": "={{ $json.id }}"
+              "value": "={{ $('HTTP Request').item.json.id }}"
+            },
+            {
+              "name": "excerpt",
+              "value": "={{ $('Code').item.json.linkedin_draft }}"
             }
           ]
         },
@@ -250,7 +161,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1504,
+        1952,
         0
       ],
       "id": "d6d4277d-c13c-4744-a942-d06e5df74d25",
@@ -269,7 +180,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1040,
+        1456,
         0
       ],
       "id": "40c54081-e8c0-4a62-8902-ca86f9267278",
@@ -284,15 +195,21 @@
               "value1": "={{ $json.valid }}",
               "value2": true
             }
+          ],
+          "string": [
+            {
+              "value1": "={{ $json.topic_id }}",
+              "operation": "isNotEmpty"
+            }
           ]
         }
       },
-      "id": "31a653df-cb76-4dfc-8273-f71ddc44cf72",
+      "id": "bbdf65cb-0a9a-4a2c-b621-f66239659d51",
       "name": "Check Validity",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        460,
+        880,
         0
       ]
     },
@@ -304,40 +221,303 @@
           "parse_mode": "HTML"
         }
       },
-      "id": "7ac31520-6e28-4175-a530-662a2c123c03",
+      "id": "5a5021de-7fcc-43f2-9bd5-6ee3a2bed626",
       "name": "Notify Error",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.1,
       "position": [
-        460,
-        200
+        1040,
+        304
       ],
-      "webhookId": "5b531425-b86f-4bb1-9b68-b45893bf1c61",
+      "webhookId": "e98953a0-db5e-41f0-bd78-5f90f63f791e",
       "credentials": {
         "telegramApi": {
           "id": "yDpQzNCgbZRDEeGA",
           "name": "Telegram account"
         }
       }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -112
+      ],
+      "id": "6c550002-e2c2-445f-a46c-ec3468fe2da3",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ScgXEyFYKFmtP8M4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "={{ $json.image_prompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1264,
+        0
+      ],
+      "id": "349416c0-d757-40cb-af87-332ef67d6780",
+      "name": "Generate an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ScgXEyFYKFmtP8M4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.1-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.1-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {}
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        -544
+      ],
+      "id": "f854748b-fa7f-4bdc-a7ca-6c4f2c83854d",
+      "name": "Google Gemini Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ScgXEyFYKFmtP8M4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "content_topics",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "estado",
+              "condition": "eq",
+              "keyValue": "discovered"
+            },
+            {
+              "keyName": "rank_dia",
+              "condition": "eq",
+              "keyValue": "={{$json.choice}}"
+            },
+            {
+              "keyName": "fecha_digest",
+              "condition": "eq",
+              "keyValue": "={{$now.setZone('Europe/Madrid').toFormat('yyyy-LL-dd')}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -160
+      ],
+      "id": "beaf4cd7-2630-4cb7-ba7c-1097d59ca1cf",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "xjv1ITY7cmIbF4Up",
+          "name": "SB-Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "telegram_selections",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "telegram_user_id",
+              "fieldValue": "={{ $json.telegram_user_id }}"
+            },
+            {
+              "fieldId": "telegram_chat_id",
+              "fieldValue": "={{ $json.telegram_chat_id }}"
+            },
+            {
+              "fieldId": "fecha_digest",
+              "fieldValue": "={{ $json.fecha_digest }}"
+            },
+            {
+              "fieldId": "rank_dia",
+              "fieldValue": "={{ $json.rank_dia }}"
+            },
+            {
+              "fieldId": "content_topic_id",
+              "fieldValue": "={{ $json.content_topic_id }}"
+            },
+            {
+              "fieldId": "selected_text",
+              "fieldValue": "={{ $json.selected_text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -160
+      ],
+      "id": "f1e21a07-408b-45f1-bf37-a8812940024a",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "xjv1ITY7cmIbF4Up",
+          "name": "SB-Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const topic = $input.first().json;\nconst payload = $items(\"Edit Fields\", 0, 0)[0]?.json ?? {};\n\nconst telegramUserId = payload.telegram_user_id ?? null;\nconst telegramChatId = payload.telegram_chat_id ?? null;\nconst choice = payload.choice ?? null;\nconst fechaDigest = payload.fecha_digest ?? null;\nconst selectedText = payload.selected_text ?? null;\n\nif (!telegramUserId) {\n  throw new Error(\"telegram_user_id vacío en Edit Fields\");\n}\n\nreturn [\n  {\n    json: {\n      telegram_user_id: String(telegramUserId),\n      telegram_chat_id: telegramChatId ? String(telegramChatId) : null,\n      fecha_digest: topic.fecha_digest ?? fechaDigest ?? $now.setZone(\"Europe/Madrid\").toFormat(\"yyyy-LL-dd\"),\n      rank_dia: Number(topic.rank_dia ?? choice),\n      content_topic_id: topic.id,\n      selected_text: selectedText ?? (choice !== null ? String(choice) : \"\"),\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        -160
+      ],
+      "id": "a7b53d14-08d8-4743-8ed1-26aef82731be",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "57c7f3d3-821d-45a6-87ad-9f58234b8a7d",
+              "name": "choice",
+              "value": 4,
+              "type": "number"
+            },
+            {
+              "id": "3e7485c9-49ad-4866-b1df-a23e1a975023",
+              "name": "telegram_user_id",
+              "value": "7284267714",
+              "type": "string"
+            },
+            {
+              "id": "e55dd0ea-f29f-471a-b5ae-ca191a856ab6",
+              "name": "telegram_chat_id",
+              "value": "7284267714",
+              "type": "string"
+            },
+            {
+              "id": "74fa7ee7-8349-4049-a13a-c9af4079a446",
+              "name": "selected_text",
+              "value": "5",
+              "type": "string"
+            },
+            {
+              "id": "a9b4572d-7f94-4fdd-bb1d-763c6d222d6a",
+              "name": "fecha_digest",
+              "value": "2026-02-22",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -384,
+        -160
+      ],
+      "id": "277c02fa-5d5a-4d63-987c-eef53aeb706f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "content_topics",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Create a row').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "estado",
+              "fieldValue": "published"
+            },
+            {
+              "fieldId": "wp_url",
+              "fieldValue": "={{ $json.link }}"
+            },
+            {
+              "fieldId": "linkedin_post",
+              "fieldValue": "={{ $('Code').item.json.linkedin_draft }}"
+            },
+            {
+              "fieldId": "imagen",
+              "fieldValue": "={{ $('HTTP Request').item.json.guid?.rendered || null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2208,
+        208
+      ],
+      "id": "d1778940-9b20-4719-9211-9f0aba242a68",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "xjv1ITY7cmIbF4Up",
+          "name": "SB-Personal"
+        }
+      }
     }
   ],
   "connections": {
-    "Telegram Trigger": {
+    "Execute Workflow Trigger": {
       "main": [
         [
           {
-            "node": "Get row(s) in sheet",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get row(s) in sheet": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript",
+            "node": "Edit Fields",
             "type": "main",
             "index": 0
           }
@@ -355,7 +535,7 @@
         ]
       ]
     },
-    "Message a model": {
+    "Basic LLM Chain": {
       "main": [
         [
           {
@@ -377,17 +557,6 @@
         ]
       ]
     },
-    "Generate an image": {
-      "main": [
-        [
-          {
-            "node": "Wait",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "HTTP Request": {
       "main": [
         [
@@ -402,6 +571,11 @@
     "Wordpress Connect": {
       "main": [
         [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          },
           {
             "node": "Notificar a Manu",
             "type": "main",
@@ -425,7 +599,7 @@
       "main": [
         [
           {
-            "node": "Message a model",
+            "node": "Basic LLM Chain",
             "type": "main",
             "index": 0
           }
@@ -438,14 +612,91 @@
           }
         ]
       ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Model": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        []
+      ]
     }
   },
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": false,
-    "timeSavedMode": "fixed",
-    "callerPolicy": "workflowsFromSameOwner"
-  },
+  "settings": {},
   "staticData": null,
   "meta": {
     "templateCredsSetupCompleted": true
@@ -480,10 +731,10 @@
       }
     ]
   },
-  "versionId": "30b3fbaa-937f-4d50-b4f7-ae7f696e7f6b",
-  "activeVersionId": "30b3fbaa-937f-4d50-b4f7-ae7f696e7f6b",
-  "versionCounter": 48,
-  "triggerCount": 1,
+  "versionId": "42d7c89d-b0c0-47f6-aadc-68660a43750c",
+  "activeVersionId": "42d7c89d-b0c0-47f6-aadc-68660a43750c",
+  "versionCounter": 165,
+  "triggerCount": 0,
   "tags": [
     {
       "updatedAt": "2026-01-11T08:53:52.795Z",

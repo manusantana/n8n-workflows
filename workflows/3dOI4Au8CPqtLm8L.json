@@ -1,0 +1,116 @@
+{
+  "updatedAt": "2026-01-31T08:37:06.000Z",
+  "createdAt": "2026-01-31T08:24:23.466Z",
+  "id": "3dOI4Au8CPqtLm8L",
+  "name": "Leads_Google_Sheets",
+  "description": null,
+  "active": false,
+  "isArchived": true,
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "leads"
+      },
+      "position": [
+        100,
+        200
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1
+    },
+    {
+      "id": "google-sheets",
+      "name": "Google Sheets",
+      "parameters": {
+        "operation": "append",
+        "resource": "sheet",
+        "sheetId": "NEW_SHEET_ID"
+      },
+      "position": [
+        300,
+        200
+      ],
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1
+    },
+    {
+      "id": "email-sender",
+      "name": "Send Email",
+      "parameters": {
+        "fromEmail": "admin@example.com",
+        "subject": "New Lead",
+        "text": "New lead received.",
+        "toEmail": "admin@example.com"
+      },
+      "position": [
+        500,
+        200
+      ],
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "index": 0,
+            "node": "Send Email",
+            "type": "main"
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "index": 0,
+            "node": "Google Sheets",
+            "type": "main"
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "8cb483f1-d1f8-4759-be71-c782b29d48ec",
+  "activeVersionId": null,
+  "versionCounter": 2,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-01-31T08:24:23.511Z",
+      "createdAt": "2026-01-31T08:24:23.511Z",
+      "role": "workflow:owner",
+      "workflowId": "3dOI4Au8CPqtLm8L",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

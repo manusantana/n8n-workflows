@@ -1,0 +1,213 @@
+{
+  "updatedAt": "2026-02-24T21:55:01.531Z",
+  "createdAt": "2026-02-01T18:22:23.826Z",
+  "id": "SwitchboardRouterV1",
+  "name": "2-Telegram Router (The Switchboard)",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "userIds": "7284267714"
+        }
+      },
+      "id": "telegram-main-trigger",
+      "name": "Telegram Webhook (Master)",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        32
+      ],
+      "webhookId": "switchboard-router-production",
+      "credentials": {
+        "telegramApi": {
+          "id": "yDpQzNCgbZRDEeGA",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.message.text.trim() }}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "regex",
+              "value2": "^[1-5]$"
+            }
+          ]
+        },
+        "fallbackOutput": 1
+      },
+      "id": "router-switch",
+      "name": "Router (Switch)",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "LTtD6izOWBatig-7qv8IA",
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "id": "exec-reactor",
+      "name": "Execute Reactor",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "HhEbv3PhcA2XgDtN",
+        "options": {}
+      },
+      "id": "exec-publisher",
+      "name": "Execute Publisher",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        496,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "08028036-1f28-4164-abb6-84f1b537c1bb",
+              "name": "telegram_user_id",
+              "value": "={{ $json.message.from.id }}",
+              "type": "string"
+            },
+            {
+              "id": "7db01f27-f726-492f-8eb9-0e013f2ad0b3",
+              "name": "telegram_chat_id",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "227826fa-7fdd-4463-b265-9f884d3adb66",
+              "name": "choice",
+              "value": "={{ Number($json.message?.text ?? 0) }}",
+              "type": "number"
+            },
+            {
+              "id": "ed960640-ed3f-4e81-9042-5d8c9bc189e6",
+              "name": "selected_text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "068e97f8-0edf-47d4-8986-271100b968c7",
+              "name": "fecha_digest",
+              "value": "={{ $now.setZone('Europe/Madrid').toFormat('yyyy-LL-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        432,
+        -208
+      ],
+      "id": "d472279c-c770-473b-a254-472960f75488",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "Telegram Webhook (Master)": {
+      "main": [
+        [
+          {
+            "node": "Router (Switch)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router (Switch)": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Publisher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Reactor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "a5e84d95-a1b2-42d2-af33-a29416a27cae",
+  "activeVersionId": "a5e84d95-a1b2-42d2-af33-a29416a27cae",
+  "versionCounter": 57,
+  "triggerCount": 1,
+  "tags": [
+    {
+      "updatedAt": "2026-01-11T08:53:52.795Z",
+      "createdAt": "2026-01-11T08:53:52.795Z",
+      "id": "uhHZ5uXbgX7TuWN5",
+      "name": "CreaContenido"
+    }
+  ],
+  "shared": [
+    {
+      "updatedAt": "2026-02-01T18:22:23.831Z",
+      "createdAt": "2026-02-01T18:22:23.831Z",
+      "role": "workflow:owner",
+      "workflowId": "SwitchboardRouterV1",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

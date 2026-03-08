@@ -1,0 +1,538 @@
+{
+  "updatedAt": "2026-02-22T10:51:17.668Z",
+  "createdAt": "2026-01-27T11:58:40.522Z",
+  "id": "P0J_J_UF6wyMHq4eAqfVG",
+  "name": "radar-price-single-or-batch",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "radar-scrape",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "a0c9e9cf-1f59-48ba-8eda-4a9e4afe110e",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        944
+      ],
+      "webhookId": "radar-scrape",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "V9yp9JsryOVi4FTM",
+          "name": "x-n8n-x"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "es-ES,es;q=0.9,en;q=0.8"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.google.com/"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "4dce9f9b-940b-4da7-a1cb-0e0d1e2b1e14",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        480,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input_body = $json.body ?? $json;\nconst mode = String(input_body.mode || \"single\");\n\nlet links = [];\n\nif (mode === \"batch\" && Array.isArray(input_body.links)) {\n  links = input_body.links\n    .filter((item) => item && item.link_id && item.url)\n    .map((item) => ({\n      link_id: String(item.link_id),\n      url: String(item.url),\n      product_id: input_body.product_id ? String(input_body.product_id) : null,\n      source: String(input_body.source || \"supabase_radar_scheduler\"),\n      mode: \"batch\",\n    }));\n} else {\n  if (input_body.link_id && input_body.url) {\n    links = [{\n      link_id: String(input_body.link_id),\n      url: String(input_body.url),\n      product_id: input_body.product_id ? String(input_body.product_id) : null,\n      source: String(input_body.source || \"supabase_radar_scheduler\"),\n      mode: \"single\",\n    }];\n  }\n}\n\nreturn links.map((item) => ({ json: item }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        944
+      ],
+      "id": "1c849d0a-564b-4cd2-839e-90a2d9e97370",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6766ce87-1b42-427b-8806-0f06792c17a1",
+              "leftValue": "={{$json.url}}",
+              "rightValue": "google.com/search",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "8718afe4-ae22-4989-9950-33e63b6ac1a2",
+              "leftValue": "={{$json.url}}",
+              "rightValue": "google.com/shopping",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "9295be47-9cf4-44cb-85ad-3b49309edb5b",
+              "leftValue": "={{$json.url}}",
+              "rightValue": "/url?",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "bd254076-334f-4df2-9c84-f65d792c2cc2",
+              "leftValue": "={{$json.url}}",
+              "rightValue": "webcache.googleusercontent.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -64,
+        944
+      ],
+      "id": "ffdafa87-ac58-4840-b79d-8357d55c0aaf",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        240,
+        848
+      ],
+      "id": "9eb8d83e-cf48-4e14-8450-dc23935b07da",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json;\nconst html = String(input.data || \"\");\n\nlet url = String(input.url || \"\");\nlet link_id = String(input.link_id || \"\");\n\n// Fallback: si HTTP Request no preserva campos de entrada\nif (!url || !link_id) {\n  try {\n    const loop_json = $('Loop Over Items').item.json || {};\n    url = String(loop_json.url || url || \"\");\n    link_id = String(loop_json.link_id || link_id || \"\");\n  } catch (e) {\n    // ignore\n  }\n}\n\nconst shipping_words = [\n  \"envio\", \"envío\", \"shipping\", \"delivery\", \"transporte\", \"portes\", \"gastos de envío\", \"gastos de envio\"\n];\n\nconst normalize_number = (raw) => {\n  if (!raw) return null;\n  let value = String(raw).replace(/[^\\d.,]/g, \"\").trim();\n  if (!value) return null;\n\n  if (value.includes(\",\") && value.includes(\".\")) {\n    if (value.lastIndexOf(\",\") > value.lastIndexOf(\".\")) {\n      value = value.replace(/\\./g, \"\").replace(\",\", \".\");\n    } else {\n      value = value.replace(/,/g, \"\");\n    }\n  } else if (value.includes(\",\")) {\n    value = value.replace(\",\", \".\");\n  }\n\n  const num = Number.parseFloat(value);\n  return Number.isFinite(num) ? num : null;\n};\n\nconst text_has_shipping = (txt) => {\n  const low = String(txt || \"\").toLowerCase();\n  return shipping_words.some((w) => low.includes(w));\n};\n\nif (!link_id) {\n  return [{\n    json: {\n      link_id: null,\n      url,\n      price: null,\n      error: \"Missing link_id after HTTP step\",\n      extractor_source: null\n    }\n  }];\n}\n\nlet price = null;\nlet source = null;\n\n// 1) JSON-LD Product offers.price\ntry {\n  const json_ld_matches = [...html.matchAll(/<script[^>]*type=[\"']application\\/ld\\+json[\"'][^>]*>([\\s\\S]*?)<\\/script>/gi)];\n  for (const m of json_ld_matches) {\n    const raw = (m[1] || \"\").trim();\n    if (!raw) continue;\n\n    let obj;\n    try {\n      obj = JSON.parse(raw);\n    } catch {\n      continue;\n    }\n\n    const candidates = Array.isArray(obj) ? obj : [obj];\n    for (const c of candidates) {\n      const offers = c && c.offers ? c.offers : null;\n      const offer = Array.isArray(offers) ? offers[0] : offers;\n      const p = normalize_number(offer && offer.price ? offer.price : null);\n      if (p && p > 0) {\n        price = p;\n        source = \"jsonld\";\n        break;\n      }\n    }\n    if (price) break;\n  }\n} catch {}\n\n// 2) Meta product price\nif (!price) {\n  const meta_patterns = [\n    /<meta[^>]+property=[\"']product:price:amount[\"'][^>]+content=[\"']([^\"']+)[\"']/i,\n    /<meta[^>]+property=[\"']og:price:amount[\"'][^>]+content=[\"']([^\"']+)[\"']/i,\n    /<meta[^>]+itemprop=[\"']price[\"'][^>]+content=[\"']([^\"']+)[\"']/i\n  ];\n\n  for (const re of meta_patterns) {\n    const mm = html.match(re);\n    const p = normalize_number(mm && mm[1] ? mm[1] : null);\n    if (p && p > 0) {\n      price = p;\n      source = \"meta\";\n      break;\n    }\n  }\n}\n\n// 3) Selectores típicos (regex sobre HTML)\nif (!price) {\n  const selector_patterns = [\n    /class=[\"'][^\"']*(?:current-price|price|our_price_display|product-price|final-price)[^\"']*[\"'][^>]*>([\\s\\S]{0,120})</gi,\n    /itemprop=[\"']price[\"'][^>]*content=[\"']([^\"']+)[\"']/gi\n  ];\n\n  for (const re of selector_patterns) {\n    const matches = [...html.matchAll(re)];\n    for (const mm of matches) {\n      const chunk = String(mm[1] || \"\");\n      if (text_has_shipping(chunk)) continue;\n      const p = normalize_number(chunk);\n      if (p && p > 0) {\n        price = p;\n        source = \"selector\";\n        break;\n      }\n    }\n    if (price) break;\n  }\n}\n\n// 4) Regex fallback con anti-shipping\nif (!price) {\n  const lines = html.split(/\\n/).slice(0, 4000);\n  for (const line of lines) {\n    const low = line.toLowerCase();\n    if (text_has_shipping(low)) continue;\n\n    const m =\n      line.match(/(?:€|eur)\\s*([0-9]{1,5}(?:[.,][0-9]{2})?)/i) ||\n      line.match(/([0-9]{1,5}(?:[.,][0-9]{2})?)\\s*(?:€|eur)/i);\n\n    if (m) {\n      const p = normalize_number(m[1]);\n      if (p && p > 0) {\n        price = p;\n        source = \"regex\";\n        break;\n      }\n    }\n  }\n}\n\nif (!price) {\n  return [{\n    json: {\n      link_id,\n      url,\n      price: null,\n      error: \"Price not found\",\n      extractor_source: null\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    link_id,\n    url,\n    price: Number(price.toFixed(2)),\n    error: null,\n    extractor_source: source\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        944
+      ],
+      "id": "030f27f2-1e27-4ae8-b6f8-b83019e21202",
+      "name": "Code Extract PRice"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c5a5411f-bacb-4eba-b2fe-87d302f11c95",
+              "leftValue": "={{ $json.error === null || $json.error === undefined || $json.error === '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        752,
+        704
+      ],
+      "id": "3ab4b9c0-0154-44f1-872a-a38698b2becc",
+      "name": "If1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "be66f4a1-6714-4e33-9b46-9a4d436f4276",
+              "name": "id",
+              "value": "={{$json.link_id}}",
+              "type": "string"
+            },
+            {
+              "id": "885c4594-5975-407c-8a5f-8992634cadc8",
+              "name": "last_price",
+              "value": "={{Number($json.price)}}",
+              "type": "string"
+            },
+            {
+              "id": "b059009f-bd1c-46d9-8f1e-b0d10572d279",
+              "name": "last_scraped_at",
+              "value": "={{new Date().toISOString()}}",
+              "type": "string"
+            },
+            {
+              "id": "a3f2a739-d3f9-4b08-bd00-cb9d2696d66a",
+              "name": "status",
+              "value": "active",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        608
+      ],
+      "id": "154f8f66-7ad5-46c2-b01b-ef03cf37ebc3",
+      "name": "Set-True"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "product_competitor_links",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{$json.id}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "last_price",
+              "fieldValue": "={{Number($json.last_price)}}"
+            },
+            {
+              "fieldId": "last_scraped_at",
+              "fieldValue": "={{new Date().toISOString() }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "=active"
+            }
+          ]
+        }
+      },
+      "id": "b104c2fe-ae60-4cda-898e-6a85bbdfcd62",
+      "name": "Update-A-PRO1",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        672
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "jPLIbbfiKIwhvxv8",
+          "name": "Supabase PRO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "be66f4a1-6714-4e33-9b46-9a4d436f4276",
+              "name": "id",
+              "value": "={{$json.link_id}}",
+              "type": "string"
+            },
+            {
+              "id": "b059009f-bd1c-46d9-8f1e-b0d10572d279",
+              "name": "last_scraped_at",
+              "value": "={{new Date().toISOString()}}",
+              "type": "string"
+            },
+            {
+              "id": "a3f2a739-d3f9-4b08-bd00-cb9d2696d66a",
+              "name": "status",
+              "value": "scraping_failed",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        800
+      ],
+      "id": "080d1df9-462d-4b6a-af7b-7bcc7903e170",
+      "name": "Set-False"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    id: $json.id || $json.link_id || null,\n    last_price: $json.last_price ?? $json.price ?? null,\n    last_scraped_at: $json.last_scraped_at || new Date().toISOString(),\n    status: $json.status || \"active\"\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        672
+      ],
+      "id": "08486530-01b6-4b0e-8f61-0861033ca7a6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const j = item.json || {};\n\nitem.json = {\n  link_id: j.link_id ? String(j.link_id) : null,\n  price: (typeof j.price !== \"undefined\") ? j.price : null,\n  error: (typeof j.error !== \"undefined\") ? j.error : null\n};\n\nreturn item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        704
+      ],
+      "id": "214ec22c-5d23-419e-8f9a-f9b138ef61e5",
+      "name": "CodeDone"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code Extract PRice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "CodeDone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Extract PRice": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Set-True",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set-False",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set-True": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update-A-PRO1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CodeDone": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set-False": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "5822b257-2b0a-4590-b85f-508926c2ab03",
+  "activeVersionId": "5822b257-2b0a-4590-b85f-508926c2ab03",
+  "versionCounter": 247,
+  "triggerCount": 1,
+  "tags": [
+    {
+      "updatedAt": "2026-02-18T21:20:14.385Z",
+      "createdAt": "2026-02-18T21:20:14.385Z",
+      "id": "XB42bzgPI5byLx00",
+      "name": "NexPrix"
+    }
+  ],
+  "shared": [
+    {
+      "updatedAt": "2026-01-27T11:58:40.525Z",
+      "createdAt": "2026-01-27T11:58:40.525Z",
+      "role": "workflow:owner",
+      "workflowId": "P0J_J_UF6wyMHq4eAqfVG",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

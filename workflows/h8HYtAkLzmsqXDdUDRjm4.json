@@ -1,0 +1,172 @@
+{
+  "updatedAt": "2026-02-07T06:06:23.744Z",
+  "createdAt": "2026-02-07T06:03:38.537Z",
+  "id": "h8HYtAkLzmsqXDdUDRjm4",
+  "name": "Staging-Scan",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "radar-scrape-staging",
+        "options": {}
+      },
+      "id": "88d292ec-23a1-4de9-8a19-a163f9c60736",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        288
+      ],
+      "webhookId": "radar-scrape"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.scrapingant.com/v2/general?url={{ $json.body.url }}&x-api-key=1ca62ed142e8431f82d8f6682fb261eb&browser=true&proxy_type=residential&proxy_country=ES&js_snippet=ZG9jdW1lbnQucXVlcnlTZWxlY3RvcigiI3NwLWNjLWFjY2VwdCIpICYmIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoIiNzcC1jYy1hY2NlcHQiKS5jbGljaygp&wait_for_selector=.a-price-whole",
+        "options": {}
+      },
+      "id": "437b791b-a1d8-428d-8c9d-baaeff625745",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -416,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $json.data || '';\nconst linkId = $('Webhook').item.json.body.link_id;\nconst supabaseUrl = $('Webhook').item.json.body.supabase_url;\nconst supabaseKey = $('Webhook').item.json.body.supabase_key;\n\n// Patterns sorted by specificity\nconst patterns = [\n    /class=\"a-price-whole\">([^<]+)<[/]span>/, // Standard Amazon\n    /class=\"a-offscreen\">([^<]+)<[/]span>/,   // Hidden (accessibility)\n    /id=\"priceblock_ourprice\"[^>]*>([^<]+)</, // Classic 1\n    /id=\"priceblock_dealprice\"[^>]*>([^<]+)</, // Classic 2\n    /class=\"a-color-price\">([^<]+)</,         // Fallback color\n    /\"display_amount\":\"([^\"]+)\"/,             // JSON data-attributes\n];\n\nlet finalPrice = null;\n\nfor (const pattern of patterns) {\n    const match = html.match(pattern);\n    if (match && match[1]) {\n        let text = match[1].trim();\n        text = text.replace(/[^\\d.,]/g, '');\n        if (text.includes(',')) {\n            text = text.replace(/\\./g, '').replace(',', '.');\n        } else if (text.split('.').length > 2) {\n             text = text.replace(/\\./g, '');\n        }\n        const p = parseFloat(text);\n        if (!isNaN(p) && p > 0) {\n            finalPrice = p;\n            break;\n        }\n    }\n}\n\nreturn {\n  price: finalPrice,\n  link_id: linkId,\n  supabase_url: supabaseUrl,\n  supabase_key: supabaseKey,\n  scraped_at: new Date().toISOString()\n};\n"
+      },
+      "id": "c241b87a-2084-4911-a9db-aa97e9fe7790",
+      "name": "Parse HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "product_competitor_links",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.link_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "last_price",
+              "fieldValue": "={{ $json.price }}"
+            },
+            {
+              "fieldId": "last_scraped_at",
+              "fieldValue": "={{ $json.scraped_at }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "active"
+            }
+          ]
+        }
+      },
+      "id": "30692508-40f3-472a-a37d-c9113eb54732",
+      "name": "Update Supabase Staging",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        16,
+        288
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "fmPJVsKtTmFhDHlL",
+          "name": "Supabase Staging"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Parse HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse HTML": {
+      "main": [
+        [
+          {
+            "node": "Update Supabase Staging",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "29dd4fe2-f498-47ab-a459-d099eb00511d",
+  "activeVersionId": "29dd4fe2-f498-47ab-a459-d099eb00511d",
+  "versionCounter": 5,
+  "triggerCount": 1,
+  "tags": [
+    {
+      "updatedAt": "2026-02-02T10:56:37.402Z",
+      "createdAt": "2026-02-02T10:56:37.402Z",
+      "id": "PnYBr07eRPcvk6Pa",
+      "name": "RadarUbicuo"
+    }
+  ],
+  "shared": [
+    {
+      "updatedAt": "2026-02-07T06:03:38.540Z",
+      "createdAt": "2026-02-07T06:03:38.540Z",
+      "role": "workflow:owner",
+      "workflowId": "h8HYtAkLzmsqXDdUDRjm4",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

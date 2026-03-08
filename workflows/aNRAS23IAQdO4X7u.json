@@ -1,5 +1,11 @@
 {
+  "updatedAt": "2026-02-02T17:03:39.000Z",
+  "createdAt": "2026-02-01T18:22:27.488Z",
+  "id": "aNRAS23IAQdO4X7u",
   "name": "01 - SEO Content Generator (Scheduled)",
+  "description": null,
+  "active": false,
+  "isArchived": true,
   "nodes": [
     {
       "parameters": {
@@ -65,7 +71,7 @@
       "name": "Investigador (Perplexity)",
       "credentials": {
         "perplexityApi": {
-          "id": "HHBcJ67vw3ipnWKl",
+          "id": "NmUX7901KapcZxqn",
           "name": "Perplexity account"
         }
       }
@@ -224,5 +230,31 @@
     }
   },
   "settings": {},
-  "pinData": {}
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "633a7ca8-f414-4478-a042-fc25cfb7271e",
+  "activeVersionId": null,
+  "versionCounter": 2,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-01T18:22:27.491Z",
+      "createdAt": "2026-02-01T18:22:27.491Z",
+      "role": "workflow:owner",
+      "workflowId": "aNRAS23IAQdO4X7u",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
 }

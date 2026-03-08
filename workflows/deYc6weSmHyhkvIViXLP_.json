@@ -1,0 +1,169 @@
+{
+  "updatedAt": "2026-02-25T07:58:07.588Z",
+  "createdAt": "2026-02-14T05:31:04.383Z",
+  "id": "deYc6weSmHyhkvIViXLP_",
+  "name": "n18i-translate",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "i18n-translate",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -464,
+        16
+      ],
+      "id": "42384a22-3776-41e6-937e-0ce120669f09",
+      "name": "Webhook",
+      "webhookId": "2c794b90-d65a-40e7-b04a-b09f77abf188",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "P7xfKnl96n4FiJ8Z",
+          "name": "Authorization"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        368,
+        16
+      ],
+      "id": "1ad261d9-6336-473f-88ff-8ca73077cda2",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{$json.body?.prompt || $json.prompt || (\"Translate from \" + $json.body?.source_lang + \" to \" + $json.body?.target_lang + \". Return ONLY translated string: \" + $json.body?.text)}}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        16
+      ],
+      "id": "bf80d62e-1458-4e7c-b59e-022a2e49acb2",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ScgXEyFYKFmtP8M4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nconst translated =\n  item.output ||\n  item.text ||\n  item.response ||\n  item.message ||\n  (Array.isArray(item.candidates) &&\n   item.candidates[0]?.content?.parts?.[0]?.text) ||\n  \"\";\n\nreturn [\n  {\n    json: {\n      translated_text: String(translated).trim()\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        16
+      ],
+      "id": "f1075401-25ed-4b3c-b8ec-de0c34ec71b6",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "16a5a89b-ff5d-4f4e-98cc-aa9e179dc7c5",
+  "activeVersionId": null,
+  "versionCounter": 15,
+  "triggerCount": 1,
+  "tags": [
+    {
+      "updatedAt": "2026-02-18T21:20:14.385Z",
+      "createdAt": "2026-02-18T21:20:14.385Z",
+      "id": "XB42bzgPI5byLx00",
+      "name": "NexPrix"
+    }
+  ],
+  "shared": [
+    {
+      "updatedAt": "2026-02-14T05:31:04.388Z",
+      "createdAt": "2026-02-14T05:31:04.388Z",
+      "role": "workflow:owner",
+      "workflowId": "deYc6weSmHyhkvIViXLP_",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

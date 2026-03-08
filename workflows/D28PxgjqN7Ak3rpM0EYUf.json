@@ -1,5 +1,11 @@
 {
+  "updatedAt": "2026-01-19T21:32:11.000Z",
+  "createdAt": "2026-01-19T19:28:18.467Z",
+  "id": "D28PxgjqN7Ak3rpM0EYUf",
   "name": "Google Ads Audit Professional",
+  "description": null,
+  "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {},
@@ -55,7 +61,7 @@
       "id": "2a1f056a-bc86-4b94-87f4-eda71d7638f7",
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "Google Ads Account",
+          "id": "WpMiTNI80ysJQ3YW",
           "name": "Google Ads account"
         }
       }
@@ -77,7 +83,7 @@
       "id": "7ae4d5bd-d77f-4a17-bf15-81249b2043b2",
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "Google Ads Account",
+          "id": "WpMiTNI80ysJQ3YW",
           "name": "Google Ads account"
         }
       }
@@ -99,7 +105,7 @@
       "id": "a352f1cb-e56c-4d8d-af96-388d47091937",
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "Google Ads Account",
+          "id": "WpMiTNI80ysJQ3YW",
           "name": "Google Ads account"
         }
       }
@@ -121,7 +127,7 @@
       "id": "1b8394f5-2976-4135-89af-49c08d100022",
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "Google Ads Account",
+          "id": "WpMiTNI80ysJQ3YW",
           "name": "Google Ads account"
         }
       }
@@ -143,7 +149,7 @@
       "id": "852d72bc-fd83-49a9-93e0-13e01fad30ee",
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "Google Ads Account",
+          "id": "WpMiTNI80ysJQ3YW",
           "name": "Google Ads account"
         }
       }
@@ -165,7 +171,7 @@
       "id": "bf72ad09-ec3f-4d6c-9368-d232ee9a6b6c",
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "Google Ads Account",
+          "id": "WpMiTNI80ysJQ3YW",
           "name": "Google Ads account"
         }
       }
@@ -187,7 +193,7 @@
       "id": "761ae8f8-7c5b-45f0-9731-a868efdffa1a",
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "Google Ads Account",
+          "id": "WpMiTNI80ysJQ3YW",
           "name": "Google Ads account"
         }
       }
@@ -208,7 +214,7 @@
     },
     {
       "parameters": {
-        "jsCode": "\n// Mock Scoring Logic based on Inputs\nconst results = {\n    \"summary\": { \"score\": 85, \"grade\": \"B\", \"total_checks\": 200 },\n    \"categories\": {\n        \"Account Settings\": 90,\n        \"Campaigns\": 80,\n        \"Ads\": 75,\n        \"Keywords\": 95\n    },\n    \"details\": [\n        { \"check\": \"Conversion Tracking\", \"status\": \"\u2705\", \"desc\": \"Global site tag found.\" },\n        { \"check\": \"Bidding Strategy\", \"status\": \"\u26a0\ufe0f\", \"desc\": \"2 Campaigns on Manual CPC.\" }\n    ]\n};\nreturn results;\n"
+        "jsCode": "\n// Mock Scoring Logic based on Inputs\nconst results = {\n    \"summary\": { \"score\": 85, \"grade\": \"B\", \"total_checks\": 200 },\n    \"categories\": {\n        \"Account Settings\": 90,\n        \"Campaigns\": 80,\n        \"Ads\": 75,\n        \"Keywords\": 95\n    },\n    \"details\": [\n        { \"check\": \"Conversion Tracking\", \"status\": \"✅\", \"desc\": \"Global site tag found.\" },\n        { \"check\": \"Bidding Strategy\", \"status\": \"⚠️\", \"desc\": \"2 Campaigns on Manual CPC.\" }\n    ]\n};\nreturn results;\n"
       },
       "name": "Audit Logic",
       "type": "n8n-nodes-base.code",
@@ -365,14 +371,30 @@
   },
   "settings": {},
   "staticData": null,
+  "meta": null,
   "pinData": {},
-  "active": false,
-  "versionId": "cbbdf317-e187-4991-9883-7dfe4a627cdf",
-  "id": "D28PxgjqN7Ak3rpM0EYUf",
+  "versionId": "925cd609-e6b1-487b-a9d0-3dc8164a7b64",
+  "activeVersionId": null,
+  "versionCounter": 20,
+  "triggerCount": 0,
+  "tags": [],
   "shared": [
     {
+      "updatedAt": "2026-01-19T19:28:18.472Z",
+      "createdAt": "2026-01-19T19:28:18.472Z",
       "role": "workflow:owner",
-      "projectId": "zZvuPL6pwZZ6dEqo"
+      "workflowId": "D28PxgjqN7Ak3rpM0EYUf",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
     }
   ]
 }
