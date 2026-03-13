@@ -346,7 +346,7 @@
             {
               "keyName": "fecha_digest",
               "condition": "eq",
-              "keyValue": "={{$now.setZone('Europe/Madrid').toFormat('yyyy-LL-dd')}}"
+              "keyValue": "={{$json.fecha_digest}}"
             }
           ]
         }
@@ -844,7 +844,7 @@
             {
               "keyName": "fecha_digest",
               "condition": "eq",
-              "keyValue": "={{$now.setZone('Europe/Madrid').toFormat('yyyy-LL-dd')}}"
+              "keyValue": "={{$json.fecha_digest}}"
             }
           ]
         }
@@ -1001,7 +1001,7 @@
             },
             {
               "fieldId": "imagen",
-              "fieldValue": "={{ $('HTTP Request1').item.json.guid?.rendered || null }}"
+              "fieldValue": "={{ $('HTTP Request1').item.json.source_url || $('HTTP Request1').item.json.guid?.rendered || null }}"
             }
           ]
         }
