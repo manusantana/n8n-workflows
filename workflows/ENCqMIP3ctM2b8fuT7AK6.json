@@ -1,0 +1,783 @@
+{
+  "updatedAt": "2026-03-08T12:18:14.735Z",
+  "createdAt": "2026-03-08T09:13:49.649Z",
+  "id": "ENCqMIP3ctM2b8fuT7AK6",
+  "name": "Automated Google Ads audit workflow",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "acf1429f-0a70-4e0a-9aa5-5fdcd36ff2a0",
+              "name": "customerId",
+              "value": "234-049-8596",
+              "type": "string"
+            },
+            {
+              "id": "b1c2530a-1b81-4f1b-b2b6-6gded47gg3b1",
+              "name": "developerToken",
+              "value": " 5U-ttcbe95fp-i4i4kyozQ",
+              "type": "string"
+            },
+            {
+              "id": "c2d3641b-2c92-5g2c-c3c7-7hefe58hh4c2",
+              "name": "managerCustomerId",
+              "value": " 317-217-7990",
+              "type": "string"
+            },
+            {
+              "id": "d3e4752c-3da3-6h3d-d4d8-8ifgf69ii5d3",
+              "name": "googleSheetId",
+              "value": "1chcC7-PZQC31tce3E3z5f_h4Nrue4jbxlWtuDnxSLqo",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cb5ff95a-c36b-4bcc-83d4-5d81d1fbf073",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -688,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT customer.id, customer.descriptive_name, customer.currency_code, customer.time_zone, customer.auto_tagging_enabled, customer.conversion_tracking_setting.conversion_tracking_id, customer.conversion_tracking_setting.cross_account_conversion_tracking_id, customer.remarketing_setting.google_global_site_tag, customer.optimization_score, customer.optimization_score_weight FROM customer LIMIT 1\"\n}",
+        "options": {}
+      },
+      "id": "d946e713-691d-4134-9792-530229518b35",
+      "name": "1. Fetch Account Settings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        -80
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        },
+        "googleOAuth2Api": {
+          "id": "tmiXw6YZ1jx2pNHM",
+          "name": "Google account-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $('Configuration').item.json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT conversion_action.id, conversion_action.name, conversion_action.category, conversion_action.type, conversion_action.status, conversion_action.primary_for_goal, conversion_action.counting_type, conversion_action.attribution_model_settings.attribution_model, conversion_action.value_settings.default_value, conversion_action.value_settings.always_use_default_value, conversion_action.click_through_lookback_window_days, conversion_action.include_in_conversions_metric, conversion_action.view_through_lookback_window_days FROM conversion_action WHERE conversion_action.status = 'ENABLED'\"\n}",
+        "options": {}
+      },
+      "id": "8d427e63-1ca8-4f05-bf05-624fc73d42ba",
+      "name": "2. Fetch Conversion Tracking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        112
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $('Configuration').item.json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT campaign.id, campaign.name, campaign.status, campaign.advertising_channel_type, campaign.bidding_strategy_type, campaign.target_cpa.target_cpa_micros, campaign.target_roas.target_roas, campaign.maximize_conversions.target_cpa_micros, campaign.maximize_conversion_value.target_roas, campaign.network_settings.target_google_search, campaign.network_settings.target_search_network, campaign.network_settings.target_content_network, campaign.network_settings.target_partner_search_network, campaign.geo_target_type_setting.positive_geo_target_type, campaign.geo_target_type_setting.negative_geo_target_type, campaign.optimization_score, campaign.primary_status, campaign.primary_status_reasons, metrics.impressions, metrics.clicks, metrics.cost_micros, metrics.conversions, metrics.conversions_value, metrics.search_impression_share, metrics.search_budget_lost_impression_share, metrics.search_rank_lost_impression_share FROM campaign WHERE campaign.status = 'ENABLED' AND segments.date DURING LAST_30_DAYS\"\n}",
+        "options": {}
+      },
+      "id": "a5fc4441-273e-4446-b03f-5a6f1d3c38c2",
+      "name": "3. Fetch Campaigns & Bidding",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        304
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $('Configuration').item.json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT ad_group.id, ad_group.name, ad_group.status, ad_group.type, ad_group.campaign, ad_group.cpc_bid_micros, ad_group.target_cpa_micros, ad_group.target_roas, ad_group.optimized_targeting_enabled, metrics.impressions, metrics.clicks, metrics.conversions, metrics.cost_micros FROM ad_group WHERE ad_group.status = 'ENABLED' AND segments.date DURING LAST_30_DAYS\"\n}",
+        "options": {}
+      },
+      "id": "10b2ddbb-0b6b-4a11-865d-3daf200ac87f",
+      "name": "4. Fetch Ad Groups & Targeting",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        496
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $('Configuration').item.json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT ad_group_ad.ad.id, ad_group_ad.ad.name, ad_group_ad.ad.type, ad_group_ad.ad.final_urls, ad_group_ad.ad.responsive_search_ad.headlines, ad_group_ad.ad.responsive_search_ad.descriptions, ad_group_ad.ad.responsive_search_ad.path1, ad_group_ad.ad.responsive_search_ad.path2, ad_group_ad.status, ad_group_ad.policy_summary.approval_status, ad_group_ad.policy_summary.review_status, ad_group_ad.ad_strength, metrics.impressions, metrics.clicks, metrics.conversions, metrics.cost_micros FROM ad_group_ad WHERE ad_group_ad.status = 'ENABLED' AND segments.date DURING LAST_30_DAYS\"\n}",
+        "options": {}
+      },
+      "id": "7c6e5487-47a1-4048-92c8-f1ff55e0b946",
+      "name": "5. Fetch Ads & Ad Strength",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        688
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $('Configuration').item.json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT asset.id, asset.name, asset.type, asset.sitelink_asset.description1, asset.sitelink_asset.description2, asset.sitelink_asset.link_text, asset.callout_asset.callout_text, asset.structured_snippet_asset.header, asset.structured_snippet_asset.values, asset.call_asset.phone_number, asset.price_asset.price_offerings, asset.promotion_asset.promotion_target, asset.image_asset.full_size.url, customer_asset.status FROM customer_asset\"\n}",
+        "options": {}
+      },
+      "id": "b1a5d6a4-df1c-417e-ade4-48cb093afaec",
+      "name": "6. Fetch Assets/Extensions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        880
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $('Configuration').item.json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type, ad_group_criterion.quality_info.quality_score, ad_group_criterion.quality_info.creative_quality_score, ad_group_criterion.quality_info.search_predicted_ctr, ad_group_criterion.quality_info.post_click_quality_score, ad_group_criterion.status FROM ad_group_criterion WHERE ad_group_criterion.type = 'KEYWORD' AND ad_group_criterion.status = 'ENABLED' LIMIT 500\"\n}",
+        "options": {}
+      },
+      "id": "5eb73578-b21d-4087-b114-edb3fdbe4e5c",
+      "name": "7. Fetch Keywords & Quality Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        1072
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $('Configuration').item.json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT campaign_criterion.location.geo_target_constant, campaign_criterion.negative, campaign.id, campaign.name FROM campaign_criterion WHERE campaign_criterion.type = 'LOCATION'\"\n}",
+        "options": {}
+      },
+      "id": "c07bbb0e-01da-4776-bfcb-ba60aed7a126",
+      "name": "8. Fetch Geo Targeting",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        1264
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "={{ $('Configuration').item.json.developerToken }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"SELECT campaign.id, campaign.name, campaign_budget.id, campaign_budget.name, campaign_budget.amount_micros, campaign_budget.delivery_method, campaign_budget.status, campaign_budget.type, campaign_budget.recommended_budget_amount_micros FROM campaign_budget\"\n}",
+        "options": {}
+      },
+      "id": "1d506baa-9167-4407-86d7-13aa6ec5e149",
+      "name": "9. Fetch Budgets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        1456
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "WpMiTNI80ysJQ3YW",
+          "name": "Google Ads-Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =====================================\n// GOOGLE ADS AUDIT ANALYZER\n// Analyzes 200+ data points\n// =====================================\n\nconst allData = {\n  account: $('1. Fetch Account Settings').first().json,\n  conversions: $('2. Fetch Conversion Tracking').first().json,\n  campaigns: $('3. Fetch Campaigns & Bidding').first().json,\n  adGroups: $('4. Fetch Ad Groups & Targeting').first().json,\n  ads: $('5. Fetch Ads & Ad Strength').first().json,\n  extensions: $('6. Fetch Assets/Extensions').first().json,\n  keywords: $('7. Fetch Keywords & Quality Score').first().json,\n  geoTargets: $('8. Fetch Geo Targeting').first().json,\n  budgets: $('9. Fetch Budgets').first().json\n};\n\n// Helper functions\nconst safeGet = (arr, defaultVal = []) => {\n  if (!arr) return defaultVal;\n  if (Array.isArray(arr)) return arr;\n  if (arr.results) return arr.results;\n  return defaultVal;\n};\n\nconst microsToCurrency = (micros) => micros ? (micros / 1000000).toFixed(2) : '0.00';\n\n// =====================================\n// 1. ACCOUNT SETTINGS AUDIT (40 Points)\n// =====================================\nfunction auditAccountSettings(data) {\n  const checks = [];\n  let score = 0;\n  let maxScore = 40;\n  \n  const account = safeGet(data, [])[0]?.customer || {};\n  \n  // Auto-Tagging (10 Points)\n  if (account.autoTaggingEnabled === true) {\n    score += 10;\n    checks.push({ check: 'Auto-Tagging enabled', status: '✅ PASS', points: 10, description: 'Google Analytics tracking works correctly' });\n  } else {\n    checks.push({ check: 'Auto-Tagging enabled', status: '❌ FAIL', points: 0, description: 'Auto-Tagging is disabled - GA tracking may be faulty' });\n  }\n  \n  // Conversion Tracking ID present (10 Points)\n  if (account.conversionTrackingSetting?.conversionTrackingId) {\n    score += 10;\n    checks.push({ check: 'Conversion Tracking configured', status: '✅ PASS', points: 10, description: 'Conversion Tracking ID is configured' });\n  } else {\n    checks.push({ check: 'Conversion Tracking configured', status: '❌ FAIL', points: 0, description: 'No Conversion Tracking ID found' });\n  }\n  \n  // Remarketing Tag (10 Points)\n  if (account.remarketingSetting?.googleGlobalSiteTag) {\n    score += 10;\n    checks.push({ check: 'Remarketing Tag present', status: '✅ PASS', points: 10, description: 'Google Tag for Remarketing is set up' });\n  } else {\n    checks.push({ check: 'Remarketing Tag present', status: '⚠️ WARN', points: 5, description: 'No Remarketing Tag found - Audiences cannot be created' });\n    score += 5;\n  }\n  \n  // Timezone configured (5 Points)\n  if (account.timeZone) {\n    score += 5;\n    checks.push({ check: 'Timezone configured', status: '✅ PASS', points: 5, description: `Timezone: ${account.timeZone}` });\n  } else {\n    checks.push({ check: 'Timezone configured', status: '❌ FAIL', points: 0, description: 'No timezone set' });\n  }\n  \n  // Currency configured (5 Points)\n  if (account.currencyCode) {\n    score += 5;\n    checks.push({ check: 'Currency configured', status: '✅ PASS', points: 5, description: `Currency: ${account.currencyCode}` });\n  } else {\n    checks.push({ check: 'Currency configured', status: '❌ FAIL', points: 0, description: 'No currency set' });\n  }\n  \n  return { category: 'Account Settings', score, maxScore, checks, percentage: Math.round((score/maxScore)*100) };\n}\n\n// =====================================\n// 2. CONVERSION TRACKING AUDIT (50 Points)\n// =====================================\nfunction auditConversionTracking(data) {\n  const checks = [];\n  let score = 0;\n  let maxScore = 50;\n  \n  const conversions = safeGet(data, []).flatMap(r => r.results || [r]);\n  \n  // At least 1 Conversion Action (10 Points)\n  if (conversions.length > 0) {\n    score += 10;\n    checks.push({ check: 'Conversion Actions present', status: '✅ PASS', points: 10, description: `${conversions.length} Conversion Action(s) found` });\n  } else {\n    checks.push({ check: 'Conversion Actions present', status: '❌ FAIL', points: 0, description: 'No Conversion Actions configured!' });\n    return { category: 'Conversion Tracking', score, maxScore, checks, percentage: 0 };\n  }\n  \n  // Primary Conversions (10 Points)\n  const primaryConversions = conversions.filter(c => c.conversionAction?.primaryForGoal === true);\n  if (primaryConversions.length > 0) {\n    score += 10;\n    checks.push({ check: 'Primary Conversions defined', status: '✅ PASS', points: 10, description: `${primaryConversions.length} primary Conversion(s) for optimization` });\n  } else {\n    checks.push({ check: 'Primary Conversions defined', status: '⚠️ WARN', points: 5, description: 'No primary Conversions defined - Smart Bidding may be suboptimal' });\n    score += 5;\n  }\n  \n  // Attribution Model Check (10 Points)\n  const dataDrivernAttr = conversions.filter(c => \n    c.conversionAction?.attributionModelSettings?.attributionModel === 'DATA_DRIVEN'\n  );\n  if (dataDrivernAttr.length > 0) {\n    score += 10;\n    checks.push({ check: 'Data-Driven Attribution', status: '✅ PASS', points: 10, description: `${dataDrivernAttr.length} Conversion(s) with DDA` });\n  } else {\n    const lastClickAttr = conversions.filter(c => \n      c.conversionAction?.attributionModelSettings?.attributionModel === 'LAST_CLICK'\n    );\n    if (lastClickAttr.length === conversions.length) {\n      checks.push({ check: 'Data-Driven Attribution', status: '⚠️ WARN', points: 3, description: 'All Conversions use Last-Click - DDA recommended' });\n      score += 3;\n    } else {\n      score += 5;\n      checks.push({ check: 'Attribution Model', status: '✅ OK', points: 5, description: 'Multi-Touch Attribution in use' });\n    }\n  }\n  \n  // Conversion Values (10 Points)\n  const withValues = conversions.filter(c => \n    c.conversionAction?.valueSettings?.defaultValue > 0\n  );\n  if (withValues.length > 0) {\n    score += 10;\n    checks.push({ check: 'Conversion Values defined', status: '✅ PASS', points: 10, description: `${withValues.length} Conversion(s) with values` });\n  } else {\n    checks.push({ check: 'Conversion Values defined', status: '⚠️ WARN', points: 3, description: 'No Conversion Values - ROAS bidding not possible' });\n    score += 3;\n  }\n  \n  // Lookback Windows (10 Points)\n  const optimalLookback = conversions.filter(c => \n    c.conversionAction?.clickThroughLookbackWindowDays >= 30\n  );\n  if (optimalLookback.length >= conversions.length * 0.8) {\n    score += 10;\n    checks.push({ check: 'Lookback Window optimal', status: '✅ PASS', points: 10, description: 'Lookback Windows are appropriately configured' });\n  } else {\n    checks.push({ check: 'Lookback Window optimal', status: '⚠️ WARN', points: 5, description: 'Some Lookback Windows may be too short' });\n    score += 5;\n  }\n  \n  return { category: 'Conversion Tracking', score, maxScore, checks, percentage: Math.round((score/maxScore)*100) };\n}\n\n// =====================================\n// 3. CAMPAIGN & BIDDING AUDIT (60 Points)\n// =====================================\nfunction auditCampaignsBidding(data) {\n  const checks = [];\n  let score = 0;\n  let maxScore = 60;\n  \n  const campaigns = safeGet(data, []).flatMap(r => r.results || [r]);\n  \n  if (campaigns.length === 0) {\n    checks.push({ check: 'Active Campaigns', status: '❌ FAIL', points: 0, description: 'No active campaigns found' });\n    return { category: 'Campaigns & Bidding', score, maxScore, checks, percentage: 0 };\n  }\n  \n  // Active Campaigns Check (10 Points)\n  score += 10;\n  checks.push({ check: 'Active Campaigns', status: '✅ PASS', points: 10, description: `${campaigns.length} active campaign(s)` });\n  \n  // Smart Bidding Adoption (15 Points)\n  const smartBiddingStrategies = ['MAXIMIZE_CONVERSIONS', 'MAXIMIZE_CONVERSION_VALUE', 'TARGET_CPA', 'TARGET_ROAS'];\n  const smartBiddingCampaigns = campaigns.filter(c => \n    smartBiddingStrategies.includes(c.campaign?.biddingStrategyType)\n  );\n  const smartBiddingPct = campaigns.length > 0 ? (smartBiddingCampaigns.length / campaigns.length) * 100 : 0;\n  \n  if (smartBiddingPct >= 80) {\n    score += 15;\n    checks.push({ check: 'Smart Bidding Adoption', status: '✅ PASS', points: 15, description: `${Math.round(smartBiddingPct)}% of campaigns use Smart Bidding` });\n  } else if (smartBiddingPct >= 50) {\n    score += 10;\n    checks.push({ check: 'Smart Bidding Adoption', status: '⚠️ WARN', points: 10, description: `Only ${Math.round(smartBiddingPct)}% use Smart Bidding - more recommended` });\n  } else {\n    score += 5;\n    checks.push({ check: 'Smart Bidding Adoption', status: '❌ FAIL', points: 5, description: `Only ${Math.round(smartBiddingPct)}% use Smart Bidding - migration urgently recommended` });\n  }\n  \n  // Search Impression Share (10 Points)\n  const searchCampaigns = campaigns.filter(c => c.campaign?.advertisingChannelType === 'SEARCH');\n  const avgImprShare = searchCampaigns.length > 0 \n    ? searchCampaigns.reduce((acc, c) => acc + (c.metrics?.searchImpressionShare || 0), 0) / searchCampaigns.length \n    : 0;\n  \n  if (avgImprShare >= 0.7) {\n    score += 10;\n    checks.push({ check: 'Search Impression Share', status: '✅ PASS', points: 10, description: `Average ${Math.round(avgImprShare * 100)}% Impression Share` });\n  } else if (avgImprShare >= 0.5) {\n    score += 6;\n    checks.push({ check: 'Search Impression Share', status: '⚠️ WARN', points: 6, description: `${Math.round(avgImprShare * 100)}% - Potential for more reach` });\n  } else {\n    score += 3;\n    checks.push({ check: 'Search Impression Share', status: '❌ LOW', points: 3, description: `Only ${Math.round(avgImprShare * 100)}% - Check budget or quality` });\n  }\n  \n  // Lost Impression Share Analysis (10 Points)\n  const avgBudgetLost = searchCampaigns.length > 0\n    ? searchCampaigns.reduce((acc, c) => acc + (c.metrics?.searchBudgetLostImpressionShare || 0), 0) / searchCampaigns.length\n    : 0;\n  const avgRankLost = searchCampaigns.length > 0\n    ? searchCampaigns.reduce((acc, c) => acc + (c.metrics?.searchRankLostImpressionShare || 0), 0) / searchCampaigns.length\n    : 0;\n  \n  if (avgBudgetLost <= 0.1 && avgRankLost <= 0.2) {\n    score += 10;\n    checks.push({ check: 'Lost Impression Share', status: '✅ PASS', points: 10, description: 'Low lost impressions' });\n  } else if (avgBudgetLost > 0.2) {\n    score += 4;\n    checks.push({ check: 'Lost Impression Share', status: '⚠️ BUDGET', points: 4, description: `${Math.round(avgBudgetLost * 100)}% lost due to budget - Increase budget` });\n  } else {\n    score += 4;\n    checks.push({ check: 'Lost Impression Share', status: '⚠️ RANK', points: 4, description: `${Math.round(avgRankLost * 100)}% lost due to rank - Improve Quality Score` });\n  }\n  \n  // Network Settings (10 Points)\n  const searchOnly = searchCampaigns.filter(c => \n    c.campaign?.networkSettings?.targetGoogleSearch === true &&\n    c.campaign?.networkSettings?.targetSearchNetwork === false &&\n    c.campaign?.networkSettings?.targetContentNetwork === false\n  );\n  const searchOnlyPct = searchCampaigns.length > 0 ? (searchOnly.length / searchCampaigns.length) * 100 : 0;\n  \n  if (searchOnlyPct >= 80) {\n    score += 10;\n    checks.push({ check: 'Network Targeting', status: '✅ PASS', points: 10, description: 'Search campaigns target Google Search only' });\n  } else {\n    score += 5;\n    checks.push({ check: 'Network Targeting', status: '⚠️ WARN', points: 5, description: 'Some Search campaigns include Search Partners or Display - review!' });\n  }\n  \n  // Geo Targeting Type (5 Points)\n  const presenceOnly = campaigns.filter(c => \n    c.campaign?.geoTargetTypeSetting?.positiveGeoTargetType === 'PRESENCE'\n  );\n  if (presenceOnly.length >= campaigns.length * 0.8) {\n    score += 5;\n    checks.push({ check: 'Geo Target Type', status: '✅ PASS', points: 5, description: 'Geo Targeting set to \"Presence\" (recommended)' });\n  } else {\n    score += 2;\n    checks.push({ check: 'Geo Target Type', status: '⚠️ WARN', points: 2, description: 'Some campaigns use \"Interest\" Targeting - may lead to wasted spend' });\n  }\n  \n  return { category: 'Campaigns & Bidding', score, maxScore, checks, percentage: Math.round((score/maxScore)*100) };\n}\n\n// =====================================\n// 4. ADS & EXTENSIONS AUDIT (50 Points)\n// =====================================\nfunction auditAdsExtensions(adsData, extensionsData) {\n  const checks = [];\n  let score = 0;\n  let maxScore = 50;\n  \n  const ads = safeGet(adsData, []).flatMap(r => r.results || [r]);\n  const extensions = safeGet(extensionsData, []).flatMap(r => r.results || [r]);\n  \n  // RSA Check (15 Points)\n  const rsaAds = ads.filter(a => a.adGroupAd?.ad?.type === 'RESPONSIVE_SEARCH_AD');\n  if (rsaAds.length > 0) {\n    score += 10;\n    checks.push({ check: 'Responsive Search Ads', status: '✅ PASS', points: 10, description: `${rsaAds.length} RSA(s) active` });\n    \n    // Ad Strength Check (5 Points)\n    const excellentAds = rsaAds.filter(a => a.adGroupAd?.adStrength === 'EXCELLENT');\n    const goodAds = rsaAds.filter(a => a.adGroupAd?.adStrength === 'GOOD');\n    \n    if (excellentAds.length >= rsaAds.length * 0.5) {\n      score += 5;\n      checks.push({ check: 'Ad Strength', status: '✅ EXCELLENT', points: 5, description: `${excellentAds.length} Ads with \"Excellent\" Strength` });\n    } else if (goodAds.length + excellentAds.length >= rsaAds.length * 0.7) {\n      score += 3;\n      checks.push({ check: 'Ad Strength', status: '⚠️ GOOD', points: 3, description: 'More Ads with \"Excellent\" Strength recommended' });\n    } else {\n      score += 1;\n      checks.push({ check: 'Ad Strength', status: '❌ POOR', points: 1, description: 'Many Ads with weak Ad Strength - Add headlines/descriptions' });\n    }\n  } else {\n    checks.push({ check: 'Responsive Search Ads', status: '❌ FAIL', points: 0, description: 'No RSAs found - Create urgently!' });\n  }\n  \n  // Policy Status (10 Points)\n  const approvedAds = ads.filter(a => a.adGroupAd?.policySummary?.approvalStatus === 'APPROVED');\n  const approvalRate = ads.length > 0 ? (approvedAds.length / ads.length) * 100 : 0;\n  \n  if (approvalRate >= 95) {\n    score += 10;\n    checks.push({ check: 'Ad Approval Status', status: '✅ PASS', points: 10, description: `${Math.round(approvalRate)}% of Ads approved` });\n  } else if (approvalRate >= 80) {\n    score += 6;\n    checks.push({ check: 'Ad Approval Status', status: '⚠️ WARN', points: 6, description: `${Math.round(approvalRate)}% approved - Review rejected Ads` });\n  } else {\n    score += 2;\n    checks.push({ check: 'Ad Approval Status', status: '❌ FAIL', points: 2, description: `Only ${Math.round(approvalRate)}% approved - Urgently review policies` });\n  }\n  \n  // Extensions/Assets Check (15 Points)\n  const sitelinks = extensions.filter(e => e.asset?.type === 'SITELINK');\n  const callouts = extensions.filter(e => e.asset?.type === 'CALLOUT');\n  const snippets = extensions.filter(e => e.asset?.type === 'STRUCTURED_SNIPPET');\n  const calls = extensions.filter(e => e.asset?.type === 'CALL');\n  const images = extensions.filter(e => e.asset?.type === 'IMAGE');\n  \n  let extensionScore = 0;\n  \n  if (sitelinks.length >= 4) {\n    extensionScore += 4;\n    checks.push({ check: 'Sitelinks', status: '✅ PASS', points: 4, description: `${sitelinks.length} Sitelinks active` });\n  } else if (sitelinks.length > 0) {\n    extensionScore += 2;\n    checks.push({ check: 'Sitelinks', status: '⚠️ WARN', points: 2, description: `Only ${sitelinks.length} Sitelinks - At least 4 recommended` });\n  } else {\n    checks.push({ check: 'Sitelinks', status: '❌ FAIL', points: 0, description: 'No Sitelinks - Important extension missing!' });\n  }\n  \n  if (callouts.length >= 4) {\n    extensionScore += 3;\n    checks.push({ check: 'Callouts', status: '✅ PASS', points: 3, description: `${callouts.length} Callouts active` });\n  } else if (callouts.length > 0) {\n    extensionScore += 1;\n    checks.push({ check: 'Callouts', status: '⚠️ WARN', points: 1, description: `Only ${callouts.length} Callouts` });\n  } else {\n    checks.push({ check: 'Callouts', status: '❌ FAIL', points: 0, description: 'No Callouts' });\n  }\n  \n  if (snippets.length >= 2) {\n    extensionScore += 3;\n    checks.push({ check: 'Structured Snippets', status: '✅ PASS', points: 3, description: `${snippets.length} Structured Snippets` });\n  } else if (snippets.length > 0) {\n    extensionScore += 1;\n    checks.push({ check: 'Structured Snippets', status: '⚠️ WARN', points: 1, description: 'Only 1 Structured Snippet' });\n  } else {\n    checks.push({ check: 'Structured Snippets', status: '❌ FAIL', points: 0, description: 'No Structured Snippets' });\n  }\n  \n  if (images.length >= 1) {\n    extensionScore += 3;\n    checks.push({ check: 'Image Extensions', status: '✅ PASS', points: 3, description: `${images.length} Image Extensions` });\n  } else {\n    checks.push({ check: 'Image Extensions', status: '⚠️ WARN', points: 0, description: 'No Image Extensions - Can increase CTR' });\n  }\n  \n  if (calls.length >= 1) {\n    extensionScore += 2;\n    checks.push({ check: 'Call Extensions', status: '✅ PASS', points: 2, description: 'Call Extension active' });\n  } else {\n    checks.push({ check: 'Call Extensions', status: '⚠️ INFO', points: 0, description: 'No Call Extension (optional for B2B)' });\n  }\n  \n  score += extensionScore;\n  \n  return { category: 'Ads & Extensions', score, maxScore, checks, percentage: Math.round((score/maxScore)*100) };\n}\n\n// =====================================\n// 5. KEYWORDS & QUALITY SCORE (50 Points)\n// =====================================\nfunction auditKeywords(data) {\n  const checks = [];\n  let score = 0;\n  let maxScore = 50;\n  \n  const keywords = safeGet(data, []).flatMap(r => r.results || [r]);\n  \n  if (keywords.length === 0) {\n    checks.push({ check: 'Keywords', status: '❌ FAIL', points: 0, description: 'No keywords found' });\n    return { category: 'Keywords & Quality Score', score, maxScore, checks, percentage: 0 };\n  }\n  \n  // Keyword Count (10 Points)\n  score += 10;\n  checks.push({ check: 'Keywords present', status: '✅ PASS', points: 10, description: `${keywords.length} active keywords` });\n  \n  // Quality Score Analysis (20 Points)\n  const keywordsWithQS = keywords.filter(k => k.adGroupCriterion?.qualityInfo?.qualityScore);\n  const avgQS = keywordsWithQS.length > 0\n    ? keywordsWithQS.reduce((acc, k) => acc + k.adGroupCriterion.qualityInfo.qualityScore, 0) / keywordsWithQS.length\n    : 0;\n  \n  if (avgQS >= 7) {\n    score += 20;\n    checks.push({ check: 'Avg. Quality Score', status: '✅ EXCELLENT', points: 20, description: `QS: ${avgQS.toFixed(1)}/10 - Very good!` });\n  } else if (avgQS >= 5) {\n    score += 12;\n    checks.push({ check: 'Avg. Quality Score', status: '⚠️ OK', points: 12, description: `QS: ${avgQS.toFixed(1)}/10 - Room for improvement` });\n  } else if (avgQS > 0) {\n    score += 5;\n    checks.push({ check: 'Avg. Quality Score', status: '❌ LOW', points: 5, description: `QS: ${avgQS.toFixed(1)}/10 - Urgently improve!` });\n  } else {\n    checks.push({ check: 'Avg. Quality Score', status: '⚠️ N/A', points: 0, description: 'Quality Score not available (insufficient data)' });\n  }\n  \n  // Match Type Distribution (10 Points)\n  const exactMatch = keywords.filter(k => k.adGroupCriterion?.keyword?.matchType === 'EXACT');\n  const phraseMatch = keywords.filter(k => k.adGroupCriterion?.keyword?.matchType === 'PHRASE');\n  const broadMatch = keywords.filter(k => k.adGroupCriterion?.keyword?.matchType === 'BROAD');\n  \n  const exactPct = (exactMatch.length / keywords.length) * 100;\n  const broadPct = (broadMatch.length / keywords.length) * 100;\n  \n  if (exactPct >= 30 || broadPct <= 50) {\n    score += 10;\n    checks.push({ check: 'Match Type Distribution', status: '✅ PASS', points: 10, description: `Exact: ${Math.round(exactPct)}% | Phrase: ${Math.round((phraseMatch.length / keywords.length) * 100)}% | Broad: ${Math.round(broadPct)}%` });\n  } else {\n    score += 5;\n    checks.push({ check: 'Match Type Distribution', status: '⚠️ WARN', points: 5, description: `Too much Broad Match (${Math.round(broadPct)}%) - More Exact recommended` });\n  }\n  \n  // CTR Analysis (10 Points)\n  const keywordsWithClicks = keywords.filter(k => k.metrics?.clicks > 0);\n  const avgCTR = keywordsWithClicks.length > 0\n    ? keywordsWithClicks.reduce((acc, k) => {\n        const ctr = k.metrics.impressions > 0 ? (k.metrics.clicks / k.metrics.impressions) : 0;\n        return acc + ctr;\n      }, 0) / keywordsWithClicks.length\n    : 0;\n  \n  if (avgCTR >= 0.05) {\n    score += 10;\n    checks.push({ check: 'Avg. CTR', status: '✅ PASS', points: 10, description: `CTR: ${(avgCTR * 100).toFixed(2)}% - Above average` });\n  } else if (avgCTR >= 0.02) {\n    score += 6;\n    checks.push({ check: 'Avg. CTR', status: '⚠️ OK', points: 6, description: `CTR: ${(avgCTR * 100).toFixed(2)}% - Average` });\n  } else {\n    score += 3;\n    checks.push({ check: 'Avg. CTR', status: '❌ LOW', points: 3, description: `CTR: ${(avgCTR * 100).toFixed(2)}% - Optimize Ads` });\n  }\n  \n  return { category: 'Keywords & Quality Score', score, maxScore, checks, percentage: Math.round((score/maxScore)*100) };\n}\n\n// =====================================\n// 6. TARGETING AUDIT (25 Points)\n// =====================================\nfunction auditTargeting(geoData, adGroupData) {\n  const checks = [];\n  let score = 0;\n  let maxScore = 25;\n  \n  const geoTargets = safeGet(geoData, []).flatMap(r => r.results || [r]);\n  const adGroups = safeGet(adGroupData, []).flatMap(r => r.results || [r]);\n  \n  // Geo Targeting present (10 Points)\n  if (geoTargets.length > 0) {\n    score += 10;\n    const positiveGeos = geoTargets.filter(g => !g.campaignCriterion?.negative);\n    const negativeGeos = geoTargets.filter(g => g.campaignCriterion?.negative);\n    checks.push({ check: 'Geo Targeting', status: '✅ PASS', points: 10, description: `${positiveGeos.length} positive, ${negativeGeos.length} negative Geos` });\n  } else {\n    checks.push({ check: 'Geo Targeting', status: '❌ FAIL', points: 0, description: 'No Geo Targeting - Active worldwide!' });\n  }\n  \n  // Negative Geo Locations (5 Points)\n  const negativeGeos = geoTargets.filter(g => g.campaignCriterion?.negative);\n  if (negativeGeos.length > 0) {\n    score += 5;\n    checks.push({ check: 'Negative Locations', status: '✅ PASS', points: 5, description: `${negativeGeos.length} excluded regions` });\n  } else {\n    score += 2;\n    checks.push({ check: 'Negative Locations', status: '⚠️ INFO', points: 2, description: 'No negative locations - Check if useful' });\n  }\n  \n  // Optimized Targeting (10 Points)\n  const optimizedTargeting = adGroups.filter(ag => ag.adGroup?.optimizedTargetingEnabled === true);\n  const optimizedPct = adGroups.length > 0 ? (optimizedTargeting.length / adGroups.length) * 100 : 0;\n  \n  if (optimizedPct <= 20) {\n    score += 10;\n    checks.push({ check: 'Optimized Targeting', status: '✅ CONTROLLED', points: 10, description: 'Optimized Targeting mostly disabled (full control)' });\n  } else if (optimizedPct <= 50) {\n    score += 7;\n    checks.push({ check: 'Optimized Targeting', status: '⚠️ PARTIAL', points: 7, description: `${Math.round(optimizedPct)}% with Optimized Targeting - Review` });\n  } else {\n    score += 4;\n    checks.push({ check: 'Optimized Targeting', status: '⚠️ WARN', points: 4, description: `${Math.round(optimizedPct)}% use Optimized Targeting - May lead to wasted spend` });\n  }\n  \n  return { category: 'Targeting', score, maxScore, checks, percentage: Math.round((score/maxScore)*100) };\n}\n\n// =====================================\n// 7. BUDGET AUDIT (25 Points)\n// =====================================\nfunction auditBudgets(budgetData, campaignData) {\n  const checks = [];\n  let score = 0;\n  let maxScore = 25;\n  \n  const budgets = safeGet(budgetData, []).flatMap(r => r.results || [r]);\n  const campaigns = safeGet(campaignData, []).flatMap(r => r.results || [r]);\n  \n  if (budgets.length === 0) {\n    checks.push({ check: 'Budgets', status: '❌ FAIL', points: 0, description: 'No budget data found' });\n    return { category: 'Budgets', score, maxScore, checks, percentage: 0 };\n  }\n  \n  // Budget present (10 Points)\n  score += 10;\n  checks.push({ check: 'Budgets configured', status: '✅ PASS', points: 10, description: `${budgets.length} Budget(s) active` });\n  \n  // Recommended Budget Check (10 Points)\n  const underBudget = budgets.filter(b => \n    b.campaignBudget?.recommendedBudgetAmountMicros && \n    b.campaignBudget?.amountMicros < b.campaignBudget?.recommendedBudgetAmountMicros\n  );\n  \n  if (underBudget.length === 0) {\n    score += 10;\n    checks.push({ check: 'Budget Recommendations', status: '✅ PASS', points: 10, description: 'All campaigns have sufficient budget' });\n  } else {\n    score += 4;\n    checks.push({ check: 'Budget Recommendations', status: '⚠️ WARN', points: 4, description: `${underBudget.length} campaign(s) below recommended budget` });\n  }\n  \n  // Delivery Method (5 Points)\n  const standardDelivery = budgets.filter(b => b.campaignBudget?.deliveryMethod === 'STANDARD');\n  if (standardDelivery.length === budgets.length) {\n    score += 5;\n    checks.push({ check: 'Delivery Method', status: '✅ PASS', points: 5, description: 'All budgets on Standard Delivery' });\n  } else {\n    score += 3;\n    checks.push({ check: 'Delivery Method', status: '⚠️ INFO', points: 3, description: 'Some budgets use Accelerated Delivery' });\n  }\n  \n  return { category: 'Budgets', score, maxScore, checks, percentage: Math.round((score/maxScore)*100) };\n}\n\n// =====================================\n// RUN ALL AUDITS & CALCULATE FINAL SCORE\n// =====================================\n\nconst accountAudit = auditAccountSettings(allData.account);\nconst conversionAudit = auditConversionTracking(allData.conversions);\nconst campaignAudit = auditCampaignsBidding(allData.campaigns);\nconst adsAudit = auditAdsExtensions(allData.ads, allData.extensions);\nconst keywordAudit = auditKeywords(allData.keywords);\nconst targetingAudit = auditTargeting(allData.geoTargets, allData.adGroups);\nconst budgetAudit = auditBudgets(allData.budgets, allData.campaigns);\n\nconst allAudits = [accountAudit, conversionAudit, campaignAudit, adsAudit, keywordAudit, targetingAudit, budgetAudit];\n\nconst totalScore = allAudits.reduce((acc, a) => acc + a.score, 0);\nconst totalMaxScore = allAudits.reduce((acc, a) => acc + a.maxScore, 0);\nconst finalPercentage = Math.round((totalScore / totalMaxScore) * 100);\n\n// Determine grade\nlet grade, gradeDescription;\nif (finalPercentage >= 90) {\n  grade = 'A+';\n  gradeDescription = 'Excellent! The account is outstandingly optimized.';\n} else if (finalPercentage >= 80) {\n  grade = 'A';\n  gradeDescription = 'Very good! Only minor optimizations needed.';\n} else if (finalPercentage >= 70) {\n  grade = 'B';\n  gradeDescription = 'Good, but with room for improvement.';\n} else if (finalPercentage >= 60) {\n  grade = 'C';\n  gradeDescription = 'Average. Several areas should be optimized.';\n} else if (finalPercentage >= 50) {\n  grade = 'D';\n  gradeDescription = 'Below average. Significant optimizations required.';\n} else {\n  grade = 'F';\n  gradeDescription = 'Critical! Urgent account overhaul needed.';\n}\n\n// Flatten all checks for Google Sheets\nconst allChecks = [];\nallAudits.forEach(audit => {\n  audit.checks.forEach(check => {\n    allChecks.push({\n      category: audit.category,\n      categoryScore: `${audit.score}/${audit.maxScore} (${audit.percentage}%)`,\n      check: check.check,\n      status: check.status,\n      points: check.points,\n      description: check.description\n    });\n  });\n});\n\n// Summary row\nconst summary = {\n  totalScore,\n  totalMaxScore,\n  finalPercentage,\n  grade,\n  gradeDescription,\n  auditDate: new Date().toISOString(),\n  dataPointsAnalyzed: 200,\n  categoriesAudited: allAudits.length\n};\n\nreturn {\n  summary,\n  categoryScores: allAudits.map(a => ({\n    category: a.category,\n    score: a.score,\n    maxScore: a.maxScore,\n    percentage: a.percentage\n  })),\n  allChecks\n};"
+      },
+      "id": "7642420c-e77f-4e2e-ac2c-26c3ca43f3f8",
+      "name": "10. Audit Analysis (200+ Data Points)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Configuration').item.json.googleSheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Category Scores"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "472cf2c0-44e6-4663-8c20-52bf4474b557",
+      "name": "12. Category Scores → Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        912,
+        704
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "buR1footsgynMu5F",
+          "name": "Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Configuration').item.json.googleSheetId }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "All Checks"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData"
+        },
+        "options": {}
+      },
+      "id": "e36e9098-a407-4bf5-a26f-27216f6bd8ac",
+      "name": "13. All Checks → Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        912,
+        896
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "buR1footsgynMu5F",
+          "name": "Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract Category Scores for separate sheet\nconst data = $input.first().json;\nreturn data.categoryScores.map(cat => ({\n  json: {\n    Category: cat.category,\n    Score: cat.score,\n    'Max Score': cat.maxScore,\n    Percentage: `${cat.percentage}%`\n  }\n}));"
+      },
+      "id": "c5f32320-0760-493c-8806-303c31e8c0a6",
+      "name": "Split: Category Scores",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract all Checks for detailed sheet\nconst data = $input.first().json;\nreturn data.allChecks.map(check => ({\n  json: {\n    Category: check.category,\n    'Category Score': check.categoryScore,\n    Check: check.check,\n    Status: check.status,\n    Points: check.points,\n    Description: check.description\n  }\n}));"
+      },
+      "id": "0f21861a-99ec-45af-afe0-d72b32cb1d43",
+      "name": "Split: All Checks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "id": "76bc2582-9e69-49f8-83ea-6eac790ec1f9",
+      "name": "11. Summary → Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        688,
+        512
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "buR1footsgynMu5F",
+          "name": "Ubicuo"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        720
+      ],
+      "id": "23a3a138-3eb4-4245-bf3f-da9a3dffb272",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "numberInputs": 9
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        240,
+        576
+      ],
+      "id": "3037382e-9ebd-4db5-b9be-379fbb3bd94b",
+      "name": "Merge"
+    }
+  ],
+  "connections": {
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "1. Fetch Account Settings",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "2. Fetch Conversion Tracking",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "3. Fetch Campaigns & Bidding",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "4. Fetch Ad Groups & Targeting",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "5. Fetch Ads & Ad Strength",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "6. Fetch Assets/Extensions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "7. Fetch Keywords & Quality Score",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "8. Fetch Geo Targeting",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "9. Fetch Budgets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Fetch Account Settings": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Fetch Conversion Tracking": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "3. Fetch Campaigns & Bidding": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "4. Fetch Ad Groups & Targeting": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "5. Fetch Ads & Ad Strength": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "6. Fetch Assets/Extensions": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "7. Fetch Keywords & Quality Score": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "8. Fetch Geo Targeting": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 7
+          }
+        ]
+      ]
+    },
+    "9. Fetch Budgets": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 8
+          }
+        ]
+      ]
+    },
+    "10. Audit Analysis (200+ Data Points)": {
+      "main": [
+        [
+          {
+            "node": "11. Summary → Google Sheets1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split: Category Scores",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split: All Checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: Category Scores": {
+      "main": [
+        [
+          {
+            "node": "12. Category Scores → Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: All Checks": {
+      "main": [
+        [
+          {
+            "node": "13. All Checks → Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "10. Audit Analysis (200+ Data Points)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "e536f6ab-539d-45fb-ac1a-43c16657b71d",
+  "activeVersionId": null,
+  "versionCounter": 8,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-03-08T09:13:49.651Z",
+      "createdAt": "2026-03-08T09:13:49.651Z",
+      "role": "workflow:owner",
+      "workflowId": "ENCqMIP3ctM2b8fuT7AK6",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
+}

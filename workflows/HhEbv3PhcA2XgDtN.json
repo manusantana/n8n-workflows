@@ -175,11 +175,6 @@
               "keyValue": "\"\""
             },
             {
-              "keyName": "created_at",
-              "condition": "gte",
-              "keyValue": "={{ DateTime.now().setZone('Europe/Madrid').minus({ days: 1 }).toFormat('yyyy-LL-dd') }}"
-            },
-            {
               "keyName": "estado",
               "condition": "neq",
               "keyValue": "published_LK"

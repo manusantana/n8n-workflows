@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-02T17:16:07.326Z",
+  "updatedAt": "2026-03-08T08:12:07.590Z",
   "createdAt": "2025-05-10T18:03:30.217Z",
   "id": "B77e07wILeu7fqe3",
   "name": "Chat-manusantana.com",
@@ -43,7 +43,7 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        0,
+        -96,
         80
       ],
       "id": "6073f1db-25ef-4b24-bf4e-6e8f12567c90",
@@ -113,9 +113,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "db4e3f7a-d6ce-406b-8741-fc24b2e2960f",
-  "activeVersionId": "db4e3f7a-d6ce-406b-8741-fc24b2e2960f",
-  "versionCounter": 13,
+  "versionId": "5f76f67e-1d21-47d8-8339-428d15dd891e",
+  "activeVersionId": "5f76f67e-1d21-47d8-8339-428d15dd891e",
+  "versionCounter": 16,
   "triggerCount": 1,
   "tags": [],
   "shared": [
