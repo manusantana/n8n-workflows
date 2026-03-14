@@ -894,53 +894,6 @@
     },
     {
       "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "57c7f3d3-821d-45a6-87ad-9f58234b8a7d",
-              "name": "choice",
-              "value": 4,
-              "type": "number"
-            },
-            {
-              "id": "3e7485c9-49ad-4866-b1df-a23e1a975023",
-              "name": "telegram_user_id",
-              "value": "7284267714",
-              "type": "string"
-            },
-            {
-              "id": "e55dd0ea-f29f-471a-b5ae-ca191a856ab6",
-              "name": "telegram_chat_id",
-              "value": "7284267714",
-              "type": "string"
-            },
-            {
-              "id": "74fa7ee7-8349-4049-a13a-c9af4079a446",
-              "name": "selected_text",
-              "value": "5",
-              "type": "string"
-            },
-            {
-              "id": "a9b4572d-7f94-4fdd-bb1d-763c6d222d6a",
-              "name": "fecha_digest",
-              "value": "2026-02-22",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -656,
-        928
-      ],
-      "id": "e7925679-6c48-48cc-8eb1-f7b6871dd0bd",
-      "name": "Edit Fields1"
-    },
-    {
-      "parameters": {
         "operation": "update",
         "tableId": "content_topics",
         "matchType": "allFilters",
@@ -995,7 +948,7 @@
       "main": [
         [
           {
-            "node": "Edit Fields1",
+            "node": "Get many rows1",
             "type": "main",
             "index": 0
           }
@@ -1322,17 +1275,6 @@
         [
           {
             "node": "Create a row1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields1": {
-      "main": [
-        [
-          {
-            "node": "Get many rows1",
             "type": "main",
             "index": 0
           }
