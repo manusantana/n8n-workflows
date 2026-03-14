@@ -330,26 +330,10 @@
       "parameters": {
         "operation": "getAll",
         "tableId": "content_topics",
+        "returnAll": false,
         "limit": 1,
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "estado",
-              "condition": "eq",
-              "keyValue": "discovered"
-            },
-            {
-              "keyName": "rank_dia",
-              "condition": "eq",
-              "keyValue": "={{$json.choice}}"
-            },
-            {
-              "keyName": "fecha_digest",
-              "condition": "eq",
-              "keyValue": "={{$json.fecha_digest}}"
-            }
-          ]
-        }
+        "filterType": "string",
+        "filterString": "={{ 'estado=eq.discovered&rank_dia=eq.' + $json.choice + '&order=fecha_digest.desc' }}"
       },
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
@@ -828,26 +812,10 @@
       "parameters": {
         "operation": "getAll",
         "tableId": "content_topics",
+        "returnAll": false,
         "limit": 1,
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "estado",
-              "condition": "eq",
-              "keyValue": "discovered"
-            },
-            {
-              "keyName": "rank_dia",
-              "condition": "eq",
-              "keyValue": "={{$json.choice}}"
-            },
-            {
-              "keyName": "fecha_digest",
-              "condition": "eq",
-              "keyValue": "={{$json.fecha_digest}}"
-            }
-          ]
-        }
+        "filterType": "string",
+        "filterString": "={{ 'estado=eq.discovered&rank_dia=eq.' + $json.choice + '&order=fecha_digest.desc' }}"
       },
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
