@@ -815,7 +815,7 @@
         "returnAll": false,
         "limit": 1,
         "filterType": "string",
-        "filterString": "={{ 'estado=eq.discovered&rank_dia=eq.' + $json.choice + '&order=fecha_digest.desc' }}"
+        "filterString": "={{ 'rank_dia=eq.' + $json.choice + '&order=fecha_digest.desc' }}"
       },
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
