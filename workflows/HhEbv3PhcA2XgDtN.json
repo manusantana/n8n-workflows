@@ -161,26 +161,8 @@
         "operation": "getAll",
         "tableId": "content_topics",
         "limit": 1,
-        "matchType": "allFilters",
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "estado",
-              "condition": "eq",
-              "keyValue": "published"
-            },
-            {
-              "keyName": "imagen",
-              "condition": "neq",
-              "keyValue": "\"\""
-            },
-            {
-              "keyName": "estado",
-              "condition": "neq",
-              "keyValue": "published_LK"
-            }
-          ]
-        }
+        "filterType": "string",
+        "filterString": "estado=eq.published&imagen=neq.\"\"&order=fecha_digest.desc"
       },
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
