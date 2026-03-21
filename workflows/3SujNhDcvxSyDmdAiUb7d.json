@@ -118,7 +118,7 @@
         "messages": {
           "values": [
             {
-              "content": "=Analiza esta noticia o contenido y devuelve SOLO un JSON válido.\n\nTítulo: {{ $json.title }}\nResumen: {{ $json.content }}\nURL: {{ $json.link }}\n\nEvalúa estratégicamente para una marca personal experta en:\n- IA aplicada a negocio\n- Automatización\n- Marketing B2B\n- Ecommerce\n- Producto SaaS\n\nDevuelve este JSON exacto:\n\n{\n  \"tipo_contenido\": \"authority | product | hybrid | evergreen\",\n  \"prioridad\": 1-5,\n  \"potencial_linkedin\": 0-100,\n  \"potencial_seo\": 0-100,\n  \"potencial_nexprix\": 0-100,\n  \"riesgo_reputacional\": \"bajo | medio | alto\",\n  \"angulo_recomendado\": \"string breve\"\n}\n\nNo devuelvas texto adicional.\nSolo JSON.\n"
+              "content": "=Analiza esta noticia o contenido y devuelve SOLO un JSON válido.\n\nTítulo: {{ $json.title }}\nResumen: {{ $json.content }}\nURL: {{ $json.link }}\n\nEvalúa estratégicamente para una marca personal experta en:\n- IA aplicada a negocio\n- Automatización\n- Marketing B2B\n- Ecommerce\n- Producto SaaS\n\nDevuelve este JSON exacto:\n\n{\n  \"tipo_contenido\": \"authority | product | hybrid | evergreen\",\n  \"prioridad\": 1-5,\n  \"potencial_linkedin\": 0-100,\n  \"potencial_seo\": 0-100,\n  \"potencial_nexprix\": 0-100,\n  \"riesgo_reputacional\": \"bajo | medio | alto\",\n  \"angulo_recomendado\": \"string breve — ángulo específico y variado: puede ser tech implication, human/team angle, market shift, product use case, counterintuitive insight, etc. NO siempre B2B genérico ni automatización\"\n}\n\nNo devuelvas texto adicional.\nSolo JSON.\n"
             }
           ]
         },
@@ -557,7 +557,7 @@
         "messages": {
           "values": [
             {
-              "content": "=Actúa como Manu Santana, experto en Revenue Architecture, automatización y crecimiento B2B.\n\nNo eres periodista.\nNo resumes la noticia completa.\nNo repites titulares.\nNo redactas un post largo.\nNo haces eco de comunicados corporativos.\n\nTu trabajo es convertir esta noticia en un resumen estratégico breve y accionable para decidir si merece publicarse hoy.\n\nDatos de entrada:\nTítulo: {{ $json.original_title }}\nResumen: {{ $json.original_summary }}\nÁngulo estratégico sugerido: {{ $json.angulo_recomendado }}\nTipo de contenido: {{ $json.tipo_contenido }}\n\nInstrucciones:\n\n- Escribe en español.\n- Máximo 70 palabras (ideal: 45-60).\n- 2-3 frases cortas.\n- No copies el titular literal.\n- No uses tono hype ni académico.\n- Enfoca solo en impacto real de negocio B2B:\n  • eficiencia operativa\n  • automatización\n  • CAC / LTV\n  • alineación Marketing-Ventas\n  • escalabilidad SaaS/B2B\n- Puede incluir 1 pregunta retórica breve si aporta claridad.\n- No incluyas hashtags.\n- No incluyas CTA comercial.\n- No menciones manusantana.com ni nexprix.com.\n- Sin introducciones tipo “en esta noticia”.\n- Evita relleno y adjetivos vacíos.\n\nDevuelve solo el resumen final, limpio, en un único párrafo.\n"
+              "content": "=Actúa como Manu Santana, experto en Revenue Architecture, automatización y crecimiento B2B.\n\nNo eres periodista.\nNo resumes la noticia completa.\nNo repites titulares.\nNo redactas un post largo.\nNo haces eco de comunicados corporativos.\n\nTu trabajo es convertir esta noticia en un resumen estratégico breve y accionable para decidir si merece publicarse hoy.\n\nDatos de entrada:\nTítulo: {{ $json.original_title }}\nResumen: {{ $json.original_summary }}\nÁngulo estratégico sugerido: {{ $json.angulo_recomendado }}\nTipo de contenido: {{ $json.tipo_contenido }}\n\nInstrucciones:\n\n- Escribe en español.\n- Máximo 70 palabras (ideal: 45-60).\n- 2-3 frases cortas.\n- No copies el titular literal.\n- No uses tono hype ni académico.\n- Enfoca en el impacto real del tema específico: si es tecnología habla de implicaciones técnicas, si es personas/equipos habla del ángulo humano, si es tendencia de mercado habla del cambio estratégico, si es producto habla del caso de uso concreto. NO fuerces siempre los mismos levers B2B (CAC, LTV, automatización).\n- Puede incluir 1 pregunta retórica breve si aporta claridad.\n- No incluyas hashtags.\n- No incluyas CTA comercial.\n- No menciones manusantana.com ni nexprix.com.\n- Sin introducciones tipo “en esta noticia”.\n- Evita relleno y adjetivos vacíos.\n\nDevuelve solo el resumen final, limpio, en un único párrafo.\n"
             }
           ]
         },
@@ -585,7 +585,7 @@
     },
     {
       "parameters": {
-        "jsCode": "function escapeMarkdownV2(value = \"\") {\n  return String(value).replace(/[_*[\\]()~`>#+\\-=|{}.!]/g, \"\\\\$&\");\n}\n\n// Soporta 3 casos: data[], rows[] o items directos\nlet items = [];\nif (Array.isArray($json.data)) items = $json.data;\nelse if (Array.isArray($json.rows)) items = $json.rows;\nelse items = $input.all().map(i => i.json);\n\nitems = items.slice(0, 5);\n\nconst lines = [\"🧠 *Top 5 oportunidades estratégicas de hoy:*\", \"\"];\n\nitems.forEach((item, i) => {\n  const rank = item.rank_dia || i + 1;\n  const title = escapeMarkdownV2(item.original_title || \"Contenido estratégico propio\");\n  const summary = escapeMarkdownV2(item.original_summary || \"\");\n  const url = item.original_url ? escapeMarkdownV2(item.original_url) : \"\";\n\n  const li = escapeMarkdownV2(item.potencial_linkedin ?? \"N/D\");\n  const seo = escapeMarkdownV2(item.potencial_seo ?? \"N/D\");\n  const nx = escapeMarkdownV2(item.potencial_nexprix ?? \"N/D\");\n  const risk = escapeMarkdownV2(item.riesgo_reputacional ?? \"N/D\");\n\n  lines.push(`${rank}️⃣ *${title}*`);\n  if (summary) lines.push(summary);\n  lines.push(`📊 LI ${li} • SEO ${seo} • NExprix ${nx}`);\n  lines.push(`⚠️ Riesgo reputacional: ${risk}`);\n  if (url) lines.push(`🔗 ${url}`);\n  lines.push(\"\");\n});\n\nlines.push(\"👉 Responde con un número \\\\(1\\\\-5\\\\)\");\n\nreturn [{ json: { telegram_message: lines.join(\"\\n\") } }];\n"
+        "jsCode": "function escapeMarkdownV2(value = \"\") {\n  return String(value).replace(/[_*[\\]()~`>#+\\-=|{}.!]/g, \"\\\\$&\");\n}\n\n// Soporta 3 casos: data[], rows[] o items directos\nlet items = [];\nif (Array.isArray($json.data)) items = $json.data;\nelse if (Array.isArray($json.rows)) items = $json.rows;\nelse items = $input.all().map(i => i.json);\n\nitems = items.slice(0, 5);\n\nconst lines = [\"ð§  *Top 5 oportunidades estratégicas de hoy:*\", \"\"];\n\nitems.forEach((item, i) => {\n  const rank = item.rank_dia || i + 1;\n  const title = escapeMarkdownV2(item.original_title || \"Contenido estratégico propio\");\n  const summary = escapeMarkdownV2(item.original_summary || \"\");\n  const url = item.original_url ? escapeMarkdownV2(item.original_url) : \"\";\n\n  const li = escapeMarkdownV2(item.potencial_linkedin ?? \"N/D\");\n  const seo = escapeMarkdownV2(item.potencial_seo ?? \"N/D\");\n  const nx = escapeMarkdownV2(item.potencial_nexprix ?? \"N/D\");\n  const risk = escapeMarkdownV2(item.riesgo_reputacional ?? \"N/D\");\n\n  lines.push(`${rank}️⃣ *${title}*`);\n  if (summary) lines.push(summary);\n  lines.push(`ð LI ${li} • SEO ${seo} • NExprix ${nx}`);\n  lines.push(`⚠️ Riesgo reputacional: ${risk}`);\n  if (url) lines.push(`ð ${url}`);\n  lines.push(\"\");\n});\n\nlines.push(\"ð Responde con un número \\\\(1\\\\-5\\\\)\");\n\nreturn [{ json: { telegram_message: lines.join(\"\\n\") } }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -962,9 +962,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "6c0830e1-61a2-44dc-a192-8daa22ce8d5f",
-  "activeVersionId": "a20c7b5d-cc43-41fe-96bb-c5a58cb01d07",
-  "versionCounter": 119,
+  "versionId": "95316918-e60b-4dfc-a890-3e0ebb41098b",
+  "activeVersionId": "95316918-e60b-4dfc-a890-3e0ebb41098b",
+  "versionCounter": 121,
   "triggerCount": 1,
   "tags": [
     {
