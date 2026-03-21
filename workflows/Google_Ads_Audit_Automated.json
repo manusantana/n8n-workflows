@@ -1,5 +1,11 @@
 {
+  "updatedAt": "2026-03-20T17:32:58.240Z",
+  "createdAt": "2026-03-14T09:19:48.599Z",
+  "id": "AS9sUGBGxHAZsOvv",
   "name": "Automated Google Ads audit workflow",
+  "description": null,
+  "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -38,7 +44,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -432,
+        -576,
         992
       ]
     },
@@ -376,7 +382,7 @@
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "XmFZD7HFifl0LPjD",
+          "id": "l2xD3QINvvmbY8nJ",
           "name": "Google Sheets account"
         }
       }
@@ -409,7 +415,7 @@
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "XmFZD7HFifl0LPjD",
+          "id": "l2xD3QINvvmbY8nJ",
           "name": "Google Sheets account"
         }
       }
@@ -477,13 +483,12 @@
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "XmFZD7HFifl0LPjD",
+          "id": "l2xD3QINvvmbY8nJ",
           "name": "Google Sheets account"
         }
       }
     }
   ],
-  "pinData": {},
   "connections": {
     "Configuration": {
       "main": [
@@ -679,15 +684,37 @@
       ]
     }
   },
-  "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "240c72b4-2403-4232-a5a4-3aa6dec99a3d",
+  "staticData": null,
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "833427c1d7e703af5a0a02a778e9879b8f309bbd94e65e71da78504883dc3498"
   },
-  "id": "AS9sUGBGxHAZsOvv",
-  "tags": []
+  "pinData": {},
+  "versionId": "1578541d-27e6-41d3-931b-beccead6b1e6",
+  "activeVersionId": null,
+  "versionCounter": 7,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-03-14T09:19:48.604Z",
+      "createdAt": "2026-03-14T09:19:48.604Z",
+      "role": "workflow:owner",
+      "workflowId": "AS9sUGBGxHAZsOvv",
+      "projectId": "zZvuPL6pwZZ6dEqo",
+      "project": {
+        "updatedAt": "2025-05-02T20:26:00.569Z",
+        "createdAt": "2025-05-02T20:12:42.968Z",
+        "id": "zZvuPL6pwZZ6dEqo",
+        "name": "Manu Santana <manu@manusantana.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+      }
+    }
+  ]
 }
