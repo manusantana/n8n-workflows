@@ -54,6 +54,10 @@
             {
               "name": "developer-token",
               "value": "={{ $json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
@@ -93,6 +97,10 @@
             {
               "name": "developer-token",
               "value": "={{ $('Configuration1').item.json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
@@ -128,6 +136,10 @@
             {
               "name": "developer-token",
               "value": "={{ $('Configuration1').item.json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
@@ -163,6 +175,10 @@
             {
               "name": "developer-token",
               "value": "={{ $('Configuration1').item.json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
@@ -198,6 +214,10 @@
             {
               "name": "developer-token",
               "value": "={{ $('Configuration1').item.json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
@@ -233,6 +253,10 @@
             {
               "name": "developer-token",
               "value": "={{ $('Configuration1').item.json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
@@ -268,6 +292,10 @@
             {
               "name": "developer-token",
               "value": "={{ $('Configuration1').item.json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
@@ -303,6 +331,10 @@
             {
               "name": "developer-token",
               "value": "={{ $('Configuration1').item.json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
@@ -338,6 +370,10 @@
             {
               "name": "developer-token",
               "value": "={{ $('Configuration1').item.json.developerToken }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
             }
           ]
         },
