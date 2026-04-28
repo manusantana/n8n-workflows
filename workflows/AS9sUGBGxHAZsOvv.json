@@ -45,7 +45,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
@@ -84,7 +84,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
@@ -119,7 +119,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
@@ -154,7 +154,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
@@ -189,7 +189,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
@@ -224,7 +224,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
@@ -259,7 +259,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
@@ -294,7 +294,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
@@ -329,7 +329,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://googleads.googleapis.com/v21/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
