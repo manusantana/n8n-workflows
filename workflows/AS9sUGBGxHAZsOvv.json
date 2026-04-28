@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-03-21T13:10:26.027Z",
+  "updatedAt": "2026-04-28T17:56:36.417Z",
   "createdAt": "2026-03-14T09:19:48.599Z",
   "id": "AS9sUGBGxHAZsOvv",
   "name": "Automated Google Ads audit workflow (Supabase update)",
   "description": null,
-  "active": true,
+  "active": false,
   "isArchived": false,
   "nodes": [
     {
@@ -72,8 +72,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         },
         "googleOAuth2Api": {
           "id": "tmiXw6YZ1jx2pNHM",
@@ -111,8 +111,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         }
       }
     },
@@ -146,8 +146,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         }
       }
     },
@@ -181,8 +181,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         }
       }
     },
@@ -216,8 +216,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         }
       }
     },
@@ -251,8 +251,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         }
       }
     },
@@ -286,8 +286,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         }
       }
     },
@@ -321,8 +321,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         }
       }
     },
@@ -356,8 +356,8 @@
       ],
       "credentials": {
         "googleAdsOAuth2Api": {
-          "id": "WpMiTNI80ysJQ3YW",
-          "name": "Google Ads-Ubicuo"
+          "id": "kfvrpjMHNR6ApeeZ",
+          "name": "GAds-Audit"
         }
       }
     },
@@ -398,7 +398,7 @@
       "typeVersion": 2.1,
       "position": [
         -1648,
-        544
+        528
       ],
       "id": "5ecc1ff9-d8fa-40a1-8fce-b1aaa0121e60",
       "name": "Webhook",
@@ -413,18 +413,7 @@
     {
       "parameters": {
         "operation": "update",
-        "tableId": "google_ads_audits",
-        "filterType": "manual",
-        "matchType": "allFilters",
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "id",
-              "condition": "eq",
-              "keyValue": "={{ $('Webhook').item.json.body.audit_id }}"
-            }
-          ]
-        },
+        "tableId": "=google_ads_audits",
         "fieldsUi": {
           "fieldValues": [
             {
@@ -446,10 +435,6 @@
             {
               "fieldId": "audit_data",
               "fieldValue": "={{ JSON.stringify($json) }}"
-            },
-            {
-              "fieldId": "status",
-              "fieldValue": "completed"
             }
           ]
         }
@@ -457,15 +442,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        48,
+        -32,
         512
       ],
       "id": "4d8b8191-c562-4db0-80e8-1faab3f04df1",
       "name": "Update a row",
       "credentials": {
         "supabaseApi": {
-          "id": "fmPJVsKtTmFhDHlL",
-          "name": "Supabase Staging"
+          "id": "BezW2QJgP7KTPVwC",
+          "name": "Nexprix-PRO-OK"
         }
       }
     }
@@ -653,15 +638,11 @@
           }
         ]
       ]
-    },
-    "Update a row": {
-      "main": [
-        []
-      ]
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
   "staticData": null,
   "meta": {
@@ -669,28 +650,39 @@
     "instanceId": "833427c1d7e703af5a0a02a778e9879b8f309bbd94e65e71da78504883dc3498"
   },
   "pinData": {},
-  "versionId": "cf1fd496-707a-447e-852c-17a5e448ac7a",
-  "activeVersionId": "d060f5bd-b334-4075-8f02-15a3dfd98d69",
-  "versionCounter": 32,
+  "versionId": "5fc580f6-61c2-4302-a493-2472fbffbd33",
+  "activeVersionId": null,
+  "versionCounter": 50,
   "triggerCount": 1,
-  "tags": [],
+  "tags": [
+    {
+      "updatedAt": "2026-04-28T16:54:21.985Z",
+      "createdAt": "2026-04-28T16:54:21.985Z",
+      "id": "wknEGYDX2EYUVBMZ",
+      "name": "GAds"
+    }
+  ],
   "shared": [
     {
-      "updatedAt": "2026-03-14T09:19:48.604Z",
-      "createdAt": "2026-03-14T09:19:48.604Z",
+      "updatedAt": "2026-04-05T04:35:49.872Z",
+      "createdAt": "2026-04-05T04:35:49.872Z",
       "role": "workflow:owner",
       "workflowId": "AS9sUGBGxHAZsOvv",
-      "projectId": "zZvuPL6pwZZ6dEqo",
+      "projectId": "KhRGNVED5h8R0QcD",
       "project": {
-        "updatedAt": "2025-05-02T20:26:00.569Z",
-        "createdAt": "2025-05-02T20:12:42.968Z",
-        "id": "zZvuPL6pwZZ6dEqo",
+        "updatedAt": "2026-04-05T05:00:18.572Z",
+        "createdAt": "2026-04-05T04:02:33.687Z",
+        "id": "KhRGNVED5h8R0QcD",
         "name": "Manu Santana <manu@manusantana.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "10bbcf7f-c97f-4824-970e-ee7b9736352b"
+        "creatorId": "da2ce7b8-58e4-4200-9f1a-9aadf06e4fcd"
       }
     }
-  ]
+  ],
+  "versionMetadata": {
+    "name": null,
+    "description": null
+  }
 }
