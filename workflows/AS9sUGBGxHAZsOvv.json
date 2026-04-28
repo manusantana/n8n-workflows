@@ -414,6 +414,17 @@
       "parameters": {
         "operation": "update",
         "tableId": "google_ads_audits",
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.audit_id }}"
+            }
+          ]
+        },
         "fieldsUi": {
           "fieldValues": [
             {
@@ -435,6 +446,10 @@
             {
               "fieldId": "audit_data",
               "fieldValue": "={{ JSON.stringify($json) }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "completed"
             }
           ]
         }
