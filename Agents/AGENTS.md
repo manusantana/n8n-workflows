@@ -50,7 +50,7 @@ When asked to create a workflow, provide the **JSON** code block ready to be pas
 
 ---
 
-## 5. GOOGLE ADS AUDIT WORKFLOW — Estado y contexto (2026-04-28)
+## 5. GOOGLE ADS AUDIT WORKFLOW — Estado y contexto (actualizado 2026-04-29)
 
 ### Archivo
 `workflows/AS9sUGBGxHAZsOvv.json` — "Automated Google Ads audit workflow (Supabase update)"
@@ -58,7 +58,7 @@ When asked to create a workflow, provide the **JSON** code block ready to be pas
 ### Flujo
 ```
 Webhook POST /google-ads-audit (Header Auth: X-Webhook-Secret)
-  → Configuration (extrae customerId + managerCustomerId del body)
+  → Configuration (extrae customerId + accessToken del body)
   → [9 HTTP requests paralelos a Google Ads API v22]
   → Merge
   → Code: Audit Analysis (200+ data points)
@@ -70,7 +70,6 @@ Webhook POST /google-ads-audit (Header Auth: X-Webhook-Secret)
 | Credencial | ID n8n | Tipo |
 |---|---|---|
 | google-ads-audit-webhook-auth | — | Header Auth (`X-Webhook-Secret: nexprix-gads-2026`) |
-| GAds-NEW (o GAds-Audit) | `kfvrpjMHNR6ApeeZ` | Google Ads OAuth2 API |
 | Supabase nexprix.com | — | Supabase API (configurar en nodo "Update a row") |
 
 ### Google Cloud OAuth client
@@ -81,57 +80,50 @@ Webhook POST /google-ads-audit (Header Auth: X-Webhook-Secret)
 - Redirect URI autorizada: `https://n8n.manusantana.com/rest/oauth2-credential/callback`
 - Developer Token Google Ads (hardcoded en Config node): `5U-ttcbe95fp-i4i4kyozQ`
 
-### Webhook body esperado
+### Webhook body esperado desde nexprix.com
 ```json
 {
   "google_ads_customer_id": "5743850460",
-  "google_ads_manager_id": "3206796303",
-  "audit_id": "uuid-de-la-fila-en-supabase"
+  "audit_id": "uuid-de-la-fila-en-supabase",
+  "access_token": "ya29.token-oauth-google-ads-del-usuario"
 }
 ```
 
-### Error activo al 2026-04-28 — PENDIENTE RESOLVER
-**Error:** `USER_PERMISSION_DENIED` en nodo "1. Fetch Account Settings1"
-```
-"User doesn't have permission to access customer. 
-Note: If you're accessing a client customer, the manager's customer id 
-must be set in the 'login-customer-id' header."
-```
+### Cambio aplicado el 2026-04-29
+El flujo con credencial propia de n8n (`GAds-NEW`, `kfvrpjMHNR6ApeeZ`) se abandonó
+porque depende de permisos MCC y fallaba con `USER_PERMISSION_DENIED` para cuentas
+que no cuelgan de ese manager.
 
-**Causa probable:** Cuando n8n usa `predefinedCredentialType: googleAdsOAuth2Api`,
-gestiona los headers de autenticación internamente y puede ignorar o sobrescribir
-el header `login-customer-id` que añadimos en `headerParameters`.
+Ahora los 9 nodos HTTP Request:
+- No usan `predefinedCredentialType: googleAdsOAuth2Api`
+- No tienen credenciales Google Ads configuradas en n8n
+- Envían headers explícitos:
+  - `developer-token: {{ $json.developerToken }}`
+  - `Authorization: Bearer {{ $json.accessToken }}`
 
-### Solución propuesta para mañana (probar en orden)
+Esto permite que n8n audite usando el OAuth que el usuario ya conectó en nexprix.com,
+sin duplicar integración ni crear otra pantalla de conexión.
 
-**Opción 1 — Quick test (5 min):**
-Verificar que el curl incluye `manager_id` correcto y que n8n refleja el header.
-El curl de test debe ser:
+### Curl de prueba de forma
+El webhook publicado responde `{"message":"Workflow was started"}` si recibe la forma
+correcta. Con token falso la ejecución fallará en Google Ads, pero sirve para validar
+que el workflow ya no depende de credenciales internas de n8n:
 ```bash
-curl -X POST https://n8n.manusantana.com/webhook-test/google-ads-audit \
+curl -X POST https://n8n.manusantana.com/webhook/google-ads-audit \
   -H "Content-Type: application/json" \
   -H "X-Webhook-Secret: nexprix-gads-2026" \
   -d '{
     "google_ads_customer_id": "5743850460",
-    "google_ads_manager_id": "3206796303",
-    "audit_id": "00000000-0000-0000-0000-000000000001"
+    "audit_id": "00000000-0000-0000-0000-000000000001",
+    "access_token": "fake-token-for-shape-test"
   }'
 ```
-Confirmar en el nodo que `login-customer-id` vale `3206796303` (no vacío).
 
-**Opción 2 — Cambiar autenticación a genérica (si Opción 1 falla):**
-Cambiar los 9 nodos de `predefinedCredentialType: googleAdsOAuth2Api` a
-`genericCredentialType: oAuth2Api` con control manual de headers:
-- `Authorization: Bearer {{ access_token }}`
-- `developer-token: 5U-ttcbe95fp-i4i4kyozQ`
-- `login-customer-id: {{ managerCustomerId }}`
-
-Esto da control total sobre los headers que Google Ads API requiere.
-
-**Opción 3 — Usar token del usuario desde Supabase:**
-La app nexprix.com ya guarda el `access_token` de Google Ads del usuario en Supabase.
-Pasarlo en el webhook body y usarlo directamente en los nodos HTTP.
-Más flexible: funciona para cualquier usuario sin depender de las credenciales de Nexprix.
+### Pendiente en nexprix.com
+La app debe pasar a n8n un `access_token` válido de Google Ads generado por la
+integración OAuth existente. No duplicar OAuth, no crear otra pantalla de conexión y
+no guardar tokens nuevos si no hace falta. Solo hacer handoff al webhook cuando el
+usuario pulsa "Lanzar auditoría".
 
 ### Página en nexprix.com
 `/google-ads-audit` — ya construida y funcional (Google Ads selector + histórico + polling).
