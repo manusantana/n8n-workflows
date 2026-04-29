@@ -4,7 +4,7 @@
   "id": "AS9sUGBGxHAZsOvv",
   "name": "Automated Google Ads audit workflow (Supabase update)",
   "description": null,
-  "active": false,
+  "active": true,
   "isArchived": false,
   "nodes": [
     {
@@ -28,6 +28,12 @@
               "name": "=managerCustomerId",
               "value": "={{ String($node[\"Webhook\"].json[\"body\"][\"google_ads_manager_id\"] || \"\").replace(/\\D/g, \"\") }}",
               "type": "string"
+            },
+            {
+              "id": "f5f51fc1-7e5a-48ee-b6e6-9afebc63f2c4",
+              "name": "=accessToken",
+              "value": "={{ $node[\"Webhook\"].json[\"body\"][\"access_token\"] || \"\" }}",
+              "type": "string"
             }
           ]
         },
@@ -46,8 +52,6 @@
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -56,8 +60,8 @@
               "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -73,34 +77,22 @@
       "position": [
         -768,
         -272
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        },
-        "googleOAuth2Api": {
-          "id": "tmiXw6YZ1jx2pNHM",
-          "name": "Google account-Ubicuo"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "developer-token",
-              "value": "={{ $('Configuration1').item.json.developerToken }}"
+              "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -116,30 +108,22 @@
       "position": [
         -768,
         -80
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "developer-token",
-              "value": "={{ $('Configuration1').item.json.developerToken }}"
+              "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -155,30 +139,22 @@
       "position": [
         -768,
         112
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "developer-token",
-              "value": "={{ $('Configuration1').item.json.developerToken }}"
+              "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -194,30 +170,22 @@
       "position": [
         -768,
         304
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "developer-token",
-              "value": "={{ $('Configuration1').item.json.developerToken }}"
+              "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -233,30 +201,22 @@
       "position": [
         -768,
         496
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "developer-token",
-              "value": "={{ $('Configuration1').item.json.developerToken }}"
+              "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -272,30 +232,22 @@
       "position": [
         -768,
         688
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "developer-token",
-              "value": "={{ $('Configuration1').item.json.developerToken }}"
+              "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -311,30 +263,22 @@
       "position": [
         -768,
         880
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "developer-token",
-              "value": "={{ $('Configuration1').item.json.developerToken }}"
+              "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -350,30 +294,22 @@
       "position": [
         -768,
         1072
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        }
-      }
+      ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://googleads.googleapis.com/v22/customers/{{ $('Configuration1').item.json.customerId.replace(/-/g, '') }}/googleAds:searchStream",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googleAdsOAuth2Api",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "developer-token",
-              "value": "={{ $('Configuration1').item.json.developerToken }}"
+              "value": "={{ $json.developerToken }}"
             },
             {
-              "name": "login-customer-id",
-              "value": "={{ $('Configuration1').item.json.managerCustomerId }}"
+              "name": "Authorization",
+              "value": "={{ \"Bearer \" + $json.accessToken }}"
             }
           ]
         },
@@ -389,13 +325,7 @@
       "position": [
         -768,
         1264
-      ],
-      "credentials": {
-        "googleAdsOAuth2Api": {
-          "id": "kfvrpjMHNR6ApeeZ",
-          "name": "GAds-Audit"
-        }
-      }
+      ]
     },
     {
       "parameters": {
